@@ -84,10 +84,11 @@ each sandbox's `*Config.ts`.
 
 Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22:
 
-- `npm test` — 32 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
-  and 6 for the Inquiry Log core.
+- `npm test` — 39 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
+  6 for the Inquiry Log core and 7 for the Inquiry Log panel.
 - `npm run build` — TypeScript and production build, zero errors.
-- `npm run check:bundle` — payload budget (~313 kB gzip total today, largest chunk capped).
+- `npm run check:bundle` — payload budget: ~322 kB gzip total against a 322.3 kB budget, largest chunk
+  180.7 kB against a 180.7 kB cap — passing with no headroom left.
 
 ## Docs
 
