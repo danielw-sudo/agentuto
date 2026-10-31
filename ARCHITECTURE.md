@@ -184,9 +184,10 @@ CREATE TABLE IF NOT EXISTS sandboxes (
 ## 6. Zero-Friction Deployment & Gemini AI Integration
 
 ### 6.1 Deployment Tiers
-* **Local (current):** Run with `npm run dev` (see `docs/USER_GUIDE.md` §1.1). No public deployment is published by the project.
-* **PWA (built, not yet hosted):** The service worker and manifest let a hosted build be installed and used offline in Chrome/Edge/Safari.
-* **Static Edge Hosting (configured, not deployed):** `vercel.json` and `public/_headers` support static hosting on Vercel or Cloudflare Pages; all computation runs client-side.
+* **Local (current):** Run with `npm run dev` (see `docs/USER_GUIDE.md` §1.1).
+* **GitHub Pages (configured):** `.github/workflows/pages.yml` builds `dist/` and publishes it once Repository → Settings → Pages → Source is set to **GitHub Actions**. The build runs with `VITE_BASE=/agentuto/` because a project page lives at a sub-path; every absolute URL in the shell (`index.html`, service-worker scope, manifest `start_url`) is base-aware so the same source also works at a domain root.
+* **PWA:** The service worker and manifest let an installed build run offline. The worker derives its cache list from its own scope, so it works at `/` and at `/agentuto/`.
+* **Other static hosts (configured, not deployed):** `vercel.json` and `public/_headers` support Vercel or Cloudflare Pages; all computation runs client-side.
 * **Optional Tauri Binary (planned):** Native desktop installer (`.exe` / `.dmg`).
 
 ### 6.2 Dual-Bridge Google Gemini Agent (optional)

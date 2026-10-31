@@ -5,6 +5,9 @@ import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
+  // A project page on GitHub Pages is served from a sub-path, so the deploy sets
+  // VITE_BASE=/agentuto/. Anything else (local dev, custom domain, Vercel) keeps "/".
+  base: process.env.VITE_BASE ?? '/',
   plugins: [
     tailwindcss(),
     react(),
