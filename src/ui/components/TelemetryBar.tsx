@@ -1,5 +1,16 @@
 import React from 'react';
-import { Play, Pause, SkipForward, RotateCcw, Download, Circle, Ruler, Timer, LineChart } from 'lucide-react';
+import {
+  Play,
+  Pause,
+  SkipForward,
+  RotateCcw,
+  Download,
+  Circle,
+  Ruler,
+  Timer,
+  LineChart,
+  ClipboardList,
+} from 'lucide-react';
 import { GlassPanel } from './GlassPanel';
 
 export interface TelemetryBarProps {
@@ -11,6 +22,7 @@ export interface TelemetryBarProps {
   isCaliperOpen?: boolean;
   isPhotogateOpen?: boolean;
   isNotebookOpen?: boolean;
+  isInquiryLogOpen?: boolean;
   onTogglePlay: () => void;
   onStepForward: () => void;
   onReset: () => void;
@@ -20,6 +32,7 @@ export interface TelemetryBarProps {
   onToggleCaliper?: () => void;
   onTogglePhotogate?: () => void;
   onToggleNotebook?: () => void;
+  onToggleInquiryLog?: () => void;
 }
 
 export const TelemetryBar: React.FC<TelemetryBarProps> = ({
@@ -31,6 +44,7 @@ export const TelemetryBar: React.FC<TelemetryBarProps> = ({
   isCaliperOpen = false,
   isPhotogateOpen = false,
   isNotebookOpen = false,
+  isInquiryLogOpen = false,
   onTogglePlay,
   onStepForward,
   onReset,
@@ -40,6 +54,7 @@ export const TelemetryBar: React.FC<TelemetryBarProps> = ({
   onToggleCaliper,
   onTogglePhotogate,
   onToggleNotebook,
+  onToggleInquiryLog,
 }) => {
   const speeds = [0.25, 0.5, 1.0, 2.0];
 
@@ -134,7 +149,7 @@ export const TelemetryBar: React.FC<TelemetryBarProps> = ({
       </div>
 
       {/* Lab Measurement Instruments & Notebook */}
-      {(onToggleCaliper || onTogglePhotogate || onToggleNotebook) && (
+      {(onToggleCaliper || onTogglePhotogate || onToggleNotebook || onToggleInquiryLog) && (
         <>
           <div className="w-[1px] h-5 bg-neutral-800 hidden sm:block" />
           <div className="flex items-center gap-1.5">
@@ -177,6 +192,21 @@ export const TelemetryBar: React.FC<TelemetryBarProps> = ({
                 title="Toggle Empirical Lab Notebook & Curve Fitter"
               >
                 <LineChart className="w-4 h-4" />
+              </button>
+            )}
+
+            {onToggleInquiryLog && (
+              <button
+                onClick={onToggleInquiryLog}
+                aria-label="Toggle the Inquiry Log"
+                className={`p-2 rounded-xl transition-all cursor-pointer ${
+                  isInquiryLogOpen
+                    ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40'
+                    : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/60'
+                }`}
+                title="Toggle the Inquiry Log (prediction, conditions, measurement, conclusion)"
+              >
+                <ClipboardList className="w-4 h-4" aria-hidden="true" />
               </button>
             )}
           </div>

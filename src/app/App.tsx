@@ -11,6 +11,8 @@ import { RoadmapDeck } from '../ui/components/RoadmapDeck';
 import { VirtualCaliper } from '../ui/components/VirtualCaliper';
 import { VirtualPhotogate } from '../ui/components/VirtualPhotogate';
 import { LabNotebookDrawer } from '../ui/components/LabNotebookDrawer';
+import { InquiryLogDrawer } from '../ui/components/InquiryLogDrawer';
+import { createInquiryJournal, schemaForSandbox } from '../ui/journal/inquiryLogModel';
 import { LabIndexView } from '../ui/components/LabIndexView';
 import { UnavailableViewport } from '../ui/components/UnavailableViewport';
 import { StudySchedulerModal } from '../ui/components/StudySchedulerModal';
@@ -99,7 +101,19 @@ export const App: React.FC = () => {
   const [isCaliperOpen, setIsCaliperOpen] = useState<boolean>(false);
   const [isPhotogateOpen, setIsPhotogateOpen] = useState<boolean>(false);
   const [isNotebookOpen, setIsNotebookOpen] = useState<boolean>(false);
+  const [isInquiryLogOpen, setIsInquiryLogOpen] = useState<boolean>(false);
   const [isSchedulerOpen, setIsSchedulerOpen] = useState<boolean>(false);
+
+  // One Inquiry Log for the whole session: created once, so every sandbox writes into the same log.
+  // `persistent` is false when the browser refuses local storage, and the drawer says so.
+  const inquiryJournal = useMemo(() => createInquiryJournal(), []);
+  // Parameter ranges and channel units for the active sandbox, derived from the manifest — the drawer
+  // never spells a unit into its own code (Art. 5.1).
+  const inquirySchema = useMemo(() => schemaForSandbox(selectedSimId), [selectedSimId]);
+  const sandboxTitles = useMemo(
+    () => Object.fromEntries(Object.values(SIMULATION_CATALOG).map((sim) => [sim.id, sim.title])),
+    [],
+  );
 
   // Responsive adaptation: collapse right panel initially on mobile/tablet viewports (< 1024px)
   useEffect(() => {
@@ -122,19 +136,31 @@ export const App: React.FC = () => {
         return;
       }
 
+      if (e.code === 'Escape' && isInquiryLogOpen) {
+        e.preventDefault();
+        setIsInquiryLogOpen(false);
+        return;
+      }
+
       if (e.code === 'Escape' && isIndexOpen) {
         e.preventDefault();
         setIsIndexOpen(false);
         return;
       }
 
-      if (e.code === 'Space' && !isIndexOpen && !isTutorOpen && !isNotebookOpen) {
+      if (e.code === 'Space' && !isIndexOpen && !isTutorOpen && !isNotebookOpen && !isInquiryLogOpen) {
         e.preventDefault();
         togglePlayPause();
         return;
       }
 
-      if ((e.code === 'KeyH' || e.code === 'KeyZ') && !isIndexOpen && !isTutorOpen && !isNotebookOpen) {
+      if (
+        (e.code === 'KeyH' || e.code === 'KeyZ') &&
+        !isIndexOpen &&
+        !isTutorOpen &&
+        !isNotebookOpen &&
+        !isInquiryLogOpen
+      ) {
         e.preventDefault();
         setIsLeftCollapsed((prev) => !prev);
         setIsRightCollapsed((prev) => !prev);
@@ -143,7 +169,7 @@ export const App: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isIndexOpen, isTutorOpen, isNotebookOpen, togglePlayPause]);
+  }, [isIndexOpen, isTutorOpen, isNotebookOpen, isInquiryLogOpen, togglePlayPause]);
 
   // Mount Antigravity Developer Bridge on localhost (window.__AGENTUTO_SIM__); dev builds only
   useEffect(() => {
@@ -488,6 +514,8 @@ export const App: React.FC = () => {
             onToggleCaliper={() => setIsCaliperOpen(!isCaliperOpen)}
             onTogglePhotogate={() => setIsPhotogateOpen(!isPhotogateOpen)}
             onToggleNotebook={() => setIsNotebookOpen(!isNotebookOpen)}
+            isInquiryLogOpen={isInquiryLogOpen}
+            onToggleInquiryLog={() => setIsInquiryLogOpen(!isInquiryLogOpen)}
           />
         }
       />
@@ -513,6 +541,23 @@ export const App: React.FC = () => {
         buffer={recorder.getBuffer()}
         simTitle={simRegistration.title}
         onExportCSV={handleExportCSV}
+      />
+
+      {/* 4b. Inquiry Log — prediction, conditions, measurement, conclusion; exportable. Keyed per
+          sandbox so an unfinished draft never carries another sandbox's conditions, and keyed with a
+          distinct string because sibling keys must be unique in this tree (ViewportContainer already
+          uses the bare sandbox id). */}
+      <InquiryLogDrawer
+        key={`inquiry-log-${selectedSimId}`}
+        isOpen={isInquiryLogOpen}
+        onClose={() => setIsInquiryLogOpen(false)}
+        journal={inquiryJournal.journal}
+        persistent={inquiryJournal.persistent}
+        sandboxId={selectedSimId}
+        sandboxTitle={simRegistration.title}
+        schema={inquirySchema}
+        parameters={params}
+        sandboxTitles={sandboxTitles}
       />
 
       {/* 5. Virtual Lab Measurement Instruments (Caliper & Photogate) */}
