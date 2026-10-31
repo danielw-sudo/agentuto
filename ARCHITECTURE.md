@@ -147,6 +147,34 @@ When the active sandbox changes, `useSimulationEngine` re-initialises the new en
 4. **Export Raw CSV:** Export clean RFC-4180 CSV data with scientific metadata headers.
 5. **Socratic Reflect:** Discuss observed phenomena with the Gemini AI tutor without being spoon-fed final answers.
 
+### 4.3 Inquiry Log (core, `src/core/journal/`)
+
+The inquiry loop needs a durable record or it is a demonstration. Kaizen batch 2 ships the core only —
+no UI — so the storage, validation and export rules are settled and checked before any panel draws them.
+
+One entry records five things: `prediction` (stated before measuring), `parameters` (the conditions, so
+the run is reproducible), `measurement` (channel, value, unit), `fit` (the learner's own fit over their
+own measured series) and `explanation`. Two things it deliberately never records: any quantity computed
+from the law under study (Art. 2.2 — a computed value is not evidence for the law) and anything about a
+person (Art. 8.1).
+
+Rules the code holds, each with a check behind it in `src/core/test/journal.test.ts`:
+
+- **Read tolerant, write strict.** One storage key holds the whole log, so a corrupted entry is skipped
+  rather than destroying its neighbours; a save that cannot complete throws `JournalStorageError`
+  instead of pretending to have saved.
+- **A failed save rolls the in-memory log back.** The one failure a learner would not forgive is a
+  cheerful list of experiments that is not on disk.
+- **CSV is RFC-4180.** Telemetry columns are numbers; journal rows are sentences. An unescaped comma or
+  quote in a prediction corrupts the file, so fields are quoted when they need it and quotes are doubled.
+- **`src/core` never imports `src/simulations`.** The journal takes a `JournalSandboxSchema` port;
+  `catalogSchema.ts` is the single bridge, deriving parameter ranges from `paramDescriptors` and channel
+  names from a real one-step engine run instead of a hand-maintained list (Art. 5.1).
+
+Known gap, tracked as debt: the sandbox manifest declares units for parameters but not for telemetry
+channels, so the journal records a measurement's unit as written and validates only that the channel
+exists. Declaring channel units in the manifest is the fix, and it belongs to the manifest, not here.
+
 ---
 
 ## 5. Knowledge Base & Curriculum Alignment
@@ -231,7 +259,7 @@ agentuto/
 ├── vite.config.ts                 # Vite + @tailwindcss/vite; Tailwind v4 is configured in CSS (no tailwind.config.ts)
 └── src/
     ├── app/                         # App shell, routing, HUD layout
-    ├── core/                        # Headless math, integrators (RK4), telemetry recorder, CSV exporter
+    ├── core/                        # Headless math, integrators (RK4), telemetry recorder, CSV exporter, inquiry log
     ├── knowledge/                   # SQLite WASM client & MIT 18.03/8.02 seed graph
     ├── ai/                          # Gemini client, Socratic prompts, playlist schema
     ├── simulations/                 # 3-file sandboxes (Engine, Renderer, Config)
@@ -264,6 +292,8 @@ agentuto/
 * [x] **Phase 22: Gauss's Law & Electrostatic Flux Symmetry Sandbox:** 3D numerical surface flux integration ($\oint_{\mathcal{S}} \mathbf{E} \cdot d\mathbf{A} = Q_{\text{enc}}/\varepsilon_0$), point charges and dipole configuration, procedural Gaussian sphere and cylinder surfaces with dynamic color-mapped electric field normal vectors $\mathbf{E} \cdot \hat{\mathbf{n}}$, strict dipole flux cancellation, and radial expansion invariance. *(Completed)*
 * [x] **Phase 23: Linear Momentum & Center-of-Mass Invariance Sandbox:** 2D colliding hard-sphere pucks with variable coefficient of restitution ($e = 0..1$), strict conservation of total linear momentum $\mathbf{P} = \sum m_i \mathbf{v}_i$, constant Center-of-Mass velocity $\mathbf{V}_{\text{cm}}$, Koenig's kinetic energy decomposition ($K_{\text{total}} = K_{\text{cm}} + K_{\text{internal}}$), off-axis glancing collisions, and 50% internal energy dissipation in completely inelastic collisions. *(Completed)*
 * [x] **Phase 24: RC & RL Transient Relaxation Circuits Sandbox:** First-order linear differential equations ($R \frac{dq}{dt} + \frac{q}{C} = V(t)$ and $L \frac{di}{dt} + Ri = V(t)$), capacitive time constant $\tau = RC$, inductive time constant $\tau = L/R$, analytical 4th-order Runge-Kutta numerical integration, dual-trace oscilloscope graticule with simultaneous input and output traces, $63.2\%$ rise and $36.8\%$ decay thresholds, and empirical verification of the 50% capacitive energy storage theorem ($U_{\text{cap}} = \frac{1}{2}CV^2$ stored vs $\frac{1}{2}CV^2$ dissipated as heat). *(Completed)*
+
+* [x] **Kaizen batch 2: Inquiry Log core (`src/core/journal/`):** Versioned entry (prediction, parameter snapshot, measurement, fit R², explanation), a localStorage adapter that degrades instead of throwing and rolls back a failed save, RFC-4180 CSV + JSON export, UTC streak and heatmap series, 6 checks. Zero UI. *(Completed)*
 
 ---
 

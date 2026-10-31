@@ -25,6 +25,7 @@ import { SIMULATION_CATALOG } from '../../simulations';
 import { SANDBOX_LAB_GUIDES } from '../../simulations/sandboxGuides';
 import { chooseInitialSandbox, sandboxNeedsWebGL } from '../graphics/sandboxChoice';
 import { buildSuggestedParametersSchema } from '../../ai/playlistGenerator';
+import { runJournalVerification } from './journal.test';
 
 export function runCoreVerification(): boolean {
   console.log('🧪 Running Core Engine Verification Suite...\n');
@@ -1248,6 +1249,10 @@ export function runCoreVerification(): boolean {
   console.log(
     `✓ Pass 7 Structural Contracts verified: O(1) ring buffer wrap-around (4..8), Kepler empirical 2π period (${keplerPeriodState.measuredPeriod.toFixed(4)} yr vs 1.000 yr), Momentum wall-isolation tracking, and dynamic schema (${Object.keys(dynamicSchemaProps).length} unique slider keys across ${Object.keys(SIMULATION_CATALOG).length} sandboxes (${totalExpectedKeys} descriptors))`
   );
+
+  // Test 25: Inquiry Log core (Kaizen batch 2) — prediction, parameters, measurement, fit,
+  // explanation, persistence, JSON/CSV export, streak and heatmap series. Zero UI.
+  runJournalVerification();
 
   console.log('\n🎉 ALL CORE ENGINE CONTRACTS VERIFIED SUCCESSFULLY!');
   return true;
