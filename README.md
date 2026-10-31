@@ -26,7 +26,7 @@ MIT · React 19 + TypeScript + Vite + Three.js / Canvas2D · topic alignment wit
 ```bash
 npm install
 npm run dev          # http://localhost:5173
-npm test             # 26 engine checks against analytical results
+npm test             # 34 engine checks against analytical results
 npm run build        # tsc -b && vite build
 npm run check:bundle # payload budget
 ```
@@ -84,7 +84,8 @@ each sandbox's `*Config.ts`.
 
 Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22:
 
-- `npm test` — 26 checks: 25 engine, analytic and no-GPU verifications plus one structural-contract pass.
+- `npm test` — 34 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
+  and 8 for the Inquiry Log core.
 - `npm run build` — TypeScript and production build, zero errors.
 - `npm run check:bundle` — payload budget (~308 kB gzip total today, largest chunk capped).
 
