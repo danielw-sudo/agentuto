@@ -101,6 +101,13 @@ export interface ViewportRenderer<TState extends SimulationState> {
 }
 ```
 
+A renderer is created through its registration and **may fail to exist**: a Three.js renderer builds its
+WebGL context in its constructor, and a machine can refuse one. Renderer creation is therefore guarded and
+`ViewportRenderer` is optional downstream — `App` asks `core/graphics/webgl.ts` once, falls back to a 2D
+sandbox when the answer is no, and `ViewportContainer` renders an explanation instead of an empty canvas.
+`core/graphics/sandboxChoice.ts` holds that decision as a pure function so the test suite can assert it
+(Constitution Art. 1.5: a check that can fail is worth more than a claim).
+
 ---
 
 ## 4. Dual Loops: Physics Clock & Inquiry Loop

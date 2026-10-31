@@ -26,12 +26,18 @@ MIT · React 19 + TypeScript + Vite + Three.js / Canvas2D · topic alignment wit
 ```bash
 npm install
 npm run dev          # http://localhost:5173
-npm test             # 25 engine checks against analytical results
+npm test             # 26 engine checks against analytical results
 npm run build        # tsc -b && vite build
 npm run check:bundle # payload budget
 ```
 
 `npm run verify` runs the last three in sequence. Node ≥ 20, npm ≥ 10.
+
+**No GPU needed.** Twelve of the seventeen sandboxes draw to a 2D canvas and run on the CPU. The five
+Three.js ones need WebGL; when a machine cannot provide it, the app opens on a 2D sandbox, badges the 3D
+entries `needs WebGL`, and explains the limitation instead of showing an empty viewport. Nothing else —
+sliders, telemetry, instruments, notebook, regression, CSV export — depends on the GPU. See
+[`docs/USER_GUIDE.md` §6](docs/USER_GUIDE.md) for the two lists and what you will see.
 
 ## The seventeen sandboxes
 
