@@ -23,6 +23,7 @@ import { globalKnowledgeGraph } from '../../knowledge/KnowledgeGraphClient';
 import { linearRegression, exponentialRegression } from '../math/regression';
 import { SIMULATION_CATALOG } from '../../simulations';
 import { SANDBOX_LAB_GUIDES } from '../../simulations/sandboxGuides';
+import { chooseInitialSandbox, sandboxNeedsWebGL } from '../graphics/sandboxChoice';
 import { buildSuggestedParametersSchema } from '../../ai/playlistGenerator';
 
 export function runCoreVerification(): boolean {
@@ -1218,6 +1219,32 @@ export function runCoreVerification(): boolean {
       }
     }
   }
+  // 24E: No-GPU behaviour. A machine without WebGL must never be sent to a Three.js sandbox, and
+  // must never be shown a blank page instead of an explanation. The choice is a pure function, so
+  // it is asserted here rather than discovered in a browser by a user whose driver said no.
+  const catalogIds = Object.keys(SIMULATION_CATALOG);
+  const threeD = catalogIds.filter((id) => sandboxNeedsWebGL(SIMULATION_CATALOG[id]));
+  const noGPU = catalogIds.filter((id) => !sandboxNeedsWebGL(SIMULATION_CATALOG[id]));
+  if (noGPU.length === 0) {
+    throw new Error('No sandbox runs without WebGL: a machine without a GPU would have nothing to open');
+  }
+  for (const preferred of catalogIds) {
+    const chosen = chooseInitialSandbox(SIMULATION_CATALOG, false, preferred);
+    if (!SIMULATION_CATALOG[chosen]) {
+      throw new Error(`chooseInitialSandbox returned unknown id "${chosen}" for preferred "${preferred}"`);
+    }
+    if (sandboxNeedsWebGL(SIMULATION_CATALOG[chosen])) {
+      throw new Error(`Without WebGL, preferred "${preferred}" still resolves to 3D sandbox "${chosen}"`);
+    }
+    const withGPU = chooseInitialSandbox(SIMULATION_CATALOG, true, preferred);
+    if (withGPU !== preferred) {
+      throw new Error(`With WebGL, preferred "${preferred}" should be kept, got "${withGPU}"`);
+    }
+  }
+  console.log(
+    `✓ No-GPU fallback verified: ${threeD.length} sandboxes need WebGL, ${noGPU.length} run on a 2D canvas; across all ${catalogIds.length} entry points a machine without WebGL is always routed to one that works, and with WebGL the requested sandbox is kept`
+  );
+
   console.log(
     `✓ Pass 7 Structural Contracts verified: O(1) ring buffer wrap-around (4..8), Kepler empirical 2π period (${keplerPeriodState.measuredPeriod.toFixed(4)} yr vs 1.000 yr), Momentum wall-isolation tracking, and dynamic schema (${Object.keys(dynamicSchemaProps).length} unique slider keys across ${Object.keys(SIMULATION_CATALOG).length} sandboxes (${totalExpectedKeys} descriptors))`
   );

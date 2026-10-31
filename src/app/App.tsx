@@ -12,6 +12,7 @@ import { VirtualCaliper } from '../ui/components/VirtualCaliper';
 import { VirtualPhotogate } from '../ui/components/VirtualPhotogate';
 import { LabNotebookDrawer } from '../ui/components/LabNotebookDrawer';
 import { LabIndexView } from '../ui/components/LabIndexView';
+import { UnavailableViewport } from '../ui/components/UnavailableViewport';
 import { StudySchedulerModal } from '../ui/components/StudySchedulerModal';
 import { useAITutor } from '../ai/hooks/useAITutor';
 import { SimulationTelemetryContext } from '../ai/types';
@@ -21,9 +22,16 @@ import { SANDBOX_LAB_GUIDES } from '../simulations/sandboxGuides';
 import { TelemetryRecorder } from '../core/telemetry/TelemetryRecorder';
 import { formatTelemetryToCSV, triggerCSVDownload } from '../core/telemetry/csvExporter';
 import { useSimulationEngine } from '../core/hooks/useSimulationEngine';
+import { isWebGLAvailable } from '../core/graphics/webgl';
+import { chooseInitialSandbox, sandboxNeedsWebGL } from '../core/graphics/sandboxChoice';
 
 export const App: React.FC = () => {
-  const [selectedSimId, setSelectedSimId] = useState<SimulationId>('lorentz-force');
+  // Probed once per load. Twelve of the seventeen sandboxes draw to a 2D canvas and need no GPU,
+  // so a machine without WebGL should still land on something that runs.
+  const webglAvailable = useMemo(() => isWebGLAvailable(), []);
+  const [selectedSimId, setSelectedSimId] = useState<SimulationId>(
+    () => chooseInitialSandbox(SIMULATION_CATALOG, isWebGLAvailable(), 'lorentz-force') as SimulationId,
+  );
   const [activeLeftTab, setActiveLeftTab] = useState<'controls' | 'roadmap'>('controls');
   const [isLeftCollapsed, setIsLeftCollapsed] = useState<boolean>(false);
   const [isRightCollapsed, setIsRightCollapsed] = useState<boolean>(false);
@@ -35,7 +43,23 @@ export const App: React.FC = () => {
 
   // Re-instantiate engine, renderer, and recorder when simulation changes
   const engine = useMemo(() => simRegistration.createEngine(), [selectedSimId]);
-  const renderer = useMemo(() => simRegistration.createRenderer(), [selectedSimId]);
+  // A 3D renderer constructs its WebGL context eagerly, so creating one can throw. Catching it here
+  // keeps the shell (catalogue, parameters, telemetry, 2D sandboxes) alive instead of taking the
+  // whole React tree down with it.
+  const rendererFailure = useRef<string | null>(null);
+  const renderer = useMemo(() => {
+    if (sandboxNeedsWebGL(simRegistration) && !webglAvailable) {
+      rendererFailure.current = 'webgl-unavailable';
+      return undefined;
+    }
+    try {
+      rendererFailure.current = null;
+      return simRegistration.createRenderer();
+    } catch (error) {
+      rendererFailure.current = error instanceof Error ? error.message : 'renderer failed to start';
+      return undefined;
+    }
+  }, [selectedSimId, simRegistration, webglAvailable]);
   const recorder = useMemo(() => new TelemetryRecorder({ sampleRateHz: 50, maxSamples: 10000 }), [selectedSimId]);
 
   const {
@@ -214,7 +238,25 @@ export const App: React.FC = () => {
   return (
     <main className="relative w-screen h-screen overflow-hidden bg-neutral-950 font-sans select-none">
       {/* 1. Full-Bleed Viewport Canvas (3D WebGL or 2D Canvas) */}
-      <ViewportContainer key={selectedSimId} renderer={renderer} />
+      <ViewportContainer
+        key={selectedSimId}
+        renderer={renderer}
+        fallback={
+          <UnavailableViewport
+            sandboxTitle={simRegistration.title}
+            reason={
+              rendererFailure.current === 'webgl-unavailable'
+                ? 'This browser could not create a WebGL context, so the 3D view cannot start. Hardware acceleration may be switched off, or the graphics driver may be blocking it.'
+                : `The renderer failed to start: ${rendererFailure.current ?? 'unknown error'}.`
+            }
+            alternatives={Object.values(SIMULATION_CATALOG)
+              .filter((sim) => sim.mode !== '3D' && sim.id !== selectedSimId)
+              .slice(0, 4)
+              .map((sim) => ({ id: sim.id, title: sim.title }))}
+            onSelectSandbox={(id) => setSelectedSimId(id as SimulationId)}
+          />
+        }
+      />
 
       {/* 2. Glassmorphism Floating Overlay HUD */}
       <OverlayLayout
@@ -534,6 +576,7 @@ export const App: React.FC = () => {
       {/* 6. Scholarly Non-SaaS Laboratory Module Index & User Guide */}
       <LabIndexView
         isOpen={isIndexOpen}
+        webglAvailable={webglAvailable}
         activeTab={indexTab}
         currentSandboxId={selectedSimId}
         onTabChange={setIndexTab}
