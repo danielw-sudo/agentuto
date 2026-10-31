@@ -1,0 +1,33 @@
+name: "Course Equivalence Contribution"
+description: "Submit course codes and topics from your university (e.g. UTSG, Berkeley, Oxford, Cambridge) or high school curriculum"
+title: "[Course Mapping]: "
+labels: ["curriculum", "community"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help fellow learners connect Agentuto's empirical sandboxes to their syllabus!
+  - type: input
+    id: institution
+    attributes:
+      label: University or School Board
+      placeholder: "e.g., University of Toronto (UTSG) / UC Berkeley / AP College Board"
+    validations:
+      required: true
+  - type: input
+    id: course_code
+    attributes:
+      label: Course Code & Name
+      placeholder: "e.g., PHY151: Foundations of Physics I"
+    validations:
+      required: true
+  - type: textarea
+    id: mappings
+    attributes:
+      label: Module to Topic Mapping
+      description: List which Agentuto sandboxes correspond to specific weekly problem sets or labs.
+      placeholder: |
+        - projectile-drag -> Lab 2: Drag and Fluid Resistance
+        - conservation-momentum -> Problem Set 4: 2D Collisions
+    validations:
+      required: true

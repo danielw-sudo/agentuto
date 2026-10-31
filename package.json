@@ -1,0 +1,55 @@
+{
+  "name": "agentuto",
+  "version": "0.1.0",
+  "description": "Agentuto: Open-source, local-first interactive 3D/2D STEM science simulation platform with an optional Socratic AI tutor (bring your own key), virtual lab measurement apparatus, and in-app regression curve fitting",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danielw-sudo/agentuto.git"
+  },
+  "homepage": "https://github.com/danielw-sudo/agentuto#readme",
+  "contributors": [
+    "Gemini 3.8 Flash (https://github.com/google-gemini)",
+    "Gemini 4 Argon (https://github.com/google-gemini)",
+    "Claude Opus 5.5 (https://github.com/anthropics)"
+  ],
+  "keywords": [
+    "physics-simulation",
+    "threejs",
+    "stem-education",
+    "socratic-tutor",
+    "gemini-api",
+    "canvas2d",
+    "runge-kutta",
+    "physics-education",
+    "ap-physics",
+    "differential-equations",
+    "pwa"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "tsx -e \"import { runCoreVerification } from './src/core/test/core.test'; runCoreVerification();\"",
+    "check:bundle": "node scripts/check-bundle.mjs",
+    "verify": "npm test && npm run build && npm run check:bundle"
+  },
+  "dependencies": {
+    "lucide-react": "^1.16.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "three": "^0.174.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.174.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "~5.7.2",
+    "vite": "^6.2.0"
+  }
+}

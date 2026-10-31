@@ -1,0 +1,36 @@
+# Logs & Cache
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Build outputs & dependencies
+node_modules/
+dist/
+dist-ssr/
+*.local
+*.tsbuildinfo
+
+# Environment & API keys
+.env
+.env.*
+!.env.example
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE & editor directories
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Local databases & telemetry cache
+*.db
+*.sqlite
+*.sqlite3
+telemetry_exports/
+
+# Scratch & temporary draft directories
+temp/
+
