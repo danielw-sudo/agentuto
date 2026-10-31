@@ -285,3 +285,41 @@ The Agentuto Tutor is instructed to follow strict pedagogical rules (AI models c
 * It is told **not** to calculate final numerical answers for you.
 * It reads your **live simulation telemetry** (current position, speeds, damping factors, and slider settings) and asks probing questions to help you discover physical laws independently.
 * If you ask *"What is the answer?"*, it will point you to specific variables in your telemetry or suggest adjusting a parameter to observe the consequence.
+
+## 6. Machine Requirements and What Happens Without a GPU
+
+Agentuto needs **no GPU for most of what it does**. Twelve of the seventeen sandboxes draw to a plain 2D
+canvas, and every engine, instrument, notebook and CSV export runs on the CPU. Only the 3D views need
+WebGL — and if your machine cannot provide it, the app tells you instead of failing silently.
+
+### 6.1 What needs WebGL
+
+| Needs WebGL (Three.js) | Runs on a 2D canvas, no GPU required |
+|---|---|
+| `lorentz-force` | `harmonic-oscillator` |
+| `lorenz-attractor` | `maxwell-boltzmann` |
+| `faraday-induction` | `quantum-tunneling` |
+| `kepler-orbits` | `wave-optics` |
+| `gauss-flux` | `projectile-drag`, `lcr-circuit`, `standing-waves`, `doppler-shift`, `photoelectric-effect`, `carnot-cycle`, `conservation-momentum`, `rc-rl-circuits` |
+
+### 6.2 If your machine has no usable WebGL
+
+This is more common than it sounds: hardware acceleration switched off in the browser, an older integrated
+GPU, a virtual machine or remote-desktop session, a locked-down browser policy, or a driver that refuses to
+create a context.
+
+What you will see:
+
+* The app **opens on a 2D sandbox** instead of a 3D one, so you land on something that runs.
+* In the module catalogue, 3D entries carry a **`needs WebGL`** badge.
+* If you open one anyway, the viewport explains what could not be created and offers **four 2D sandboxes** one click away. It does not go black and it does not go blank.
+* **Nothing else changes**: sliders, telemetry, the caliper, the photogate, the lab notebook, regression and CSV export all keep working.
+
+What you can do: pick one of the 2D sandboxes, or re-enable hardware acceleration in your browser settings
+and reload the page.
+
+### 6.3 If a sandbox fails to start for any other reason
+
+You get the error message with **Reload** and **Try again** buttons rather than a white screen. If it keeps
+happening, please open an issue on the project's GitHub issues with the message text and your browser
+version — that is far more useful than a screenshot of a blank page.

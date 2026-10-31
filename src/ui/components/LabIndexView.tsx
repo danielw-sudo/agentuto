@@ -26,6 +26,8 @@ export interface LabIndexViewProps {
   currentSandboxId: SimulationId;
   onSelectSandbox: (id: SimulationId) => void;
   onClose: () => void;
+  /** When false, 3D sandboxes are marked as unavailable instead of failing silently on click. */
+  webglAvailable?: boolean;
 }
 
 const COURSE_FILTERS = [
@@ -45,6 +47,7 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
   currentSandboxId,
   onSelectSandbox,
   onClose,
+  webglAvailable = true,
 }) => {
   const [courseFilter, setCourseFilter] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -280,6 +283,11 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
                             >
                               {sim.mode}
                             </span>
+                            {sim.mode === '3D' && !webglAvailable && (
+                              <span className="text-[11px] font-mono font-semibold px-1.5 py-0.5 rounded border bg-amber-950/60 text-amber-300 border-amber-500/30">
+                                needs WebGL
+                              </span>
+                            )}
                           </div>
 
                           {isCurrent ? (

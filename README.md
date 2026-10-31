@@ -26,12 +26,18 @@ MIT · React 19 + TypeScript + Vite + Three.js / Canvas2D · topic alignment wit
 ```bash
 npm install
 npm run dev          # http://localhost:5173
-npm test             # 25 engine checks against analytical results
+npm test             # 26 engine checks against analytical results
 npm run build        # tsc -b && vite build
 npm run check:bundle # payload budget
 ```
 
 `npm run verify` runs the last three in sequence. Node ≥ 20, npm ≥ 10.
+
+**No GPU needed.** Twelve of the seventeen sandboxes draw to a 2D canvas and run on the CPU. The five
+Three.js ones need WebGL; when a machine cannot provide it, the app opens on a 2D sandbox, badges the 3D
+entries `needs WebGL`, and explains the limitation instead of showing an empty viewport. Nothing else —
+sliders, telemetry, instruments, notebook, regression, CSV export — depends on the GPU. See
+[`docs/USER_GUIDE.md` §6](docs/USER_GUIDE.md) for the two lists and what you will see.
 
 ## The seventeen sandboxes
 
@@ -55,6 +61,10 @@ npm run check:bundle # payload budget
 | `conservation-momentum` | elastic and inelastic collisions, centre of mass | 2D |
 | `rc-rl-circuits` | time constants `τ = RC`, `τ = L/R`, 63.2 % rise | 2D |
 
+Five of these are Three.js scenes and need WebGL; the other twelve draw to a 2D canvas and run on a
+machine with no GPU at all. When WebGL is unavailable the app opens on a 2D sandbox, marks the 3D ones
+in the catalogue, and says what is missing instead of showing an empty viewport.
+
 Governing equations, schemas and benchmark numbers live in [`ARCHITECTURE.md`](ARCHITECTURE.md) §8 and in
 each sandbox's `*Config.ts`.
 
@@ -74,7 +84,7 @@ each sandbox's `*Config.ts`.
 
 Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22:
 
-- `npm test` — 25 checks: 24 engine and analytic verifications plus one structural-contract pass.
+- `npm test` — 26 checks: 25 engine, analytic and no-GPU verifications plus one structural-contract pass.
 - `npm run build` — TypeScript and production build, zero errors.
 - `npm run check:bundle` — payload budget (~308 kB gzip total today, largest chunk capped).
 

@@ -3,9 +3,15 @@ import { ViewportRenderer } from '../../core/types/simulation';
 
 export interface ViewportContainerProps {
   renderer?: ViewportRenderer<any>;
+  /**
+   * Rendered when there is no renderer — either because the sandbox needs WebGL and the machine
+   * has none, or because creating the renderer threw. Without this the viewport would be an empty
+   * black rectangle and the page would look broken rather than unavailable.
+   */
+  fallback?: React.ReactNode;
 }
 
-export const ViewportContainer: React.FC<ViewportContainerProps> = ({ renderer }) => {
+export const ViewportContainer: React.FC<ViewportContainerProps> = ({ renderer, fallback }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,6 +36,12 @@ export const ViewportContainer: React.FC<ViewportContainerProps> = ({ renderer }
       renderer.unmount();
     };
   }, [renderer]);
+
+  if (!renderer && fallback) {
+    return (
+      <div className="absolute inset-0 w-full h-full overflow-hidden bg-neutral-950">{fallback}</div>
+    );
+  }
 
   return (
     <div
