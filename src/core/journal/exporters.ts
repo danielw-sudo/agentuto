@@ -86,7 +86,7 @@ export function entryToCsvRow(entry: InquiryEntry): string[] {
     formatParameters(entry.parameters),
     entry.measurement.channel,
     formatNumber(entry.measurement.value),
-    entry.measurement.unit,
+    entry.measurement.unit ?? '',
     entry.fit?.model ?? '',
     entry.fit === undefined ? '' : formatNumber(entry.fit.rSquared),
     entry.fit === undefined ? '' : String(entry.fit.sampleCount),

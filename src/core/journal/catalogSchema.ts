@@ -5,16 +5,12 @@ import type { JournalParameterRange, JournalSandboxSchema } from './types';
 /**
  * The bridge between the sandbox manifest and the Inquiry Log.
  *
- * This is the only file in `src/core/journal` that imports `src/simulations`. The journal itself
- * takes a `JournalSandboxSchema` port so the layering stays manifest → core, never core → manifest
- * (Art. 5.1: the manifest is the single source of truth, and everything else is derived from it).
+ * This is the only file in `src/core/journal` that imports `src/simulations`. The journal itself takes
+ * a `JournalSandboxSchema` port so the layering stays manifest → core, never core → manifest
+ * (Art. 5.1: the manifest is the single source of truth and everything else is derived from it).
  */
 
-/** Parameter ranges and units for one sandbox, read from its own descriptors. */
-export function schemaFromCatalog(
-  sandboxId: string,
-  channels?: readonly string[]
-): JournalSandboxSchema {
+function requireRegistration(sandboxId: string) {
   const registration = SIMULATION_CATALOG[sandboxId];
   if (!registration) {
     throw new JournalValidationError(
@@ -22,6 +18,15 @@ export function schemaFromCatalog(
       `unknown sandbox "${sandboxId}" (catalog has: ${Object.keys(SIMULATION_CATALOG).join(', ')})`
     );
   }
+  return registration;
+}
+
+/**
+ * Everything the journal needs about one sandbox: parameter ranges and units from its own
+ * descriptors, channel units from its own `telemetryUnits` declaration in the manifest.
+ */
+export function schemaFromCatalog(sandboxId: string): JournalSandboxSchema {
+  const registration = requireRegistration(sandboxId);
 
   const parameters: Record<string, JournalParameterRange> = {};
   for (const descriptor of registration.paramDescriptors) {
@@ -32,22 +37,23 @@ export function schemaFromCatalog(
     };
   }
 
-  return channels === undefined ? { sandboxId, parameters } : { sandboxId, parameters, channels };
+  return {
+    sandboxId,
+    parameters,
+    channels: { ...registration.telemetryUnits },
+  };
 }
 
 /**
  * Telemetry channel names a sandbox actually emits, read from a real one-step engine run.
  *
- * Read rather than declared because the manifest has no channel list to read yet — a gap tracked in
- * the hand-off report. Running the engine keeps this honest: it reports what the sandbox emits, so
- * a channel that is renamed in the engine stops validating here instead of silently accepting a
- * stale name forever.
+ * Not used at runtime — `schemaFromCatalog` reads the declaration. This exists so the check in
+ * `core/test/journal.test.ts` can hold the declaration against the engine and fail when the two
+ * disagree in either direction (a declared channel the engine never emits, or an emitted channel
+ * nobody declared, which is what an engine rename looks like).
  */
-export function channelsFromSandbox(sandboxId: string): string[] {
-  const registration = SIMULATION_CATALOG[sandboxId];
-  if (!registration) {
-    throw new JournalValidationError('sandboxId', `unknown sandbox "${sandboxId}"`);
-  }
+export function engineChannelsFromSandbox(sandboxId: string): string[] {
+  const registration = requireRegistration(sandboxId);
 
   const engine = registration.createEngine();
   try {
@@ -60,9 +66,4 @@ export function channelsFromSandbox(sandboxId: string): string[] {
   } finally {
     engine.dispose();
   }
-}
-
-/** Convenience: ranges from the manifest plus channels from a live run. */
-export function fullSchemaFromCatalog(sandboxId: string): JournalSandboxSchema {
-  return schemaFromCatalog(sandboxId, channelsFromSandbox(sandboxId));
 }

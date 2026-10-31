@@ -135,18 +135,32 @@ export function validateEntryInput(input: InquiryEntryInput, schema: JournalSand
     checkParameter(parameterId, input.parameters[parameterId], range);
   }
 
-  // Measurement: a channel, a finite value and a unit. Without the unit it is a number, not data.
+  // Measurement: a channel and a finite value. The unit is optional — a learner may save a reading
+  // before naming its unit — but when the manifest declares one, a measurement in a different unit
+  // is refused rather than silently mixed into the same column later.
   if (!input.measurement || typeof input.measurement !== 'object') {
     throw new JournalValidationError('measurement', 'an entry must record what was measured');
   }
   const channel = requireText('measurement.channel', input.measurement.channel);
   requireFinite('measurement.value', input.measurement.value);
-  requireText('measurement.unit', input.measurement.unit);
-  if (schema.channels && !schema.channels.includes(channel)) {
-    throw new JournalValidationError(
-      'measurement.channel',
-      `"${schema.sandboxId}" does not emit channel "${channel}" (known: ${schema.channels.join(', ') || 'none'})`
-    );
+  if (input.measurement.unit !== undefined) {
+    requireText('measurement.unit', input.measurement.unit, { allowEmpty: true });
+  }
+  if (schema.channels) {
+    const declaredUnit = schema.channels[channel];
+    if (declaredUnit === undefined) {
+      throw new JournalValidationError(
+        'measurement.channel',
+        `"${schema.sandboxId}" does not emit channel "${channel}" (known: ${Object.keys(schema.channels).join(', ') || 'none'})`
+      );
+    }
+    const givenUnit = input.measurement.unit?.trim() ?? '';
+    if (givenUnit !== '' && givenUnit !== declaredUnit) {
+      throw new JournalValidationError(
+        'measurement.unit',
+        `"${channel}" is measured in ${declaredUnit}, not ${givenUnit}`
+      );
+    }
   }
 
   // Fit is optional; when present it must be a real coefficient of determination.
@@ -173,14 +187,15 @@ export function validateEntryInput(input: InquiryEntryInput, schema: JournalSand
 
 /**
  * Has the learner finished this entry? Predict + measure + explain is the loop in ARCHITECTURE
- * §4.2; an entry missing the explanation is saved but not a finished investigation. Pure, so the
- * streak/heatmap series can count finished work rather than keystrokes if a caller wants that.
+ * §4.2; an entry missing the explanation is saved but not a finished investigation. A measurement
+ * unit is not required (the owner's decision, 2026-10-31): a reading without a unit is still an
+ * observation, just a weaker one. Pure, so the streak/heatmap series can count finished work rather
+ * than keystrokes if a caller wants that.
  */
 export function isComplete(entry: InquiryEntry): boolean {
   return (
     entry.prediction.text.trim().length > 0 &&
     Number.isFinite(entry.measurement.value) &&
-    entry.measurement.unit.trim().length > 0 &&
     entry.explanation.trim().length > 0
   );
 }
