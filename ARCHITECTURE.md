@@ -179,6 +179,36 @@ be told apart from a channel nobody got round to describing. A measurement's own
 owner's decision): when the manifest declares one, a reading in a different unit is refused rather than
 silently mixed into the same column.
 
+### 4.4 Inquiry Log panel (`src/ui/journal/`, `src/ui/components/InquiryLogDrawer.tsx`)
+
+Kaizen batch 3a puts the log on screen. One `InquiryJournal` is created per session, so every sandbox
+writes into the same record; the panel is a drawer rather than a modal, because an observation is
+written while watching the apparatus, not from memory afterwards.
+
+What the panel decides is separated from what it draws, so the rules are checked in Node:
+
+- **`inquiryLogModel.ts` is pure.** Form text becomes an entry, a refusal finds its control, exports
+  find their unit headers, storage is chosen — all without React, so `src/core/test/inquiryLogUi.test.ts`
+  holds them.
+- **Blank optional fields are absent, not empty.** `prediction.unit: ''` is refused by the journal, and
+  an empty box is not a unit the learner failed to name. An unparseable number becomes `NaN` so the
+  journal names the field, instead of the form having a second, disagreeing opinion about numbers.
+- **Every unit on screen comes from the manifest.** The channel picker lists `schema.channels` and
+  shows the unit declared beside each channel; nothing in `src/ui` spells a unit into its own code.
+- **A refusal is shown where it happened.** `JournalValidationError.field` is mapped to the control
+  that displays it, and an unknown path falls back to the top of the panel rather than disappearing.
+- **The conditions recorded are the ones the learner could set.** Three sandboxes carry engine initial
+  conditions with no slider (`lorentz-force initialSpeedY`, `faraday-induction coilRadius`/`initialZ`,
+  `quantum-tunneling barrierPosition`/`initialX`); the snapshot is restricted to declared parameters,
+  so a save cannot fail over a value no control on screen could change. `npm test` saves once from every
+  sandbox in the manifest to keep that true.
+- **Export states units it derived, never units it remembers.** The CSV's parameter-unit header comes
+  from the manifest at export time, and an entry from a sandbox the manifest no longer describes is
+  exported with no invented unit rather than throwing away the learner's older data.
+
+The drawer also reports storage honestly: when the browser refuses local storage the journal falls back
+to memory and the panel says the entries last only until the tab closes.
+
 ---
 
 ## 5. Knowledge Base & Curriculum Alignment
