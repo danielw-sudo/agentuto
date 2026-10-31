@@ -73,9 +73,8 @@ export function isInquiryEntry(value: unknown): value is InquiryEntry {
 
   const measurement = value.measurement;
   if (!isRecord(measurement)) return false;
-  if (!isNonEmptyString(measurement.channel) || !isFiniteNumber(measurement.value) || !isNonEmptyString(measurement.unit)) {
-    return false;
-  }
+  if (!isNonEmptyString(measurement.channel) || !isFiniteNumber(measurement.value)) return false;
+  if (measurement.unit !== undefined && typeof measurement.unit !== 'string') return false;
 
   if (typeof value.explanation !== 'string') return false;
 

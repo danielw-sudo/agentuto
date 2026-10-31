@@ -36,12 +36,16 @@ export interface InquiryPrediction {
   unit?: string;
 }
 
-/** What the learner read off the apparatus. */
+/** Measurement unit, when the entry recorded one. */
 export interface InquiryMeasurement {
   /** Telemetry channel key, e.g. `kineticEnergy`; validated against the sandbox when known. */
   channel: string;
   value: number;
-  unit: string;
+  /**
+   * Unit of the reading. Optional (owner's decision): a learner may save a reading before naming its
+   * unit. When the manifest declares a unit for the channel, this must either be absent or match it.
+   */
+  unit?: string;
 }
 
 /** Quality of the learner's own curve fit over their own measured series. */
@@ -88,14 +92,12 @@ export interface JournalSandboxSchema {
   /** Parameter id → allowed range. An entry may only record parameters listed here. */
   parameters: Record<string, JournalParameterRange>;
   /**
-   * Telemetry channels this sandbox emits. Membership is checked when supplied.
-   *
-   * Units are deliberately NOT part of this map: the sandbox manifest does not declare telemetry
-   * channel units anywhere yet (only parameter units), so inventing them here would duplicate a
-   * fact that has no single source. The measurement's unit is recorded as measured, and the
-   * missing channel-unit manifest is tracked as debt in the hand-off report (Art. 5.2).
+   * Telemetry channels this sandbox emits, mapped to their unit. Both are checked when supplied:
+   * membership catches a channel that has been renamed, the unit catches a measurement recorded in
+   * something other than the manifest's own unit. The declaration lives in the manifest
+   * (`src/simulations/index.ts`), so there is no second copy of it anywhere.
    */
-  channels?: readonly string[];
+  channels?: Record<string, string>;
 }
 
 /** The record written to storage, versioned so a future shape change can migrate rather than guess. */

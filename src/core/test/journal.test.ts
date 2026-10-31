@@ -6,8 +6,9 @@ import {
   JournalValidationError,
   LocalStorageJournalPersistence,
   MemoryJournalPersistence,
-  fullSchemaFromCatalog,
+  engineChannelsFromSandbox,
   isComplete,
+  schemaFromCatalog,
   validateEntryInput,
 } from '../journal';
 import type { InquiryEntryInput, JournalSandboxSchema, JournalStorage } from '../journal';
@@ -81,11 +82,13 @@ function sequentialIds(): () => string {
 }
 
 const SANDBOX_ID = 'harmonic-oscillator';
-const schema: JournalSandboxSchema = fullSchemaFromCatalog(SANDBOX_ID);
+const schema: JournalSandboxSchema = schemaFromCatalog(SANDBOX_ID);
 const PARAMETER_IDS = Object.keys(schema.parameters);
 const PRIMARY_PARAMETER = PARAMETER_IDS[0];
 const PRIMARY_RANGE = schema.parameters[PRIMARY_PARAMETER];
-const PRIMARY_CHANNEL = (schema.channels ?? [])[0];
+const PRIMARY_CHANNEL = Object.keys(schema.channels ?? {})[0];
+/** The unit the manifest declares for that channel — a measurement must not disagree with it. */
+const PRIMARY_UNIT = (schema.channels ?? {})[PRIMARY_CHANNEL];
 
 function midRange(parameterId: string): number {
   const range = schema.parameters[parameterId];
@@ -97,7 +100,7 @@ function makeInput(overrides: Partial<InquiryEntryInput> = {}): InquiryEntryInpu
     sandboxId: SANDBOX_ID,
     prediction: { text: 'The period should shorten as the spring stiffens', value: 1.4, unit: 's' },
     parameters: { [PRIMARY_PARAMETER]: midRange(PRIMARY_PARAMETER) },
-    measurement: { channel: PRIMARY_CHANNEL, value: 1.392, unit: 's' },
+    measurement: { channel: PRIMARY_CHANNEL, value: 1.392, unit: PRIMARY_UNIT },
     explanation: 'Measured period sat inside the predicted range.',
     ...overrides,
   };
@@ -183,14 +186,17 @@ function expectRejection(fn: () => void, expectedField: string, label: string): 
 }
 
 export function runJournalVerification(): void {
-  // J1 — The manifest port works for every sandbox, and starts from a usable schema for each.
+  // J1 — The manifest port works for every sandbox: parameter ranges from the descriptors, and the
+  // declared channel units must equal what the engine really emits. A declaration nobody checks drifts
+  // the first time a channel is renamed, which is exactly the failure this line is here to stop.
   const catalogIds = Object.keys(SIMULATION_CATALOG);
   let parameterCount = 0;
-  let dimensionlessCount = 0;
+  let dimensionlessParameters = 0;
   let channelCount = 0;
+  let dimensionlessChannels = 0;
 
   for (const sandboxId of catalogIds) {
-    const sandboxSchema = fullSchemaFromCatalog(sandboxId);
+    const sandboxSchema = schemaFromCatalog(sandboxId);
     const parameterIds = Object.keys(sandboxSchema.parameters);
     if (parameterIds.length === 0) {
       throw new Error(`Sandbox "${sandboxId}" exposes no parameters, so no run could ever be reproduced`);
@@ -203,30 +209,65 @@ export function runJournalVerification(): void {
         );
       }
       parameterCount += 1;
-      if (range.unit.trim() === '') dimensionlessCount += 1;
+      if (range.unit.trim() === '') dimensionlessParameters += 1;
     }
-    const channels = sandboxSchema.channels ?? [];
-    if (channels.length === 0) {
-      throw new Error(`Sandbox "${sandboxId}" emitted no numeric telemetry channel, so nothing is measurable`);
-    }
-    channelCount += channels.length;
 
-    // A well-formed entry for this sandbox must validate against its own derived schema.
+    const declared = sandboxSchema.channels ?? {};
+    const declaredKeys = Object.keys(declared).sort();
+    if (declaredKeys.length === 0) {
+      throw new Error(`Sandbox "${sandboxId}" declares no telemetry channel, so nothing is measurable`);
+    }
+    for (const channel of declaredKeys) {
+      const unit = declared[channel];
+      if (typeof unit !== 'string' || unit.trim() === '') {
+        throw new Error(
+          `Sandbox "${sandboxId}" channel "${channel}" has no declared unit; write "dimensionless" rather than leaving it empty`
+        );
+      }
+      channelCount += 1;
+      if (unit === 'dimensionless') dimensionlessChannels += 1;
+    }
+
+    // The declaration and the engine must agree, in both directions.
+    const emitted = engineChannelsFromSandbox(sandboxId);
+    const missing = emitted.filter((channel) => !declaredKeys.includes(channel));
+    const extra = declaredKeys.filter((channel) => !emitted.includes(channel));
+    if (missing.length > 0 || extra.length > 0) {
+      throw new Error(
+        `Sandbox "${sandboxId}" channel declaration does not match its engine: ` +
+          `emitted but undeclared [${missing.join(', ')}], declared but never emitted [${extra.join(', ')}]`
+      );
+    }
+
+    // A well-formed entry for this sandbox must validate against its own derived schema, in the
+    // manifest's own unit.
     const parameterId = parameterIds[0];
     const range = sandboxSchema.parameters[parameterId];
+    const channel = declaredKeys[0];
     validateEntryInput(
       {
         sandboxId,
         prediction: { text: 'Predicting before measuring' },
         parameters: { [parameterId]: range.min + (range.max - range.min) * 0.5 },
-        measurement: { channel: channels[0], value: 1, unit: 'dimensionless' },
+        measurement: { channel, value: 1, unit: declared[channel] },
+        explanation: '',
+      },
+      sandboxSchema
+    );
+    // ...and the same entry with no unit at all, because the unit is optional by the owner's decision.
+    validateEntryInput(
+      {
+        sandboxId,
+        prediction: { text: 'Predicting before measuring' },
+        parameters: { [parameterId]: range.min + (range.max - range.min) * 0.5 },
+        measurement: { channel, value: 1 },
         explanation: '',
       },
       sandboxSchema
     );
   }
   console.log(
-    `✓ Inquiry Log schema derived from the manifest for all ${catalogIds.length} sandboxes: ${parameterCount} parameters with ranges (${dimensionlessCount} dimensionless), ${channelCount} numeric telemetry channels read from live one-step engine runs, and a well-formed entry validates against each`
+    `✓ Inquiry Log schema derived from the manifest for all ${catalogIds.length} sandboxes: ${parameterCount} parameters with ranges (${dimensionlessParameters} dimensionless), ${channelCount} declared telemetry-channel units (${dimensionlessChannels} dimensionless) matching each sandbox's running engine exactly, and a well-formed entry validates against each with or without a unit`
   );
 
   // J2 — Refusals. An entry the journal cannot stand behind is rejected, and it names the field.
@@ -275,9 +316,13 @@ export function runJournalVerification(): void {
     'channel the sandbox does not emit'
   );
   expectRejection(
-    () => validateEntryInput(makeInput({ measurement: { channel: PRIMARY_CHANNEL, value: 1, unit: '  ' } }), schema),
+    () =>
+      validateEntryInput(
+        makeInput({ measurement: { channel: PRIMARY_CHANNEL, value: 1, unit: 'furlongs' } }),
+        schema
+      ),
     'measurement.unit',
-    'measurement with no unit'
+    'measurement in a unit the manifest does not declare'
   );
   expectRejection(
     () => validateEntryInput(makeInput({ fit: { model: 'linear', rSquared: 1.4, sampleCount: 5 } }), schema),
@@ -307,7 +352,7 @@ export function runJournalVerification(): void {
     throw new Error('An entry with prediction, measurement and explanation must report itself complete');
   }
   console.log(
-    '✓ Inquiry Log refused 11 malformed entries (unknown/out-of-range/absent parameters, blank or unitless prediction, NaN and unitless measurement, unknown channel, impossible R², single-point fit, wrong sandbox) and accepted the well-formed one'
+    '✓ Inquiry Log refused 11 malformed entries (unknown/out-of-range/absent parameters, blank or unitless prediction, NaN measurement, unknown channel, a unit the manifest does not declare, impossible R², single-point fit, wrong sandbox) and accepted the well-formed one'
   );
 
   // J3 — Save, reload, compare. Two entries, one with a fit, through the real localStorage adapter.
@@ -433,7 +478,7 @@ export function runJournalVerification(): void {
     prediction_value: '',
     prediction_unit: '',
     measured_channel: PRIMARY_CHANNEL,
-    measured_unit: 's',
+    measured_unit: PRIMARY_UNIT ?? '',
     fit_model: 'exponential',
     fit_sample_count: '3',
     explanation: nasty.explanation,

@@ -87,7 +87,7 @@ Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22
 - `npm test` — 32 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
   and 6 for the Inquiry Log core.
 - `npm run build` — TypeScript and production build, zero errors.
-- `npm run check:bundle` — payload budget (~308 kB gzip total today, largest chunk capped).
+- `npm run check:bundle` — payload budget (~313 kB gzip total today, largest chunk capped).
 
 ## Docs
 

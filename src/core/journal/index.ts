@@ -40,4 +40,4 @@ export type { JournalExportOptions } from './exporters';
 export { InquiryJournal, defaultIdFactory } from './store';
 export type { InquiryJournalOptions } from './store';
 
-export { schemaFromCatalog, channelsFromSandbox, fullSchemaFromCatalog } from './catalogSchema';
+export { schemaFromCatalog, engineChannelsFromSandbox } from './catalogSchema';

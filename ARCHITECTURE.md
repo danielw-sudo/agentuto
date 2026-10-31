@@ -168,12 +168,16 @@ Rules the code holds, each with a check behind it in `src/core/test/journal.test
 - **CSV is RFC-4180.** Telemetry columns are numbers; journal rows are sentences. An unescaped comma or
   quote in a prediction corrupts the file, so fields are quoted when they need it and quotes are doubled.
 - **`src/core` never imports `src/simulations`.** The journal takes a `JournalSandboxSchema` port;
-  `catalogSchema.ts` is the single bridge, deriving parameter ranges from `paramDescriptors` and channel
-  names from a real one-step engine run instead of a hand-maintained list (Art. 5.1).
+  `catalogSchema.ts` is the single bridge, deriving parameter ranges from `paramDescriptors` and
+  channel units from the sandbox's own declaration in the manifest (Art. 5.1).
 
-Known gap, tracked as debt: the sandbox manifest declares units for parameters but not for telemetry
-channels, so the journal records a measurement's unit as written and validates only that the channel
-exists. Declaring channel units in the manifest is the fix, and it belongs to the manifest, not here.
+**Channel units live in the manifest.** Each sandbox declares `telemetryUnits` (channel → unit) beside
+its other metadata, and `npm test` holds that declaration against a real one-step engine run in both
+directions: a channel the engine emits but nobody declared fails, and so does a declared channel the
+engine never emits. `dimensionless` is written out rather than left empty, because an empty cell cannot
+be told apart from a channel nobody got round to describing. A measurement's own unit is optional (the
+owner's decision): when the manifest declares one, a reading in a different unit is refused rather than
+silently mixed into the same column.
 
 ---
 
@@ -235,13 +239,14 @@ CREATE TABLE IF NOT EXISTS sandboxes (
 
 Art. 8 asks for a stated reason behind every runtime dependency and a bundle-size budget checked in CI. The budget is now defined and enforced by `scripts/check-bundle.mjs` (`npm run check:bundle`, run in CI after the build).
 
-Measured on `main` at `d05993e` (2026-10-31), whole `dist/`:
+Measured on `feat/manifest-telemetry-units` (2026-10-31, the commit that declared channel units), whole
+`dist/`:
 
 | Measure | Baseline | Budget |
 |---|---|---|
-| Total raw | ~1.16 MB | 1.3 MB |
-| Total gzip (level 9) | ~308 kB | 330 kB |
-| Largest single chunk (`index-*.js`) | ~168 kB gzip | 185 kB gzip |
+| Total raw | ~1.18 MB | 1.3 MB |
+| Total gzip (level 9) | ~313 kB | 330 kB |
+| Largest single chunk (`index-*.js`) | ~173 kB gzip | 185 kB gzip |
 
 Gzip is measured by that script (Node `zlib`), which is why its numbers differ slightly from the ones Vite prints; comparisons use one measurement or the other, never both. The budgets sit ~5% above baseline: ordinary feature work fits, a 20 kB regression does not slip through. Raising a budget is an owner decision and the PR states in one line why that weight is worth carrying.
 
