@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import { SIMULATION_CATALOG, SimulationId, SimulationRegistration } from '../../simulations';
+import { AgentMark } from './AgentMark';
 import { SANDBOX_LAB_GUIDES } from '../../simulations/sandboxGuides';
 import { COURSE_EQUIVALENCE_MAP } from '../../knowledge/courseEquivalence';
 
@@ -674,18 +675,22 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
               <h4 className="text-xs font-semibold text-neutral-200 uppercase tracking-wider">
                 🤖 Autonomous AI Agent Contributors
               </h4>
-              <ul className="space-y-1 font-mono text-[11px] text-neutral-300">
-                <li className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
-                  <strong className="text-indigo-300">Gemini 3.8 Flash:</strong> Autonomous Coder &amp; Implementation
+              <ul className="space-y-1.5 font-mono text-[11px] text-neutral-300">
+                <li className="flex items-center gap-2">
+                  <AgentMark name="gemini" className="w-3.5 h-3.5 shrink-0" />
+                  <span>Gemini 3.8 Flash</span>
                 </li>
-                <li className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                  <strong className="text-cyan-300">Gemini 4 Argon:</strong> First-Pass Reviewer &amp; Structure
+                <li className="flex items-center gap-2">
+                  <AgentMark name="gemini" className="w-3.5 h-3.5 shrink-0" />
+                  <span>Gemini 4 Argon</span>
                 </li>
-                <li className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                  <strong className="text-amber-300">Claude Opus 5.5:</strong> Specialist Reviewer (Faculty, UI/UX)
+                <li className="flex items-center gap-2">
+                  <AgentMark name="claude" className="w-3.5 h-3.5 shrink-0" />
+                  <span>Claude Opus 5.5</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <AgentMark name="deepseek" className="w-3.5 h-3.5 shrink-0" />
+                  <span>DeepSeek V4 Flash</span>
                 </li>
               </ul>
             </div>
