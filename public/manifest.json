@@ -2,14 +2,15 @@
   "name": "Agentuto — Interactive Science Sandbox",
   "short_name": "Agentuto",
   "description": "Local-first, open-source 3D/2D interactive science simulations covering AP/IB and undergraduate-level STEM topics.",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0a0a0c",
   "theme_color": "#0a0a0c",
   "orientation": "any",
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "./icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"

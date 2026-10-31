@@ -1,11 +1,19 @@
 // Bumped from v1 to purge the stale cache-first index.html held by earlier installs.
 const CACHE_NAME = 'agentuto-v2';
+
+// Everything below is scope-relative so the same worker works at "/" (dev, custom domain)
+// and at a project sub-path such as "/agentuto/" on GitHub Pages.
+const SCOPE = self.registration.scope;
+const within = (p) => new URL(p, SCOPE).href;
+
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon.svg',
+  within('./'),
+  within('index.html'),
+  within('manifest.json'),
+  within('icon.svg'),
 ];
+
+const ASSETS_PATH = new URL('assets/', SCOPE).pathname;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -40,7 +48,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   const isShell =
     event.request.mode === 'navigate' ||
-    (url.origin === self.location.origin && !url.pathname.startsWith('/assets/'));
+    (url.origin === self.location.origin && !url.pathname.startsWith(ASSETS_PATH));
 
   if (isShell) {
     event.respondWith(
@@ -54,7 +62,7 @@ self.addEventListener('fetch', (event) => {
         return networkResponse;
       }).catch(() => {
         return caches.match(event.request).then((cachedResponse) => {
-          return cachedResponse || caches.match('/index.html');
+          return cachedResponse || caches.match(within('index.html'));
         });
       })
     );
@@ -78,7 +86,7 @@ self.addEventListener('fetch', (event) => {
         return networkResponse;
       }).catch(() => {
         // Offline fallback
-        return caches.match('/index.html');
+        return caches.match(within('index.html'));
       });
     })
   );
