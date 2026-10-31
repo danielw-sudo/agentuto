@@ -11,6 +11,8 @@ const ASSETS_TO_CACHE = [
   within('index.html'),
   within('manifest.json'),
   within('icon.svg'),
+  within('icon-192.png'),
+  within('icon-512.png'),
 ];
 
 const ASSETS_PATH = new URL('assets/', SCOPE).pathname;
