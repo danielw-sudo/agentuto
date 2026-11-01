@@ -24,8 +24,9 @@ Rules. All of them are mandatory.
 - Do not install anything, do not use sudo or administrator rights, and do not read or print keys or .env files.
 - The engine must be plain TypeScript with no DOM, no React and no Three.js. Use a fixed-step method such as RK4.
 - Every number the engine reports must be declared in telemetryUnits in module.ts, with its unit ("dimensionless" if it has none).
-- Tell me one closed-form result you can check the engine against, work it out by hand, and compare it with what the engine reports at one moment in time. Tell me the two numbers.
-- When you are done, run "npm run dev", open the address it prints, open the instrument, and tell me what you saw. If anything fails, stop and explain it in plain words before changing anything else.
+- Work out one closed-form result by hand (not by running the engine) and put it in the manifest as `benchmark`: { time, expected }, as in the example. Show me the calculation.
+- Run "npm run check:module -- local/<id>" and fix everything it marks with a cross. Do not weaken the benchmark to make it pass; if the engine and the hand calculation disagree, tell me which one you think is wrong and why.
+- When it passes, run "npm run dev", open the address it prints, open the instrument, and tell me what you saw. If anything fails, stop and explain it in plain words before changing anything else.
 - Say clearly that this instrument is unreviewed.
 ```
 
@@ -78,6 +79,47 @@ export default [
 
 A course code cannot be one the built-in courses already use.
 
+## The checker
+
+```bash
+npm run check:module                       # every folder in local/
+npm run check:module -- local/free-fall    # one folder
+```
+
+It runs your engine without a browser and prints one line per check, then a verdict. A cross fails (exit code 1); an
+exclamation mark is a warning.
+
+| Check | What it asks |
+|---|---|
+| Manifest | Every required field present and in range (the table above). |
+| Engine loads | The engine is created without a browser. An engine that touches `window` or `document` fails here: keep all drawing in the renderer. |
+| Engine contract | `init`, `reset`, `dispose`, `step`, `getState`, `setParameters`, `getParameters`, `getTelemetrySnapshot` all exist. |
+| Telemetry channels | Every number the engine reports is declared in `telemetryUnits` with a unit, and every declared channel is reported. |
+| Clock | `t` advances by exactly the step it is given. |
+| Finite numbers | Nothing becomes NaN or infinite over 2000 steps at the defaults and 1000 steps with each slider at both ends. |
+| Repeatable | Two identical runs give identical numbers (no `Math.random()` or clock inside the engine unless seeded). |
+| Sliders reach the engine | `getParameters()` returns what was set, and moving each slider changes what is reported (a slider that changes nothing is a warning). |
+| Benchmark | Your worked result is reproduced (see below). No benchmark is a warning. |
+| Renderer | It has `mount`, `render`, `resize` and `unmount`. Drawing itself needs a browser and is not run. |
+
+### The benchmark is the one that finds wrong physics
+
+Every other check can pass for an engine that integrates the wrong equation. The benchmark can not, if it is honest:
+
+```ts
+// after 2 s from the defaults: 20 + 5·2 − ½·9.81·2² = 10.38 m, and 5 − 9.81·2 = −14.62 m/s
+benchmark: { time: 2, expected: { height: 10.38, velocity: -14.62 } },
+```
+
+Work it out **by hand, from the equation**, never by reading the number off the engine: a benchmark copied from the
+engine only proves the engine agrees with itself. `time` must be a whole number of 5 ms steps; `params` may set
+other parameter values for the run; `tolerance` (relative, default 1e-6) may be loosened if the engine is a
+numerical method with a known error. In the project's own tests, an engine with gravity wrong by 0.1% passes every
+other check and is caught here.
+
+Passing means the module is well formed and agrees with the result you worked out. It does not mean the physics is
+right in cases you did not test.
+
 ## What you will see
 
 - A **Local, unreviewed** badge on the instrument, its course card, the sandbox header, the Instruments page and in
@@ -88,10 +130,11 @@ A course code cannot be one the built-in courses already use.
 
 ## Checking your work
 
-Agentuto checks the *form* of your module when it loads (the table above). It cannot check that your physics is
-right. Before you rely on it:
+When it loads, Agentuto checks only the *form* of your module (the table above); the checker goes further and runs
+the engine. Neither can check that your physics is right in general. Before you rely on it:
 
-- Work out one result by hand and compare it with the engine at a known time, as in the prompt above.
+- Run `npm run check:module` and, above all, give the manifest a hand-worked `benchmark`.
+- Work out a second result by hand at a different time or with different parameters, and compare it with what you see.
 - Check the units on every slider and channel.
 - Treat the instrument as a draft until someone with the right background has read it.
 

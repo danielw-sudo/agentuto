@@ -32,6 +32,7 @@ import { runCoursesVerification } from './courses.test';
 import { runTokensVerification } from './tokens.test';
 import { runSearchVerification } from './search.test';
 import { runLocalModulesVerification } from './localModules.test';
+import { runModuleCheckVerification } from './moduleCheck.test';
 
 export async function runCoreVerification(): Promise<boolean> {
   console.log('🧪 Running Core Engine Verification Suite...\n');
@@ -1278,6 +1279,9 @@ export async function runCoreVerification(): Promise<boolean> {
 
   // Test 31: private modules (roadmap R2b) — the rules for local/, the shipped example, git hygiene.
   await runLocalModulesVerification();
+
+  // Test 32: module checker (roadmap R2c) — a good module passes, each rule catches a deliberately broken one.
+  await runModuleCheckVerification();
 
   console.log('\n🎉 ALL CORE ENGINE CONTRACTS VERIFIED SUCCESSFULLY!');
   return true;
