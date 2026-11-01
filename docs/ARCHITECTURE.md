@@ -271,13 +271,13 @@ Art. 8 asks for a stated reason behind every runtime dependency and a bundle-siz
 
 Sandboxes are loaded on demand (§6.4), so the budget has two meanings: what a visitor downloads to see the
 catalogue (**first load**: the files `index.html` asks for) and the ceiling for opening everything.
-Measured after the site pages (2026-10-31), whole `dist/`, in the units the script prints:
+Measured after site search (2026-10-31), whole `dist/`, in the units the script prints:
 
 | Measure | Measured | Budget |
 |---|---|---|
-| First load (entry, React, CSS) | 102.9 kB gzip | 107.4 kB |
+| First load (entry, React, CSS) | 104.5 kB gzip | 107.4 kB |
 | Largest single chunk (three.js) | 121.3 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 348.0 kB | 356.4 kB |
+| Total gzip (level 9) | 351.2 kB | 356.4 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
@@ -303,6 +303,10 @@ its owner never opened.
 ### 6.6 Site pages and design tokens
 
 The home page (a list of courses), a page per course (`#/course/<code>`) and an About page live in `src/ui/site/`; they read the course and manifest data and lie over the workspace, which is made inert while a page is open, so an experiment keeps running underneath. Only the home page is in the first download: the workspace, the instruments page, a course page and the About page each load on first use. Colour comes from tokens in `src/styles/globals.css` (light by default, dark on a dark OS preference or `data-theme="dark"`), mapped to Tailwind utilities (`bg-paper`, `text-muted`, `border-line`); fonts are system stacks, so nothing is fetched at run time. `npm test` measures every text pair against WCAG AA in both themes. The sandbox workspace and the instruments page still use the older dark classes; moving them onto the tokens is the next batch.
+
+### 6.7 Search
+
+Every site page has a search box (press `/`). `src/search/siteSearch.ts` builds its index at first use from data the app already has: course titles and codes, each instrument's title, equation, the "you measure" lines, curriculum, description and guide text, and the fixed pages. A new sandbox or course is therefore searchable as soon as it is registered. Every word typed must match (AND) at the start of a word, so `8.03` does not find `18.03`; case and accents are ignored; a title or code outranks the same word in a description. The index is a separate chunk fetched on first focus, so the first visit does not pay for it. No dependency.
 
 ---
 

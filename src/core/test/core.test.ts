@@ -30,6 +30,7 @@ import { runInquiryLogUiVerification } from './inquiryLogUi.test';
 import { runRoutesVerification } from './routes.test';
 import { runCoursesVerification } from './courses.test';
 import { runTokensVerification } from './tokens.test';
+import { runSearchVerification } from './search.test';
 
 export async function runCoreVerification(): Promise<boolean> {
   console.log('🧪 Running Core Engine Verification Suite...\n');
@@ -1270,6 +1271,9 @@ export async function runCoreVerification(): Promise<boolean> {
 
   // Test 29: design tokens (roadmap R4b) — both themes complete and consistent, text and graphics meet WCAG AA.
   await runTokensVerification();
+
+  // Test 30: site-wide search (roadmap R4c) — recall by name, code matching, accents, narrowing.
+  runSearchVerification();
 
   console.log('\n🎉 ALL CORE ENGINE CONTRACTS VERIFIED SUCCESSFULLY!');
   return true;

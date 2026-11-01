@@ -83,6 +83,7 @@ Three PRs, one at a time, on a clean `main`.
   separately compressed chunks cost ~17 kB more; the new first-load budget is the number that now guards
   the visitor. Courses get their own URLs in R4.
   *Then (R4b):* the home page, course pages and About page are lazy except home; first visit is now 102.9.
+  *Then (R4c):* site-wide search in the page header, built from the manifest and course data (first visit 104.5).
 - **R2b `local/` packs.** The registry loads whatever is in the gitignored `local/` folder, in the same
   format as upstream modules, labelled "local, unreviewed". The Pages build never reads it.
   Check: a test fails if anything under `local/` is tracked; a sample private module appears locally and not
