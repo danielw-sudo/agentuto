@@ -1,5 +1,5 @@
 import { SIMULATION_CATALOG } from '../simulations';
-import { SANDBOX_LAB_GUIDES } from '../simulations/sandboxGuides';
+import { guideOf } from '../simulations/sandboxGuides';
 import { COURSES, coursesOfSandbox } from '../courses/courses';
 
 /**
@@ -90,7 +90,7 @@ export function buildSearchIndex(): SearchEntry[] {
   }
 
   for (const sandbox of Object.values(SIMULATION_CATALOG)) {
-    const guide = SANDBOX_LAB_GUIDES[sandbox.id];
+    const guide = guideOf(sandbox);
     const inCourses = coursesOfSandbox(sandbox.id);
     const measures = inCourses.flatMap((course) =>
       course.modules.filter((m) => m.sandboxId === sandbox.id).map((m) => m.measure),

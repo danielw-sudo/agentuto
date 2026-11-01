@@ -116,6 +116,24 @@ export function describeProblem(raw: unknown, folder: string, taken: (id: string
     }
   }
 
+  if (raw.guide !== undefined) {
+    const g = raw.guide;
+    if (!isRecord(g)) return 'guide must be an object with labProtocol, whatToExplore and quickPrompts';
+    if (!Array.isArray(g.labProtocol) || g.labProtocol.length !== 3 || !g.labProtocol.every(isText)) {
+      return 'guide.labProtocol must be exactly three non-empty steps';
+    }
+    if (
+      !Array.isArray(g.whatToExplore) ||
+      g.whatToExplore.length === 0 ||
+      !g.whatToExplore.every((x) => isRecord(x) && isText(x.title) && isText(x.detail))
+    ) {
+      return 'guide.whatToExplore must list at least one { title, detail }';
+    }
+    if (!Array.isArray(g.quickPrompts) || g.quickPrompts.length === 0 || !g.quickPrompts.every(isText)) {
+      return 'guide.quickPrompts must list at least one question for the tutor';
+    }
+  }
+
   if (typeof raw.load !== 'function') {
     return 'load must be a function returning a promise of { createEngine, createRenderer }';
   }

@@ -22,7 +22,7 @@ import { TransientEngine } from '../../simulations/physics/rc-rl-circuits/Transi
 import { globalKnowledgeGraph } from '../../knowledge/KnowledgeGraphClient';
 import { linearRegression, exponentialRegression } from '../math/regression';
 import { SIMULATION_CATALOG } from '../../simulations';
-import { SANDBOX_LAB_GUIDES } from '../../simulations/sandboxGuides';
+import { guideOf } from '../../simulations/sandboxGuides';
 import { chooseInitialSandbox, sandboxNeedsWebGL } from '../graphics/sandboxChoice';
 import { buildSuggestedParametersSchema } from '../../ai/playlistGenerator';
 import { runJournalVerification } from './journal.test';
@@ -33,6 +33,7 @@ import { runTokensVerification } from './tokens.test';
 import { runSearchVerification } from './search.test';
 import { runLocalModulesVerification } from './localModules.test';
 import { runModuleCheckVerification } from './moduleCheck.test';
+import { runExportModuleVerification } from './exportModule.test';
 
 export async function runCoreVerification(): Promise<boolean> {
   console.log('🧪 Running Core Engine Verification Suite...\n');
@@ -1216,7 +1217,7 @@ export async function runCoreVerification(): Promise<boolean> {
   const dynamicSchemaProps = buildSuggestedParametersSchema();
   let totalExpectedKeys = 0;
   for (const sim of Object.values(SIMULATION_CATALOG)) {
-    const guide = SANDBOX_LAB_GUIDES[sim.id];
+    const guide = guideOf(sim);
     if (!guide || guide.labProtocol.length < 3 || guide.quickPrompts.length === 0) {
       throw new Error(`Missing or incomplete SANDBOX_LAB_GUIDES entry for sandbox: ${sim.id}`);
     }
@@ -1282,6 +1283,9 @@ export async function runCoreVerification(): Promise<boolean> {
 
   // Test 32: module checker (roadmap R2c) — a good module passes, each rule catches a deliberately broken one.
   await runModuleCheckVerification();
+
+  // Test 33: share path (roadmap R5) — a finished module becomes exactly the edits a PR needs; the rest is refused.
+  await runExportModuleVerification();
 
   console.log('\n🎉 ALL CORE ENGINE CONTRACTS VERIFIED SUCCESSFULLY!');
   return true;

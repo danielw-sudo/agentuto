@@ -35,6 +35,23 @@ const manifest: SimulationRegistration = {
   // `npm run check:module -- examples/local-module` holds the engine to it.
   benchmark: { time: 2, expected: { height: 10.38, velocity: -14.62 } },
 
+  // What the learner is told to do and to explore, and what the optional tutor is prompted with. Optional for a
+  // private module; required to share one, because the guide page and the lab-protocol panel read it.
+  guide: {
+    labProtocol: [
+      'Set the initial height and speed, press play, and watch height and velocity in the telemetry panel.',
+      'Record, then read off the time at which the height reaches zero from the telemetry or the exported CSV.',
+      'Compare with y = y₀ + v₀t − ½gt² and with the benchmark in the manifest, and say how far apart they are.',
+    ],
+    whatToExplore: [
+      {
+        title: 'Dropped versus thrown',
+        detail: 'Set the initial speed to 0, then to +10 m/s, then to −10 m/s. Which of the three lands first, and why do two of them arrive with the same speed?',
+      },
+    ],
+    quickPrompts: ['What does the slope of the velocity against time tell you here, and what should it be?'],
+  },
+
   // Fetched only when the instrument is opened, so it costs nothing until then.
   load: async () => {
     const [{ FreeFallEngine }, { FreeFallRenderer2D }] = await Promise.all([

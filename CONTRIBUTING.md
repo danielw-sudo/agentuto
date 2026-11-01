@@ -148,10 +148,22 @@ Implement `ViewportRenderer<TState>` using either Canvas2D or Three.js:
 * **Three.js (`ViewportRenderer<MyConceptState>`):** Always null out mesh, light, and geometry references in `unmount()` to prevent memory leaks during sandbox switching.
 
 ### Step 4: Register & Benchmark
-1. **Register in Simulation Catalog:** Add your sandbox to `src/simulations/index.ts`.
-2. **Add to Knowledge Graph:** Add your concept node and relations to `src/knowledge/seedData.ts`.
-3. **Add Telemetry Card & Presets:** Add UI telemetry mappings in `LiveTelemetryCard.tsx` and curated presets in `RoadmapDeck.tsx`.
-4. **Write Analytical Verification Test:** Add an analytical benchmark in `src/core/test/core.test.ts` (e.g., energy conservation, orbital period match, or harmonic frequency error $< 10^{-4}$).
+
+The quickest route is not to edit the registry by hand. Write the instrument as a private module (`docs/LOCAL_MODULES.md`,
+starting from `examples/local-module`), get it through `npm run check:module`, and run `npm run export:module` (section 5), which
+does the registration below for you. To do it by hand, an instrument needs the following, and the tests enforce each:
+
+1. **A manifest** (data plus a `load()` that fetches the engine and renderer) registered in `src/simulations/index.ts`, with
+   `telemetryUnits` for every channel the engine reports. A test holds the declaration against a real engine run, in both directions.
+2. **A place in a course** in `src/courses/courses.ts`, with a "you measure" line. The course code must be named by the manifest's
+   `curriculum` text and the reverse; a test holds the two together.
+3. **A guide** (`labProtocol`, `whatToExplore`, `quickPrompts`): in the manifest, or in `src/simulations/sandboxGuides.ts`.
+4. **An analytical benchmark**: a worked-by-hand `benchmark` in the manifest, checked by `npm run check:module`, and for a
+   built-in instrument a check against a closed form in `src/core/test/core.test.ts` (energy conservation, an orbital period,
+   a harmonic frequency to better than $10^{-4}$) that does not reuse the engine's own constants (Constitution Art. 1.5).
+
+Optional: a concept node in `src/knowledge/seedData.ts`, curated presets in `RoadmapDeck.tsx`, and a hand-built card in
+`LiveTelemetryCard.tsx` (without one the instrument gets a generic card that lists what its engine reports, with units).
 
 ---
 
@@ -180,7 +192,30 @@ npm run check:bundle
 
 ---
 
-## 5. Pull Request Checklist
+## 5. Sharing a private module
+
+If you built an instrument in `local/` (`docs/LOCAL_MODULES.md`) and want it in the project, `npm run export:module` does the
+mechanical part: it copies the module into `src/simulations/physics/<id>/`, registers it, adds it to one course, runs the
+tests, and undoes itself if they fail. It will not run on a module that has not passed `npm run check:module`, has no
+hand-worked `benchmark` or no `guide`, or whose `curriculum` line does not honestly name its course. Then you make the
+branch, run `npm run verify` and `npm run smoke`, and open the pull request; the template has the checklist.
+
+A shared instrument is yours, under the MIT licence, with no third-party material except under a compatible licence and
+with attribution (Constitution Art. 11.2 and 12.5). It is reviewed by a model family other than the one that wrote it
+before it is listed as part of Agentuto, and may be sent back for changes.
+
+### Keeping your email address private
+
+Every commit carries an email address, and a public repository publishes it. GitHub gives each account a private
+address that is credited to you all the same:
+
+1. On GitHub, open Settings, then Emails. Tick **Keep my email addresses private**, and **Block command line pushes that
+   expose my email**. Copy the address shown, which looks like `12345+yourname@users.noreply.github.com`.
+2. In the project folder, set it for commits you make there: `git config user.email "12345+yourname@users.noreply.github.com"`.
+
+The commit trailer for an AI helper that wrote part of the change is in `AGENTS.md` §5.
+
+## 6. Pull Request Checklist
 
 Before submitting a Pull Request, make sure your branch satisfies:
 

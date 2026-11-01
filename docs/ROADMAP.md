@@ -137,6 +137,12 @@ Outcome: moving a module from `local/` to a PR is easy and safe. `npm run export
 checklist (own work, MIT licence, no third-party material, module check passes); PR and issue templates;
 a one-line note in `CONTRIBUTING.md` about GitHub's `noreply` commit email for privacy.
 
+*Built (R5):* `npm run export:module` prepares a private module for a pull request (checker first; a hand-worked benchmark, a
+guide and an honest curriculum line required; copies, registers, adds to a course, runs the tests, undoes itself on failure);
+the pull-request template and three issue templates are in `.github/`; CONTRIBUTING explains the process and how to keep an
+email address private. An instrument was exported for real into a working tree: the whole suite (46 checks), the build, the
+bundle budget and the 35-check smoke test accepted it, then it was reverted.
+
 ### R6 — Depth
 In this order: Inquiry Log streak and heatmap (Kaizen 3b), independent closed-form recomputation for all 17
 sandboxes (5a, Art. 1.5), micro-feedback (batch 4), then the owner's decision on the five engine initial
