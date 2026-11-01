@@ -2,7 +2,8 @@
 **Status:** Working Draft (v0.1)  
 **Target:** Google Gemini AI Tutor, Structured Playlist Agent, and Antigravity IDE Bridge  
 
-> **All agents:** the rules in [`CONSTITUTION.md`](CONSTITUTION.md) override this file. Before a task, read the
+> **All agents:** the shared plan is [`docs/ROADMAP.md`](docs/ROADMAP.md); read it before picking up work.
+> The rules in [`CONSTITUTION.md`](CONSTITUTION.md) override this file. Before a task, read the
 > matching shared skill in [`.agents/skills/`](.agents/skills/README.md) (new-sandbox, new-course,
 > deepen-module, design-system, faculty-review, ui-review). Antigravity loads them natively; other agents
 > read the `SKILL.md` directly.
