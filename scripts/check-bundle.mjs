@@ -31,10 +31,13 @@ const SHIPPED = new Set(['.js', '.css', '.html']);
 //   totalGzip      everything shipped; a ceiling for "open every sandbox". Compressing seventeen small
 //                  chunks one by one costs ~17 kB more than one big chunk, which is why it rose from
 //                  330,000 to 365,000 when the sandboxes were split out — the price of a first load
-//                  of ~160 kB instead of ~320 kB (as this script prints them).
+//                  of ~160 kB instead of ~320 kB (as this script prints them). Raised again to 375,000 on
+//                  2026-11-01 (owner's decision) when site search, themes, community links, the closed-form
+//                  tests' neighbours and the Inquiry Log's milestones brought it to the old ceiling; these
+//                  features load lazily, so the first-load budget below did not move.
 const BUDGET = {
   firstLoadGzip: 110_000,
-  totalGzip: 365_000,
+  totalGzip: 375_000,
   totalRaw: 1_300_000,
   largestGzip: 185_000,
 };

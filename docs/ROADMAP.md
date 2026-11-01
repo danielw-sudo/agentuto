@@ -145,7 +145,7 @@ bundle budget and the 35-check smoke test accepted it, then it was reverted.
 
 ### R6 — Depth
 
-**Built — micro-feedback.** Nine milestones earned by behaviour (never by correctness) and an optional soft chime that is off by default, in the Inquiry Log drawer; see ARCHITECTURE §6.6b. The total bundle is now at its budget with no headroom, so the next feature needs either lazy loading or a budget decision (owner).
+**Built — micro-feedback.** Nine milestones earned by behaviour (never by correctness) and an optional soft chime that is off by default, in the Inquiry Log drawer; see ARCHITECTURE §6.6b. The total bundle is now at its budget with no headroom, so the next feature needed either lazy loading or a budget decision: the owner raised the total from 356.4 to 366.2 kB on 2026-11-01 (first load unchanged at 107.4).
 
 **Built — independent closed forms (Art. 1.5).** One case per built-in instrument in `src/core/test/closedForm.test.ts` (see ARCHITECTURE §6.7a), mutation-tested with 25 deliberate engine errors, all caught. Fixed what it found: Lorentz kinetic-energy unit (J to µJ), the Doppler receiver-speed sign on the ahead/behind channels, and first-order RC/RL heat. Left for the owner: decisions 6 and 7 below.
 

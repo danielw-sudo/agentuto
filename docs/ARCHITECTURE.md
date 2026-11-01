@@ -277,12 +277,12 @@ Measured after the UI clean-up (2026-11-01), whole `dist/`, in the units the scr
 |---|---|---|
 | First load (entry, React, CSS) | 105.5 kB gzip | 107.4 kB |
 | Largest single chunk (three.js) | 121.3 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 356.4 kB | 356.4 kB |
+| Total gzip (level 9) | 356.4 kB | 366.2 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
 322.3 kB to 356.4 kB (330,000 B to 365,000 B) because seventeen separately compressed chunks cost about
-17 kB more than one: the price of the smaller first load.
+17 kB more than one: the price of the smaller first load. It was raised again, from 356.4 kB to 366.2 kB (365,000 B to 375,000 B), on 2026-11-01 at the owner's decision, when search, themes, community links and milestones filled the old ceiling; those load lazily, so the first-load budget (107.4 kB) did not move.
 
 Gzip is measured by that script (Node `zlib`), which is why its numbers differ slightly from the ones Vite prints; comparisons use one measurement or the other, never both. The budgets sit ~5% above baseline: ordinary feature work fits, a 20 kB regression does not slip through. Raising a budget is an owner decision and the PR states in one line why that weight is worth carrying.
 
