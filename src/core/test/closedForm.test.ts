@@ -179,8 +179,8 @@ const CASES: Record<string, Case> = {
   // wave numbers, |φ(k)|² centred on k0 with standard deviation 1/(2σ); each k is transmitted by the textbook
   // rectangular-barrier coefficient T(k) = 1 / (1 + V0² sinh²(κd) / (4E(V0−E))), κ = √(2(V0−E)), and the
   // packet's transmission is their weighted sum (waves above the barrier use sin in place of sinh). The grid
-  // is 240 points across 20 length units, so the barrier is drawn as a whole number of 0.0837-unit cells (its width is
-  // rounded to that, and T changes by e^{−2κ·Δd}), and the packet is only roughly Gaussian near the barrier, so this is held to 8 % of T.
+  // is 240 points across 20 length units, so the barrier is drawn as an even number of 0.0837-unit cells (no grid point
+  // at x = 0, so its width is rounded to steps of 0.167, and T changes by e^{−2κ·Δd}), and the packet is only roughly Gaussian near the barrier, so this is held to 8 % of T.
   async 'quantum-tunneling'(r) {
     const dx = 20 / 239;
     const cells = (width: number): number => {

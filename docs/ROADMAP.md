@@ -167,14 +167,21 @@ conditions that have no slider, and deriving the CSV units line from the manifes
 5. Whether to freeze the AI tutor and playlist agent (keep working, add nothing) and drop the SQLite and
    Tauri plans from the docs, since they will not ship soon.
 6. Three instruments run in scaled units that a learner is not told about, and their labels read as SI. Faraday uses an
-   effective permeability of 1e-3 T·m/A where the real value is 4π×10⁻⁷, so flux, EMF and force are about 800 times the
-   real ones (the engine says so in a code comment only); the tunnelling instrument is in units where ħ = m = 1 but is
-   labelled eV and nm (a real electron at 5 eV has k = 11.5 nm⁻¹, not 3.16); the gas instrument has k_B = 1 and is labelled
-   K, Pa and J. Options: say so in each instrument's guide and relabel the units as reduced, or move to real constants
-   (this changes how fast things happen and what the sliders mean, so it needs a faculty review).
-7. The tunnelling grid has 240 points over 20 length units, so the barrier is drawn in whole cells of 0.084 and the
-   transmission is within about 4 % of the exact packet-averaged value only after that rounding is allowed for; a barrier
-   width set to 1.00 is really 1.004, and one set to 0.8 is 0.837, which changes T by about 25 %. A finer grid costs CPU.
+   effective permeability of 1e-3 T·m/A where the real value is 4π×10⁻⁷, so flux and EMF are about 800 times the real
+   ones and the braking force, which goes as μ², about 6.3 × 10⁵ times (the engine says so in a code comment only). With
+   the real μ0 the coil would take about 1.5 × 10⁻⁴ % of the energy in 10 s instead of 92.5 %, so the braking would vanish.
+   The tunnelling instrument is in units where ħ = m = 1 but is labelled eV and nm (a real electron at 5 eV has
+   k = 11.5 nm⁻¹, not 3.16). The gas instrument has k_B = 1 and is labelled K, Pa and J (a 2D pressure is in N/m); its
+   measured wall pressure also runs 5–29 % above N k T / A, from the particles' size and from collisions missed between
+   steps. Options: say so in each instrument's guide and relabel the units as reduced, or move to real constants
+   (this changes how fast things happen and what the sliders mean, so it needs a faculty review). Measured in issue #30.
+7. The tunnelling grid has 240 points over 20 length units (cell 0.084) and no point at x = 0, so a centred barrier
+   covers an even number of cells and its width moves in steps of 0.167: 8 of the 24 slider positions draw the same barrier
+   as their neighbour (0.8 and 0.9 both draw 0.837), so a sweep of d gives a staircase. Allowing for the drawn width,
+   T is within 1–5 % of the exact packet value (0.1–1.4 % on 960 points). The larger error is when T is read: the box is
+   ±10, so slow packets have not all arrived and fast ones return off the wall (at E = 10, T is 0.579 at t = 3 against
+   an exact 0.580, and 0.21 at t = 6). Options: an odd number of points or a snapped slider; a wider box or absorbing
+   edges so T settles; a "settled" mark on T. Measured in issue #31.
 
 ## 5. Out of scope
 
