@@ -275,9 +275,9 @@ Measured after the UI clean-up (2026-11-01), whole `dist/`, in the units the scr
 
 | Measure | Measured | Budget |
 |---|---|---|
-| First load (entry, React, CSS) | 103.9 kB gzip | 107.4 kB |
+| First load (entry, React, CSS) | 104.0 kB gzip | 107.4 kB |
 | Largest single chunk (three.js) | 121.3 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 351.4 kB | 356.4 kB |
+| Total gzip (level 9) | 353.2 kB | 356.4 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
@@ -314,7 +314,7 @@ The share path (`npm run export:module`, `scripts/export-module.ts` around the p
 
 ### 6.8 Browser smoke test
 
-`npm run smoke` (`scripts/smoke.ts`) serves `dist/` with `vite preview`, opens it in a headless Chrome and checks what a visitor meets. For each of the 17 instruments, opened from a cold deep link in its own page: the screen appears with the right title, the apparatus canvas is at least 200 by 150 px, the transport clock advances while the page is watched, the drawing is not blank (the canvas is screenshotted; an empty one is about 2.3 kB as a PNG and the thinnest real scene about 14 kB, so the line is 6 kB), and nothing logs a console error, a script error, a failed request or an HTTP error. Where WebGL is missing, a 3D instrument must show its explanation instead of failing. Then: the home page's six course cards, each course page's instrument list, About, the Instruments page, search by real key presses, an unknown address falling back to the course list, and a 390 px screen with no sideways scroll and the panels closed. If `VITE_BASE` is set it serves under that sub-path, so the deploy is checked as it will be served.
+`npm run smoke` (`scripts/smoke.ts`) serves `dist/` with `vite preview`, opens it in a headless Chrome and checks what a visitor meets. For each of the 17 instruments, opened from a cold deep link in its own page: the screen appears with the right title, the apparatus canvas is at least 200 by 150 px, the transport clock advances while the page is watched, the drawing is not blank (the canvas is screenshotted; an empty one is about 2.3 kB as a PNG and the thinnest real scene about 14 kB, so the line is 6 kB), and nothing logs a console error, a script error, a failed request or an HTTP error. Where WebGL is missing, a 3D instrument must show its explanation instead of failing. Then: the home page's six course cards, each course page's instrument list, About, the Instruments page, search by real key presses, an unknown address falling back to the course list, the activity card (absent on a visit with no Inquiry Log entries, showing the streak after one is seeded), and a 390 px screen with no sideways scroll and the panels closed. If `VITE_BASE` is set it serves under that sub-path, so the deploy is checked as it will be served.
 
 It uses no graphics card: Chrome is started with `--disable-gpu` and a software WebGL, so a person running ComfyUI or a game is not disturbed. The one new dependency is `puppeteer-core`, a dev dependency that downloads no browser (Art. 8.2 asks for a reason for runtime dependencies; the reason here is that it is the smallest way to drive the Chrome already on the machine and on GitHub's runners). CI runs it on Node 22 after the build, and the Pages workflow runs it before uploading the artifact, so a build that fails it is never deployed. A failing page leaves a screenshot in `test-results/` (git-ignored).
 

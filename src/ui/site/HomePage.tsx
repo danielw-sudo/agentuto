@@ -1,9 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { Suspense, lazy, useMemo } from 'react';
 import { SIMULATION_CATALOG } from '../../simulations';
 import { COURSES } from '../../courses/courses';
 import { localReport } from '../../simulations/loadLocal';
 import { LocalBadge } from './LocalBadge';
 import { SiteLayout, focusRing } from './SiteLayout';
+
+// Reads the learner's Inquiry Log, so it carries the journal code; kept out of the first load.
+const ActivityCard = lazy(() => import('./ActivityCard').then((m) => ({ default: m.ActivityCard })));
 
 interface HomePageProps {
   /** The sandbox already open underneath, if any, so the learner can pick the experiment back up. */
@@ -156,6 +159,10 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
             </ul>
           </div>
         </section>
+
+        <Suspense fallback={null}>
+          <ActivityCard />
+        </Suspense>
 
         <section className="mx-auto max-w-6xl px-6 py-16 sm:px-8 sm:py-24">
           <h2 className="font-display text-3xl font-medium tracking-tight">One loop in every instrument</h2>
