@@ -31,6 +31,7 @@ import { runRoutesVerification } from './routes.test';
 import { runCoursesVerification } from './courses.test';
 import { runTokensVerification } from './tokens.test';
 import { runSearchVerification } from './search.test';
+import { runLocalModulesVerification } from './localModules.test';
 
 export async function runCoreVerification(): Promise<boolean> {
   console.log('🧪 Running Core Engine Verification Suite...\n');
@@ -1274,6 +1275,9 @@ export async function runCoreVerification(): Promise<boolean> {
 
   // Test 30: site-wide search (roadmap R4c) — recall by name, code matching, accents, narrowing.
   runSearchVerification();
+
+  // Test 31: private modules (roadmap R2b) — the rules for local/, the shipped example, git hygiene.
+  await runLocalModulesVerification();
 
   console.log('\n🎉 ALL CORE ENGINE CONTRACTS VERIFIED SUCCESSFULLY!');
   return true;

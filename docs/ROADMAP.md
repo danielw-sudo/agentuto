@@ -72,8 +72,8 @@ Outcome: the concept is written down and the entry prompt is safe.
 (Art. 12 on scope, audiences, no identity checks, local content and sharing; the permission notice in Art. 3.5; links
 are conveniences in Art. 8.3). The permission notice is in the README, user guide, About page and the in-app notices.
 The setup prompt in the user guide is hardened and works on Windows, macOS and Linux. It still says *do not edit any
-file inside the project*; when R2b ships `local/`, that rule becomes *write only inside `local/`*, and not before
-(Art. 4.1). The README leads with the positioning sentence and marks "extend it privately" as planned.
+file inside the project*: setting up and running Agentuto never needs to. Adding a private module is a separate prompt
+(R2b, in `docs/LOCAL_MODULES.md`) whose rule is *write only inside `local/`*. The README leads with the positioning sentence and marks "extend it privately" as planned.
 
 ### R1 — Tidy the repository
 Outcome: a visitor sees what matters. Prose moved under `docs/` (`ARCHITECTURE.md`, `devlog.md`);
@@ -98,6 +98,12 @@ Three PRs, one at a time, on a clean `main`.
   in `dist/`.
 - **R2c Module checker.** `npm run check:module local/<name>` validates the manifest, declared units and a
   numeric test, so a weak model gets a clear pass/fail. Check: mutation-test each rule.
+
+*Built (R2b):* `local/<id>/module.ts` and `local/courses.ts` load into the same registry and course list, marked *Local,
+unreviewed* everywhere; refused modules are listed with a reason on the home page; `examples/local-module/` is a tested
+starting point; `docs/LOCAL_MODULES.md` has the guide and a hardened prompt; a CI step and a test keep `local/` out of
+the repository and the public build. The module *checker* (R2c) is still to come: today only the form of a manifest is
+checked, not the physics or that every declared channel is emitted.
 
 ### R3 — Safety net
 Outcome: a silent break cannot reach the demo. A browser smoke test, CPU-only, loads every sandbox and runs

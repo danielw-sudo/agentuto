@@ -64,6 +64,8 @@ Please start Agentuto: inside the agentuto folder in my home folder run "npm run
 Please update Agentuto: inside the agentuto folder in my home folder run "git pull --ff-only", then "npm ci", then start it with "npm run dev" in the background and open the "Local:" address in my browser. Follow the same rules as before: stay inside that folder, no sudo, no global installs, no other git commands, and if "git pull --ff-only" fails or anything else goes wrong, stop and explain it to me.
 ```
 
+> To add instruments of your own that stay on your computer, see [Your own instruments](LOCAL_MODULES.md).
+
 > If something goes wrong, copy the agent's error message back to it and ask *"What does this mean and how do I fix it?"*. If the address is not `5173` (for example `5174`, because another copy is already running), use the address the agent reports.
 
 #### Option B: set it up yourself

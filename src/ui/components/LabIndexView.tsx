@@ -19,6 +19,7 @@ import { SIMULATION_CATALOG, SimulationId, SimulationRegistration } from '../../
 import { SANDBOX_LAB_GUIDES } from '../../simulations/sandboxGuides';
 import { COURSE_EQUIVALENCE_MAP } from '../../knowledge/courseEquivalence';
 import { COURSES } from '../../courses/courses';
+import { LocalBadge } from '../site/LocalBadge';
 
 export interface LabIndexViewProps {
   isOpen: boolean;
@@ -275,6 +276,7 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
                             >
                               {sim.mode}
                             </span>
+                            {sim.local && <LocalBadge variant="dark" />}
                             {sim.mode === '3D' && !webglAvailable && (
                               <span className="text-xs font-mono font-semibold px-1.5 py-0.5 rounded border bg-amber-950/60 text-amber-300 border-amber-500/30">
                                 needs WebGL

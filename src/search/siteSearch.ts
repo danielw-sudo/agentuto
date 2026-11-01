@@ -20,6 +20,8 @@ export interface SearchEntry {
   /** One line under the title: the equation for an instrument, the alignment for a course. */
   detail: string;
   href: string;
+  /** From the learner's own local/ folder. */
+  local?: boolean;
   fields: { text: string; weight: number }[];
 }
 
@@ -75,8 +77,9 @@ export function buildSearchIndex(): SearchEntry[] {
     entries.push({
       kind: 'course',
       title: course.title,
-      detail: `Aligned with ${course.id} · ${course.modules.length} instruments`,
+      detail: `${course.local ? 'Course' : 'Aligned with'} ${course.id} · ${course.modules.length} instruments`,
       href: `#/course/${encodeURIComponent(course.id)}`,
+      local: course.local,
       fields: [
         { text: course.title, weight: 10 },
         { text: course.id, weight: 8 },
@@ -97,6 +100,7 @@ export function buildSearchIndex(): SearchEntry[] {
       title: sandbox.title,
       detail: sandbox.formattedODE,
       href: `#/sandbox/${encodeURIComponent(sandbox.id)}`,
+      local: sandbox.local,
       fields: [
         { text: sandbox.title, weight: 10 },
         { text: sandbox.id, weight: 8 },

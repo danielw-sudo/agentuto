@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { SIMULATION_CATALOG } from '../../simulations';
 import { COURSES } from '../../courses/courses';
+import { localReport } from '../../simulations/loadLocal';
+import { LocalBadge } from './LocalBadge';
 import { SiteLayout, focusRing } from './SiteLayout';
 
 interface HomePageProps {
@@ -95,6 +97,29 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
           </figure>
         </section>
 
+        {(localReport.sandboxes.length > 0 || localReport.courses.length > 0 || localReport.problems.length > 0) && (
+          <section aria-label="Private modules" className="border-t border-line bg-card">
+            <div className="mx-auto max-w-6xl px-6 py-6 text-sm sm:px-8">
+              <p className="flex flex-wrap items-center gap-3 text-ink">
+                <LocalBadge />
+                <span>
+                  {localReport.sandboxes.length} instrument{localReport.sandboxes.length === 1 ? "" : "s"} and {localReport.courses.length} course
+                  {localReport.courses.length === 1 ? "" : "s"} loaded from your local/ folder.
+                </span>
+              </p>
+              {localReport.problems.length > 0 && (
+                <ul className="mt-3 list-none space-y-1 p-0 text-muted">
+                  {localReport.problems.map((problem) => (
+                    <li key={problem.source + problem.reason}>
+                      <span className="font-mono text-ink">{problem.source}</span> was not loaded: {problem.reason}.
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </section>
+        )}
+
         <section id="courses" className="scroll-mt-4 border-t border-line bg-sunken">
           <div className="mx-auto max-w-6xl px-6 py-16 sm:px-8 sm:py-24">
             <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3">
@@ -111,7 +136,12 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
                     href={`#/course/${encodeURIComponent(course.id)}`}
                     className={`flex min-h-64 w-full flex-col gap-5 rounded-2xl border border-line bg-card p-8 text-ink no-underline hover:border-accent ${focusRing}`}
                   >
-                    <span className="font-mono text-[13px] tracking-wide text-accent">Aligned with {course.id}</span>
+                    <span className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-mono text-[13px] tracking-wide text-accent">
+                        {course.local ? `Course ${course.id}` : `Aligned with ${course.id}`}
+                      </span>
+                      {course.local && <LocalBadge />}
+                    </span>
                     <span className="font-display text-2xl font-medium leading-snug tracking-tight">{course.title}</span>
                     <span className="font-mono text-sm text-muted">{course.equation}</span>
                     <span className="mt-auto flex items-center justify-between text-sm text-muted">

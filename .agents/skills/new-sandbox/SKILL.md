@@ -5,6 +5,9 @@ description: Add a new interactive simulation (sandbox) to Agentuto the standard
 
 # New sandbox
 
+> **Private module?** A learner's own instrument for their own machine goes in `local/<id>/`, not in `src/`, and
+> is not reviewed. Follow `docs/LOCAL_MODULES.md`; this skill is for an instrument proposed to the project.
+
 ## 0. Before writing code
 - **Can an existing sandbox express this experiment?** If yes, add presets or a course module instead
   (`new-course` skill). Many topics share one mathematical form: first-order relaxation (RC, cooling,

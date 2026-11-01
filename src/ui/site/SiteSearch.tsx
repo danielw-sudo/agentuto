@@ -22,12 +22,20 @@ export const SiteSearch: React.FC = () => {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
+  const [failed, setFailed] = useState(false);
   const loading = useRef(false);
 
   const load = useCallback(() => {
     if (loading.current) return;
     loading.current = true;
-    void import('../../search/siteSearch').then((m) => setEngine({ index: m.buildSearchIndex(), search: m.search }));
+    setFailed(false);
+    import('../../search/siteSearch')
+      .then((m) => setEngine({ index: m.buildSearchIndex(), search: m.search }))
+      .catch(() => {
+        // Let the next focus try again instead of leaving the box on "Searching…" for good.
+        loading.current = false;
+        setFailed(true);
+      });
   }, []);
 
   const results = useMemo(() => (engine && query.trim() ? engine.search(engine.index, query) : []), [engine, query]);
@@ -126,7 +134,9 @@ export const SiteSearch: React.FC = () => {
       {showPanel && (
         <div className="absolute left-0 right-0 top-full z-10 mt-2 max-h-[70vh] overflow-y-auto rounded-xl border border-line bg-card p-1.5 shadow-xl sm:left-auto sm:w-[28rem]">
           {!engine ? (
-            <p className="px-3 py-3 text-sm text-muted">Searching…</p>
+            <p className="px-3 py-3 text-sm text-muted">
+              {failed ? 'Search could not load. Check your connection, then click the box again.' : 'Searching…'}
+            </p>
           ) : results.length === 0 ? (
             <p className="px-3 py-3 text-sm text-muted">
               No results for &ldquo;{query.trim()}&rdquo;. Try a topic, an equation, or a course code such as 8.02.
@@ -148,7 +158,7 @@ export const SiteSearch: React.FC = () => {
                 >
                   <span className="flex items-baseline justify-between gap-3">
                     <span className="text-[15px] font-medium text-ink">{result.entry.title}</span>
-                    <span className="shrink-0 font-mono text-[13px] text-muted">{KIND_LABEL[result.entry.kind]}</span>
+                    <span className="shrink-0 font-mono text-[13px] text-muted">{KIND_LABEL[result.entry.kind]}{result.entry.local ? ' · local' : ''}</span>
                   </span>
                   <span className="truncate font-mono text-[13px] text-muted">{result.entry.detail}</span>
                 </li>

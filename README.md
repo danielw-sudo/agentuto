@@ -11,7 +11,7 @@ not a service.
 | | What you do | Where it stands |
 |---|---|---|
 | **Use it** | Open the demo or run it on your computer; measure, keep an Inquiry Log, export CSV | Shipped. [User guide](docs/USER_GUIDE.md) |
-| **Extend it privately** | Add instruments of your own with an AI helper; they stay on your machine | Planned: [roadmap](docs/ROADMAP.md) R2 |
+| **Extend it privately** | Add instruments and courses of your own, by hand or with an AI helper; they stay on your machine, marked "Local, unreviewed" | Shipped. [Guide](docs/LOCAL_MODULES.md) |
 | **Share it** | Keep a fork (MIT) or send a module upstream by pull request | Open now: [CONTRIBUTING](CONTRIBUTING.md) |
 
 Agentuto provides the software, the docs and the checks. It does not provide or support any AI service, and it
@@ -97,11 +97,11 @@ each sandbox's `*Config.ts`.
 
 Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22:
 
-- `npm test` — 43 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
-  6 for the Inquiry Log core, 7 for the Inquiry Log panel, 1 for page addresses, 1 for courses, 1 for design tokens and 1 for search.
+- `npm test` — 44 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
+  6 for the Inquiry Log core, 7 for the Inquiry Log panel, 1 for page addresses, 1 for courses, 1 for design tokens, 1 for search and 1 for private modules.
 - `npm run build` — TypeScript and production build, zero errors.
-- `npm run check:bundle` — payload budget, as the script prints it: first load 104.3 kB gzip (budget
-  107.4), largest chunk 121.3 kB (budget 180.7), everything 350.5 kB (budget 356.4). Sandboxes are fetched
+- `npm run check:bundle` — payload budget, as the script prints it: first load 105.1 kB gzip (budget
+  107.4), largest chunk 121.3 kB (budget 180.7), everything 353.2 kB (budget 356.4). Sandboxes are fetched
   when opened, so the catalogue does not wait for any of them.
 
 ## Docs
@@ -109,6 +109,7 @@ Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22
 - [User guide](docs/USER_GUIDE.md) — running it, driving each sandbox, the instruments and the notebook.
 - [Contributor guide](CONTRIBUTING.md) — the three-file sandbox pattern and the pull-request checklist.
 - [Architecture](docs/ARCHITECTURE.md) — interfaces, loops, schemas, benchmarks, bundle budget.
+- [Your own instruments](docs/LOCAL_MODULES.md) — private modules in `local/`, with a prompt for an AI helper.
 - [Roadmap](docs/ROADMAP.md) — the shared plan, and what is not built yet.
 - [Agents](AGENTS.md) · [Constitution](CONSTITUTION.md) — how the agents working on this repo are
   organised, and the rules that outrank them.
