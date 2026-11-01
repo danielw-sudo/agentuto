@@ -33,7 +33,7 @@ const SHIPPED = new Set(['.js', '.css', '.html']);
 //                  330,000 to 365,000 when the sandboxes were split out — the price of a first load
 //                  of ~160 kB instead of ~320 kB (as this script prints them).
 const BUDGET = {
-  firstLoadGzip: 175_000,
+  firstLoadGzip: 110_000,
   totalGzip: 365_000,
   totalRaw: 1_300_000,
   largestGzip: 185_000,

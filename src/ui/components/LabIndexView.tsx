@@ -16,7 +16,6 @@ import {
   X,
 } from 'lucide-react';
 import { SIMULATION_CATALOG, SimulationId, SimulationRegistration } from '../../simulations';
-import { AgentMark } from './AgentMark';
 import { SANDBOX_LAB_GUIDES } from '../../simulations/sandboxGuides';
 import { COURSE_EQUIVALENCE_MAP } from '../../knowledge/courseEquivalence';
 import { COURSES } from '../../courses/courses';
@@ -98,19 +97,9 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
             </div>
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-lg font-semibold tracking-tight text-neutral-100">
-                  Agentuto Laboratory Index
-                </h1>
-                <span className="text-xs font-mono px-2 py-0.5 rounded bg-neutral-900 text-neutral-300 border border-neutral-800">
-                  {allSimulations.length} Modules
-                </span>
-                <span className="text-xs font-mono px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-500/30">
-                  Local-First • Offline Capable
-                </span>
+                <h1 className="text-lg font-semibold tracking-tight text-neutral-100">Instruments</h1>
+                <a href="#/" className="text-sm text-neutral-300 hover:text-neutral-100 underline underline-offset-4">&larr; Courses</a>
               </div>
-              <p className="text-xs text-neutral-400 mt-0.5">
-                Interactive STEM simulation apparatus &amp; empirical measurement instruments
-              </p>
             </div>
           </div>
 
@@ -659,82 +648,13 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
             </div>
           </section>
         )}
-        {/* Scholarly Academic Footer & Autonomous Agent Contributor Credits */}
-        <footer className="mt-12 pt-8 border-t border-neutral-800 text-xs text-neutral-400 space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Academic Mission & Independence Disclaimer */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-semibold text-neutral-200 uppercase tracking-wider">
-                Academic Mission
-              </h4>
-              <p className="leading-relaxed text-neutral-400">
-                Agentuto is an open-source, local-first interactive laboratory platform dedicated to rigorous empirical STEM exploration. Released under the MIT License. Course labels indicate independent topic alignment and do not imply endorsement by any institution.
-              </p>
-            </div>
-
-            {/* Autonomous AI Agent Contributors */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-semibold text-neutral-200 uppercase tracking-wider">
-                🤖 Autonomous AI Agent Contributors
-              </h4>
-              <ul className="space-y-1.5 font-mono text-[11px] text-neutral-300">
-                <li className="flex items-center gap-2">
-                  <AgentMark name="gemini" className="w-3.5 h-3.5 shrink-0" />
-                  <span>Gemini 3.8 Flash</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <AgentMark name="gemini" className="w-3.5 h-3.5 shrink-0" />
-                  <span>Gemini 4 Argon</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <AgentMark name="claude" className="w-3.5 h-3.5 shrink-0" />
-                  <span>Claude Opus 5.5</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <AgentMark name="deepseek" className="w-3.5 h-3.5 shrink-0" />
-                  <span>DeepSeek V4 Flash</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Open-Source Feedback & Community Links */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-semibold text-neutral-200 uppercase tracking-wider">
-                Community &amp; Feedback
-              </h4>
-              <div className="flex flex-col gap-1.5">
-                <a
-                  href="https://github.com/danielw-sudo/agentuto/discussions"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1.5"
-                >
-                  <span>📌 Course Mapping &amp; Discussion Worksheet →</span>
-                </a>
-                <a
-                  href="https://github.com/danielw-sudo/agentuto/issues/new/choose"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-neutral-300 hover:text-neutral-100 transition-colors"
-                >
-                  Report Physics Discrepancy or Anomaly
-                </a>
-                <a
-                  href="https://github.com/danielw-sudo/agentuto"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-neutral-400 hover:text-neutral-200 transition-colors"
-                >
-                  GitHub Repository (MIT Open Source)
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-neutral-900 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-neutral-500">
-            <span>Agentuto Platform • Local-First • Zero Tracking • 100% Private</span>
-            <span>Independent Faculty-Reviewed Open Source Laboratory</span>
-          </div>
+        {/* The credits, licence and community links live on the About page. */}
+        <footer className="mt-12 pt-6 border-t border-neutral-800 text-sm text-neutral-400 flex flex-wrap items-center justify-between gap-3">
+          <span>Open source under the MIT licence. Not affiliated with any institution.</span>
+          <span className="flex gap-5">
+            <a href="#/" className="hover:text-neutral-200 underline underline-offset-4">Courses</a>
+            <a href="#/about" className="hover:text-neutral-200 underline underline-offset-4">About</a>
+          </span>
         </footer>
       </div>
     </div>
