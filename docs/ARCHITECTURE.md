@@ -271,13 +271,13 @@ Art. 8 asks for a stated reason behind every runtime dependency and a bundle-siz
 
 Sandboxes are loaded on demand (§6.4), so the budget has two meanings: what a visitor downloads to see the
 catalogue (**first load**: the files `index.html` asks for) and the ceiling for opening everything.
-Measured on the lazy-loading change (2026-10-31), whole `dist/`, in the units the script prints:
+Measured after courses became data (2026-10-31), whole `dist/`, in the units the script prints:
 
 | Measure | Measured | Budget |
 |---|---|---|
-| First load (entry, React, CSS) | 159.9 kB gzip | 170.9 kB |
-| Largest single chunk (`index-*.js`) | 141.6 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 339.0 kB | 356.4 kB |
+| First load (entry, React, CSS) | 160.9 kB gzip | 170.9 kB |
+| Largest single chunk (`index-*.js`) | 142.6 kB gzip | 180.7 kB |
+| Total gzip (level 9) | 340.2 kB | 356.4 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
@@ -295,6 +295,10 @@ hash routes because the demo is a static site on a sub-path. The address bar is 
 so the back button works and a sandbox can be linked to. `public/sw.js` fetches every built asset when it
 installs (`precache.json`, written by the build), so an installed copy still works offline for sandboxes
 its owner never opened.
+
+### 6.5 Courses are data
+
+`src/courses/courses.ts` lists six courses (8.01, 8.02, 8.03, 8.04, 8.044, 18.03), each an ordered set of sandboxes with a line on what the learner measures there; a sandbox may sit in more than one course. A course owns no engine or parameter. `npm test` holds the list against every sandbox's own `curriculum` string, so a sandbox that names a course and a course page that omits it cannot drift apart silently. The catalogue's filter chips are derived from the same data. The next pages (a course page, search) read it too.
 
 ---
 
