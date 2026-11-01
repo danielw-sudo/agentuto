@@ -28,6 +28,8 @@ export interface Course {
   equation: string;
   lead: string;
   modules: CourseModule[];
+  /** True for a course read from `local/courses.ts`: unreviewed, shown as such. */
+  local?: boolean;
 }
 
 export const COURSES: Course[] = [

@@ -16,6 +16,8 @@ export interface GeneratePlaylistOptions {
 export function buildSuggestedParametersSchema(): Record<string, { type: 'NUMBER' }> {
   const properties: Record<string, { type: 'NUMBER' }> = {};
   for (const sim of Object.values(SIMULATION_CATALOG)) {
+    // A private module is not offered to the AI provider unless its owner opens the tutor on it.
+    if (sim.local) continue;
     for (const desc of sim.paramDescriptors) {
       properties[desc.id] = { type: 'NUMBER' };
     }

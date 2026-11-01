@@ -1,6 +1,7 @@
 import React from 'react';
 import { SIMULATION_CATALOG } from '../../simulations';
 import { Course, coursesOfSandbox } from '../../courses/courses';
+import { LocalBadge } from './LocalBadge';
 import { SiteLayout, focusRing } from './SiteLayout';
 
 interface CoursePageProps {
@@ -20,7 +21,10 @@ export const CoursePage: React.FC<CoursePageProps> = ({ course, webglAvailable }
 
       <div className="mt-8 flex flex-wrap items-end justify-between gap-x-12 gap-y-6">
         <div className="max-w-2xl flex-[1_1_30rem]">
-          <div className="font-mono text-[13px] tracking-wide text-accent">Aligned with {course.id}</div>
+          <div className="flex flex-wrap items-center gap-3 font-mono text-[13px] tracking-wide text-accent">
+            <span>{course.local ? `Course ${course.id}` : `Aligned with ${course.id}`}</span>
+            {course.local && <LocalBadge />}
+          </div>
           <h1 className="mt-3 font-display text-4xl font-medium leading-[1.08] tracking-tight sm:text-5xl">
             {course.title}
           </h1>
@@ -57,6 +61,7 @@ export const CoursePage: React.FC<CoursePageProps> = ({ course, webglAvailable }
                   )}
                 </span>
                 <span className="col-start-2 flex items-center gap-3 md:col-start-auto md:justify-self-end">
+                  {sandbox.local && <LocalBadge />}
                   <span className="rounded-md border border-line px-2 py-0.5 font-mono text-[13px] text-muted">
                     {sandbox.mode}
                   </span>

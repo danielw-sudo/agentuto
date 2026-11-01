@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Activity } from 'lucide-react';
 import { GlassPanel } from './GlassPanel';
+import { SIMULATION_CATALOG } from '../../simulations';
 import { TelemetrySparkline } from './TelemetrySparkline';
 
 export interface LiveTelemetryCardProps {
@@ -55,6 +56,33 @@ export const LiveTelemetryCard: React.FC<LiveTelemetryCardProps> = React.memo(({
   }, [state, sandboxId]);
 
   if (!state) return null;
+
+  // A private module has no hand-built card. Show every number its engine reports, with the unit it declared.
+  const registration = SIMULATION_CATALOG[sandboxId];
+  if (registration?.local) {
+    const channels = Object.entries(state as Record<string, unknown>).filter(
+      (entry): entry is [string, number] => typeof entry[1] === 'number' && Number.isFinite(entry[1]),
+    );
+    return (
+      <GlassPanel subtle className="w-full p-3.5 flex flex-col gap-2.5">
+        <div className="flex items-center gap-2 border-b border-line pb-1.5 text-ink">
+          <Activity className="w-3.5 h-3.5 text-sky-400" />
+          <span className="text-xs font-semibold tracking-wider uppercase">Live telemetry</span>
+        </div>
+        <dl className="m-0 grid grid-cols-2 gap-2 text-xs font-mono">
+          {channels.map(([name, value]) => (
+            <div key={name} className="flex flex-col bg-sunken p-1.5 rounded border border-line">
+              <dt className="text-xs text-muted">
+                {name}
+                {(registration.telemetryUnits[name] ?? (name === 'time' ? 's' : '')) ? ` (${registration.telemetryUnits[name] ?? 's'})` : ''}
+              </dt>
+              <dd className="m-0 text-ink">{value.toFixed(3)}</dd>
+            </div>
+          ))}
+        </dl>
+      </GlassPanel>
+    );
+  }
 
   if (sandboxId === 'lorenz-attractor') {
     const div = state.divergence ?? 0;

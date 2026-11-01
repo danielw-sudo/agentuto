@@ -75,6 +75,8 @@ export interface SimulationRegistration<TParams = any, TState extends Simulation
   paramDescriptors: ParameterDescriptor<number>[];
   /** Unit of every numeric telemetry channel this sandbox emits; checked against the engine. */
   telemetryUnits: Record<string, string>;
+  /** True for a private module read from `local/`: never reviewed, shown as such, never part of the public build. */
+  local?: boolean;
 }
 
 export const SIMULATION_CATALOG: Record<string, SimulationRegistration> = {

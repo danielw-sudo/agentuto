@@ -3,6 +3,7 @@ import { Activity, ChevronLeft, Eye, EyeOff, Sliders, Sparkles } from 'lucide-re
 import { ViewportContainer } from './layout/ViewportContainer';
 import { DockLayout } from './layout/DockLayout';
 import { SiteSearch } from '../ui/site/SiteSearch';
+import { LocalBadge } from '../ui/site/LocalBadge';
 import { coursesOfSandbox } from '../courses/courses';
 import { GlassPanel } from '../ui/components/GlassPanel';
 import { ParameterDeck } from '../ui/components/ParameterDeck';
@@ -303,6 +304,7 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
             <span className="rounded-md border border-line px-2 py-0.5 font-mono text-[13px] text-muted">
               {simRegistration.mode}
             </span>
+            {simRegistration.local && <LocalBadge />}
             <span className="hidden font-mono text-sm text-muted 2xl:inline">{simRegistration.formattedODE}</span>
 
             <span className="flex-1" />
