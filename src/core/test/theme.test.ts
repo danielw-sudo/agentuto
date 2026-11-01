@@ -1,4 +1,4 @@
-import { THEME_CHOICES, THEME_STORAGE_KEY, applyTheme, loadTheme, parseTheme, saveTheme } from '../../ui/theme';
+import { THEME_CHOICES, THEME_STORAGE_KEY, applyTheme, instrumentTheme, loadTheme, parseTheme, saveTheme } from '../../ui/theme';
 
 /**
  * Colour-theme choice checks. What a learner relies on: a saved choice comes back, anything unreadable means
@@ -15,10 +15,10 @@ function element() {
 }
 
 export function runThemeVerification(): void {
-  if (THEME_CHOICES.join(',') !== 'auto,light,dark') throw new Error('the three choices should be auto, light, dark in that order');
+  if (THEME_CHOICES.join(',') !== 'auto,light,dark,contrast') throw new Error('the four choices should be auto, light, dark, contrast in that order');
 
   // Parsing: exactly the three words, nothing else gets through as a theme.
-  for (const [raw, want] of [['light', 'light'], ['dark', 'dark'], ['auto', 'auto'], ['Light', 'auto'], ['', 'auto'], [null, 'auto'], [undefined, 'auto'], [3, 'auto'], ['purple', 'auto']] as const) {
+  for (const [raw, want] of [['light', 'light'], ['dark', 'dark'], ['contrast', 'contrast'], ['auto', 'auto'], ['Light', 'auto'], ['', 'auto'], [null, 'auto'], [undefined, 'auto'], [3, 'auto'], ['purple', 'auto']] as const) {
     if (parseTheme(raw) !== want) throw new Error(`parseTheme(${JSON.stringify(raw)}) should be ${want}`);
   }
 
@@ -53,5 +53,10 @@ export function runThemeVerification(): void {
   applyTheme(root, 'auto');
   if (root.attrs.has('data-theme')) throw new Error('auto should remove data-theme so the system preference decides');
 
-  console.log('✓ Theme choice verified: three words only, saved choice returns, unknown or blocked storage reads as auto, auto clears the attribute');
+  // Instrument screens: dark, unless high contrast was chosen.
+  for (const [attr, want] of [[null, 'dark'], ['light', 'dark'], ['dark', 'dark'], ['contrast', 'contrast'], ['purple', 'dark']] as const) {
+    if (instrumentTheme({ getAttribute: () => attr }) !== want) throw new Error(`instrumentTheme(${attr}) should be ${want}`);
+  }
+
+  console.log('✓ Theme choice verified: four words only, saved choice returns, unknown or blocked storage reads as auto, auto clears the attribute');
 }

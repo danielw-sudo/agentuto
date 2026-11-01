@@ -46,10 +46,11 @@ export async function runTokensVerification(): Promise<void> {
 
   const light = declarations(blockAfter(css, ':root {'));
   const darkExplicit = declarations(blockAfter(css, '[data-theme="dark"] {'));
+  const contrastTheme = declarations(blockAfter(css, '[data-theme="contrast"],'));
   const darkPreferred = declarations(blockAfter(blockAfter(css, '@media (prefers-color-scheme: dark)'), ':root:not([data-theme="light"])'));
 
   const required = ['paper', 'card', 'sunken', 'ink', 'muted', 'line', 'accent', 'on-accent', 'accent-soft', 'field-e', 'field-b', 'velocity'];
-  for (const [name, palette] of [['light', light], ['dark', darkExplicit], ['dark (OS preference)', darkPreferred]] as const) {
+  for (const [name, palette] of [['light', light], ['dark', darkExplicit], ['dark (OS preference)', darkPreferred], ['high contrast', contrastTheme]] as const) {
     const missing = required.filter((key) => !palette[key]);
     if (missing.length > 0) throw new Error(`${name} theme is missing tokens: ${missing.join(', ')}`);
   }
@@ -62,8 +63,11 @@ export async function runTokensVerification(): Promise<void> {
   const texts = ['ink', 'muted', 'accent'];
   let pairs = 0;
   let worst = Infinity;
-  for (const [name, palette] of [['light', light], ['dark', darkExplicit]] as const) {
+  for (const [name, palette] of [['light', light], ['dark', darkExplicit], ['high contrast', contrastTheme]] as const) {
+    // High contrast promises more than AA: 7:1 for text (WCAG AAA) and 4.5:1 for graphics and borders.
+    const strict = name === 'high contrast';
     const need = (fg: string, bg: string, minimum: number) => {
+      if (strict) minimum = minimum === 4.5 ? 7 : 4.5;
       const ratio = contrast(palette[fg], palette[bg]);
       pairs += 1;
       worst = Math.min(worst, ratio);
@@ -76,9 +80,15 @@ export async function runTokensVerification(): Promise<void> {
     need('accent', 'accent-soft', 4.5);
     need('ink', 'accent-soft', 4.5);
     for (const graphic of ['field-e', 'field-b', 'velocity']) need(graphic, 'card', 3);
+    if (strict) {
+      need('line', 'paper', 3); // a border you can see
+      // The two field colours must differ in lightness as well as hue, so they stay apart without colour vision.
+      const gap = Math.abs(luminance(palette['field-e']) - luminance(palette['field-b']));
+      if (gap < 0.1) throw new Error(`high contrast: field-e and field-b differ in relative luminance by only ${gap.toFixed(3)}, so they would blur together without colour vision`);
+    }
   }
 
   console.log(
-    `✓ Design tokens verified: light and dark themes define all ${required.length} tokens, the two dark declarations agree, and ${pairs} text and graphic pairs meet WCAG AA (lowest ratio ${worst.toFixed(2)}:1)`
+    `✓ Design tokens verified: light, dark and high-contrast themes define all ${required.length} tokens, the two dark declarations agree, high contrast holds text to 7:1 and keeps the field pair apart in lightness, and ${pairs} text and graphic pairs meet WCAG AA (lowest ratio ${worst.toFixed(2)}:1)`
   );
 }

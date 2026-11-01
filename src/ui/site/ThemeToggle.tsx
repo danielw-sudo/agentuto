@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { Monitor, Moon, Sun } from 'lucide-react';
+import { Contrast, Monitor, Moon, Sun } from 'lucide-react';
 import { THEME_CHOICES, applyTheme, browserThemeStorage, loadTheme, saveTheme } from '../theme';
 import type { ThemePreference } from '../theme';
 import { focusRing } from './SiteLayout';
 
-const LABEL: Record<ThemePreference, string> = { auto: 'Auto (follows your system)', light: 'Light', dark: 'Dark' };
+const LABEL: Record<ThemePreference, string> = { auto: 'Auto (follows your system)', light: 'Light', dark: 'Dark', contrast: 'High contrast' };
 const ICON: Record<ThemePreference, React.ComponentType<{ className?: string; 'aria-hidden'?: boolean }>> = {
   auto: Monitor,
   light: Sun,
   dark: Moon,
+  contrast: Contrast,
 };
 
 /** One icon button at the top right of the site pages: shows the current choice, and each press moves to the next. */
