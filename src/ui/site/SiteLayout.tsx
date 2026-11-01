@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { SiteSearch } from './SiteSearch';
+import { ThemeToggle } from './ThemeToggle';
 
 /** Shared by every link and button on the site pages, so keyboard focus is always visible. */
 export const focusRing =
@@ -86,7 +87,8 @@ export const SiteLayout: React.FC<SiteLayoutProps> = ({ current, label, children
     <footer className="border-t border-line">
       <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-x-8 gap-y-2 px-6 py-6 text-sm text-muted sm:px-8">
         <span>Open source under the MIT licence. Not affiliated with any institution.</span>
-        <span className="flex gap-6">
+        <span className="flex flex-wrap items-center gap-x-6">
+          <ThemeToggle />
           <a href="#/about" className={`inline-flex min-h-11 items-center hover:underline ${focusRing}`}>About</a>
           <a
             href="https://github.com/danielw-sudo/agentuto"

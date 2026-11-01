@@ -208,6 +208,31 @@ async function checkSite(browser: Browser): Promise<void> {
     await page.evaluate(() => localStorage.removeItem('agentuto.inquiry-log.v1'));
   }
 
+  // The theme toggle: with the system set to dark, Light changes the page's own colours, survives a reload, and Auto hands control back
+  {
+    const paper = () => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--paper').trim());
+    const pressed = () => page.$$eval('[role="group"][aria-label="Colour theme"] button[aria-pressed="true"]', (b) => b.map((x) => x.textContent).join(','));
+    const choose = async (name: string) => {
+      const buttons = await page.$$('[role="group"][aria-label="Colour theme"] button');
+      for (const b of buttons) if ((await b.evaluate((x) => x.textContent)) === name) await b.click();
+    };
+    await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'dark' }]);
+    const start = await paper();
+    await choose('Light');
+    const light = await paper();
+    await page.reload({ waitUntil: 'load' });
+    await page.waitForSelector('[role="group"][aria-label="Colour theme"]', { timeout: 20000 }).catch(() => undefined);
+    const afterReload = await paper();
+    const stillLight = await pressed();
+    await choose('Auto');
+    const auto = await paper();
+    await page.evaluate(() => localStorage.removeItem('agentuto.theme.v1'));
+    if (start !== '#0d1015' || light !== '#f7f6f2') await bad('theme toggle', `system dark gave ${start}, Light gave ${light}`);
+    else if (afterReload !== '#f7f6f2' || stillLight !== 'Light') await bad('theme toggle', `after a reload: ${afterReload}, pressed "${stillLight}"`);
+    else if (auto !== start) await bad('theme toggle', `Auto gave ${auto}, expected ${start}`);
+    else pass('theme toggle', 'Light overrides a dark system, is remembered across a reload, Auto returns to the system choice');
+  }
+
   // Every course opens and lists its instruments
   for (const course of COURSES) {
     await page.goto(`${BASE}/#/course/${encodeURIComponent(course.id)}`, { waitUntil: 'load' });

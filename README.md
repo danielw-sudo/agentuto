@@ -97,16 +97,16 @@ each sandbox's `*Config.ts`.
 
 Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22:
 
-- `npm test` — 47 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
-  6 for the Inquiry Log core, 7 for the Inquiry Log panel, 1 for page addresses, 1 for courses, 1 for design tokens, 1 for search, 1 for the activity grid, 1 for private modules, 1 for the module checker and 1 for the share path.
+- `npm test` — 48 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
+  6 for the Inquiry Log core, 7 for the Inquiry Log panel, 1 for page addresses, 1 for courses, 1 for design tokens, 1 for search, 1 for the activity grid, 1 for the theme choice, 1 for private modules, 1 for the module checker and 1 for the share path.
 - `npm run build` — TypeScript and production build, zero errors.
 - `npm run check:module -- examples/local-module` — the module checker run on the shipped example, so the tool cannot rot.
 - `npm run smoke` — a browser smoke test on the built site: opens every instrument from a cold link in headless Chrome
   (CPU only), checks that it draws and runs, then the home, course, About and Instruments pages, search and a phone-sized
   screen. CI runs it, and the Pages deploy runs it before publishing, so a broken instrument does not reach the demo. It
   needs Chrome, Chromium or Edge installed (set `CHROME_PATH` if it cannot find it) and a fresh `npm run build`.
-- `npm run check:bundle` — payload budget, as the script prints it: first load 104.0 kB gzip (budget
-  107.4), largest chunk 121.3 kB (budget 180.7), everything 353.2 kB (budget 356.4). Sandboxes are fetched
+- `npm run check:bundle` — payload budget, as the script prints it: first load 104.4 kB gzip (budget
+  107.4), largest chunk 121.3 kB (budget 180.7), everything 353.6 kB (budget 356.4). Sandboxes are fetched
   when opened, so the catalogue does not wait for any of them.
 
 ## Docs
