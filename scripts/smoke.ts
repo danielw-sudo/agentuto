@@ -255,6 +255,26 @@ async function checkSite(browser: Browser): Promise<void> {
     }
   }
 
+  // Milestones: a log that changed one thing earns "Changed one thing" in the Inquiry Log, and sound is off by default
+  {
+    const mk = (id: string, mass: number, value?: number) => ({
+      id, sandboxId: 'harmonic-oscillator', createdAt: new Date().toISOString(), prediction: value === undefined ? { text: 'p' } : { text: 'p', value, unit: 's' },
+      parameters: { mass, springConstant: 5 }, measurement: { channel: 'x', value: 1 }, explanation: value === undefined ? '' : 'it got longer',
+    });
+    await page.goto(`${BASE}/#/`, { waitUntil: 'load' });
+    await page.evaluate((entries) => localStorage.setItem('agentuto.inquiry-log.v1', JSON.stringify({ version: 1, entries })), [mk('m1', 1), mk('m2', 2, 1.4)]);
+    await page.goto(`${BASE}/#/sandbox/harmonic-oscillator`, { waitUntil: 'load' });
+    await page.waitForSelector('button[aria-label="Toggle the Inquiry Log"]', { timeout: 20000 }).catch(() => undefined);
+    await page.click('button[aria-label="Toggle the Inquiry Log"]').catch(() => undefined);
+    await page.waitForSelector('details[data-milestones]', { timeout: 10000 }).catch(() => undefined);
+    const text = await page.$eval('details[data-milestones]', (el) => el.textContent ?? '').catch(() => 'no milestones list');
+    const sound = await page.$eval('button[aria-label^="Sound"]', (b) => b.getAttribute('aria-pressed')).catch(() => 'no sound button');
+    await page.evaluate(() => localStorage.removeItem('agentuto.inquiry-log.v1'));
+    if (!/Changed one thing/.test(text) || !/Predicted, measured, explained/.test(text)) await bad('milestones', `list read "${text.slice(0, 160)}"`);
+    else if (sound !== 'false') await bad('milestones', `sound button aria-pressed is ${sound}, expected false (off by default)`);
+    else pass('milestones', 'earned from a seeded log; sound is off by default');
+  }
+
   // Every course opens and lists its instruments
   for (const course of COURSES) {
     await page.goto(`${BASE}/#/course/${encodeURIComponent(course.id)}`, { waitUntil: 'load' });

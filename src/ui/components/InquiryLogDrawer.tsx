@@ -1,7 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { AlertTriangle, ChevronDown, ChevronRight, ClipboardList, Download, Trash2, X } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronRight, ClipboardList, Download, Trash2, Volume2, VolumeX, X } from 'lucide-react';
 import { GlassPanel } from './GlassPanel';
+import { resolveBrowserStorage } from '../../core/journal';
 import type { InquiryEntry, InquiryJournal, JournalSandboxSchema } from '../../core/journal';
+import { milestonesEarned, newMilestones } from '../journal/milestones';
+import type { Milestone } from '../journal/milestones';
+import { loadSound, playChime, saveSound } from '../journal/chime';
 import {
   channelsOf,
   displayUnit,
@@ -95,12 +99,15 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
   const [fitOpen, setFitOpen] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [soundOn, setSoundOn] = useState<boolean>(() => loadSound(resolveBrowserStorage()));
+  const [fresh, setFresh] = useState<Milestone[]>([]);
 
   const channels = useMemo(() => channelsOf(schema), [schema]);
   const declaredUnit = unitForChannel(schema, draft.channel);
   const parameterIds = Object.keys(parameters);
 
   const entries = journal.entriesNewestFirst();
+  const earned = milestonesEarned(journal.all(), new Date().toISOString(), sandboxTitles);
 
   if (!isOpen) return null;
 
@@ -126,7 +133,11 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
       return;
     }
     try {
+      const before = milestonesEarned(journal.all(), new Date().toISOString(), sandboxTitles);
       journal.add(draftToEntryInput(draft, { sandboxId, parameters, schema }), schema);
+      const gained = newMilestones(before, milestonesEarned(journal.all(), new Date().toISOString(), sandboxTitles));
+      setFresh(gained);
+      if (gained.length > 0 && soundOn) playChime();
       setDraft({ ...emptyDraft(schema), channel: draft.channel, measurementUnit: draft.measurementUnit });
       setSavedAt(new Date().toISOString());
       setRevision((value) => value + 1);
@@ -154,7 +165,15 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
     }
   };
 
+  const toggleSound = () => {
+    const next = !soundOn;
+    setSoundOn(next);
+    saveSound(resolveBrowserStorage(), next);
+    if (next) playChime(); // a press is the gesture that lets the browser start audio, and it lets the learner hear the volume
+  };
+
   const handleRemove = (id: string) => {
+    setFresh([]);
     setRefusal(null);
     try {
       journal.remove(id);
@@ -165,6 +184,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
   };
 
   const handleClear = () => {
+    setFresh([]);
     setRefusal(null);
     try {
       journal.clear();
@@ -213,6 +233,16 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
               </p>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={toggleSound}
+            aria-pressed={soundOn}
+            aria-label={soundOn ? 'Sound on for milestones. Press to turn it off.' : 'Sound off. Press to hear a soft chime for milestones.'}
+            title={soundOn ? 'Sound on' : 'Sound off'}
+            className="p-2.5 rounded-lg text-muted hover:text-ink hover:bg-sunken transition-colors cursor-pointer"
+          >
+            {soundOn ? <Volume2 className="w-5 h-5" aria-hidden="true" /> : <VolumeX className="w-5 h-5" aria-hidden="true" />}
+          </button>
           <button
             type="button"
             onClick={onClose}
@@ -467,6 +497,17 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
             )}
           </div>
 
+          <div role="status" aria-live="polite" data-milestone-notice>
+            {fresh.map((m) => (
+              <p key={m.id} className="flex items-start gap-2 rounded-xl border border-accent bg-accent-soft p-3 text-sm text-ink">
+                <ClipboardList className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
+                <span>
+                  <strong>{m.title}.</strong> {m.detail}
+                </span>
+              </p>
+            ))}
+          </div>
+
           <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
             <button
               type="button"
@@ -515,6 +556,20 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
               </span>
             )}
           </div>
+
+          {earned.length > 0 && (
+            <details data-milestones className="rounded-xl border border-line bg-card p-3">
+              <summary className="cursor-pointer text-xs font-semibold text-ink">Milestones ({earned.length})</summary>
+              <ul className="mt-2 flex list-none flex-col gap-1.5 p-0">
+                {earned.map((m) => (
+                  <li key={m.id} className="text-xs leading-relaxed text-muted">
+                    <span className="font-medium text-ink">{m.title}</span>: {m.detail}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-xs text-muted">Earned by what you did, never by whether a result was right. They stay earned.</p>
+            </details>
+          )}
 
           <section className="flex flex-col gap-2">
             <h3 className="text-xs font-semibold text-ink uppercase tracking-wider">Recorded entries</h3>

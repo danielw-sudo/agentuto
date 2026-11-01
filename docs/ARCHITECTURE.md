@@ -275,9 +275,9 @@ Measured after the UI clean-up (2026-11-01), whole `dist/`, in the units the scr
 
 | Measure | Measured | Budget |
 |---|---|---|
-| First load (entry, React, CSS) | 105.3 kB gzip | 107.4 kB |
+| First load (entry, React, CSS) | 105.5 kB gzip | 107.4 kB |
 | Largest single chunk (three.js) | 121.3 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 354.6 kB | 356.4 kB |
+| Total gzip (level 9) | 356.4 kB | 356.4 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
@@ -309,6 +309,10 @@ The site pages follow the operating system's light or dark setting unless the le
 ### 6.6a Community links
 
 Every outward link comes from `src/community.ts`: Discussions (and new discussions in the Q&A, Ideas and Show-and-tell categories), the issue chooser, and the bug, physics-discrepancy, new-instrument and course-mapping forms. They are fixed to the upstream repository, so a copy running on localhost or a fork still sends people to where the maintainers and other learners are; they are plain links and need the internet only when followed. They appear in the footer of every site page, in a short strip on the home page, in the About page, and in each instrument's header, where "Feedback" opens a bug report already titled with the instrument's id (only the id). A test holds the addresses against the repository (the forms exist, the categories exist, the issue chooser's own config points at the same Discussions page, and no other file spells the address); the smoke test checks the footer links on four pages and the feedback link on all 17 instruments.
+
+### 6.6b Milestones and sound
+
+`src/ui/journal/milestones.ts` turns the saved Inquiry Log into a short list of milestones (nine: first entry, a numeric prediction, prediction plus conclusion, changing one parameter and measuring again, an own fit over five or more points, three instruments, three- and seven-day runs, ten entries). Each is a pure function of the log and today's date, looks only at behaviour and never compares a prediction with a measurement (Art. 2.2), and cannot be lost: the longest streak counts. The drawer shows what a save just earned in a polite live region and keeps the full list under "Milestones". `src/ui/journal/chime.ts` holds an optional two-note sine chime made with Web Audio (no files); it is off by default, remembered per browser, capped at gain 0.1 and 0.6 s, and silently does nothing where audio is unavailable. Both live in the lazily loaded sandbox chunk, not the first download. The check counts each rule's boundary against hand-built logs and the smoke test earns two milestones from a seeded log and confirms sound starts off. The mutation list (17 deliberate breaks of thresholds, grouping, the diff, the sound default and the caps) is all caught.
 
 ### 6.7 Private modules
 

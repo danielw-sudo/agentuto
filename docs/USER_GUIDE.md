@@ -110,6 +110,13 @@ Please update Agentuto: inside the agentuto folder in my home folder run "git pu
   * **Live Stream Recorder:** Red recording dot indicates in-memory ring buffer logging. Displays active sample count.
   * **Export CSV:** Downloads the collected data buffer with complete scientific metadata headers.
 
+### 2.2 The Inquiry Log and milestones
+The clipboard button in the dock opens the Inquiry Log: write a prediction before you measure, take a reading, and save it with your own conclusion. Entries stay in this browser only.
+
+When what you do matches good practice, a short note appears under **Save entry** and the **Milestones** list grows: your first entry, a numeric prediction, a prediction with a conclusion, changing one thing and measuring again, attaching your own fit over five or more points, three instruments, three or seven days in a row, ten entries. They are earned by what you did, never by whether a result was right, and they stay earned.
+
+The speaker button in the log's header turns on a soft two-note chime for each new milestone. It is off until you press it, and the choice is remembered in this browser.
+
 ---
 
 ## 3. The 17 Interactive Sandboxes
