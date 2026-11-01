@@ -104,7 +104,7 @@ for (const w of plan.writes) {
 }
 
 console.log('\nRunning npm test on the result...');
-const tests = spawnSync('npm', ['test'], { cwd: root, shell: true, encoding: 'utf8' });
+const tests = spawnSync('npm test', { cwd: root, shell: true, encoding: 'utf8' });
 if (tests.status !== 0) {
   for (const [path, text] of before) {
     const full = join(root, path);

@@ -30,9 +30,10 @@ const BASE = `http://localhost:${PORT}${BASE_PATH}`;
 const only = process.env.SMOKE_ONLY?.split(',').filter(Boolean);
 /**
  * A drawn canvas compresses to far more than an empty one. Measured: an empty apparatus canvas is ~2.3 kB as a
- * PNG and the thinnest real scene (Lorentz, 3D) is ~14 kB, so the line sits between them.
+ * PNG, the simplest real scene (the shipped example: a ball and a line) is ~5.8 kB, and the thinnest built-in one
+ * (Lorentz, 3D) ~14 kB, so the line sits between the empty canvas and the simplest scene.
  */
-const MIN_CANVAS_PNG_BYTES = 6000;
+const MIN_CANVAS_PNG_BYTES = 3500;
 const OUT = join(root, 'test-results', 'smoke');
 
 const failures: string[] = [];

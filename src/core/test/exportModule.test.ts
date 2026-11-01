@@ -28,8 +28,8 @@ export async function runExportModuleVerification(): Promise<void> {
   };
 
   // The example, as a contributor would have finished it: an honest curriculum line that names one course.
-  const shared: SimulationRegistration = { ...(example as SimulationRegistration), id: 'dropped-ball', curriculum: 'MIT 8.01 Classical Mechanics' };
-  const checks = await checkModule(shared, { folder: 'dropped-ball', taken: () => false });
+  const shared: SimulationRegistration = { ...(example as SimulationRegistration), id: 'zz-export-fixture', curriculum: 'MIT 8.01 Classical Mechanics' };
+  const checks = await checkModule(shared, { folder: 'zz-export-fixture', taken: () => false });
   const base: ExportInput = {
     manifest: shared,
     files: moduleFiles,
@@ -47,17 +47,17 @@ export async function runExportModuleVerification(): Promise<void> {
   if (!plan.ok) throw new Error(`a valid module was refused: ${plan.reasons.join('; ')}`);
   const written = new Map(plan.writes.map((w) => [w.path, w.text]));
   for (const name of Object.keys(moduleFiles)) {
-    const text = written.get(`src/simulations/physics/dropped-ball/${name}`);
+    const text = written.get(`src/simulations/physics/zz-export-fixture/${name}`);
     if (!text) throw new Error(`${name} was not copied to the project`);
     if (/['"]\.\.\/\.\.\/src\//.test(text)) throw new Error(`${name} still imports from ../../src/, which does not exist inside the project`);
   }
-  if (!written.get('src/simulations/physics/dropped-ball/FreeFallEngine.ts')!.includes("from '../../../core/types/simulation'")) {
+  if (!written.get('src/simulations/physics/zz-export-fixture/FreeFallEngine.ts')!.includes("from '../../../core/types/simulation'")) {
     throw new Error("the engine's import of the core types was not rewritten to ../../../core/types/simulation");
   }
 
   const newIndex = written.get('src/simulations/index.ts')!;
-  const importLine = "import droppedBallManifest from './physics/dropped-ball/module';";
-  const entryLine = "  'dropped-ball': droppedBallManifest,";
+  const importLine = "import zzExportFixtureManifest from './physics/zz-export-fixture/module';";
+  const entryLine = "  'zz-export-fixture': zzExportFixtureManifest,";
   if (newIndex.split(importLine).length !== 2 || newIndex.split(entryLine).length !== 2) {
     throw new Error('the registry import and entry must each appear exactly once');
   }
@@ -73,7 +73,7 @@ export async function runExportModuleVerification(): Promise<void> {
   }
 
   const newCourses = written.get('src/courses/courses.ts')!;
-  const moduleLine = "      { sandboxId: 'dropped-ball', measure: 'how long a dropped ball takes to land, and the speed it lands at.' },";
+  const moduleLine = "      { sandboxId: 'zz-export-fixture', measure: 'how long a dropped ball takes to land, and the speed it lands at.' },";
   if (newCourses.split(moduleLine).length !== 2) throw new Error('the course line must appear exactly once');
   const at = newCourses.indexOf(moduleLine);
   if (!(newCourses.indexOf("id: '8.01'") < at && at < newCourses.indexOf("id: '8.02'"))) {
@@ -112,12 +112,12 @@ export async function runExportModuleVerification(): Promise<void> {
   refuses('a vague measure line', { ...base, measure: 'stuff' }, '--measure');
   refuses('no module.ts', { ...base, files: { 'FreeFallEngine.ts': moduleFiles['FreeFallEngine.ts'] } }, 'no module.ts');
   refuses('a registry laid out differently', { ...base, indexTs: 'export const nothing = 1;' }, 'not laid out');
-  refuses('an instrument already in the registry', { ...base, indexTs: `// './physics/dropped-ball/'\n${indexTs}` }, 'already mentions');
+  refuses('an instrument already in the registry', { ...base, indexTs: `// './physics/zz-export-fixture/'\n${indexTs}` }, 'already mentions');
   refuses('a courses file laid out differently', { ...base, coursesTs: 'export const COURSES = [];' }, 'not laid out');
   refuses('a manifest still marked local', { ...base, manifest: { ...shared, local: true } }, 'marked local');
 
   // 4. The helpers
-  if (camelManifestName('dropped-ball') !== 'droppedBallManifest' || camelManifestName('kepler-orbit-2') !== 'keplerOrbit2Manifest') {
+  if (camelManifestName('zz-export-fixture') !== 'zzExportFixtureManifest' || camelManifestName('kepler-orbit-2') !== 'keplerOrbit2Manifest') {
     throw new Error('manifest names are not camel-cased from the id');
   }
   if (rewriteImports("import a from '../../src/core/x';\nimport b from \"../../src/y\";\nimport c from './z';") !== "import a from '../../../core/x';\nimport b from \"../../../y\";\nimport c from './z';") {

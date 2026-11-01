@@ -146,11 +146,53 @@ instrument. Playlist generation never includes your private instruments.
 
 ## If you want to share it
 
-- **Keep it for yourself or your own fork.** Agentuto is MIT-licensed; a fork needs nothing from anyone.
-- **Propose it upstream** by pull request ([CONTRIBUTING](../CONTRIBUTING.md)): it must be your own work, under the
-  MIT licence, with no third-party material except under a compatible licence and with attribution. It is then
-  reviewed (Constitution Art. 12.5) before it is listed as part of Agentuto. Materials you may keep privately but
-  may not share stay in `local/`.
+- **Keep it for yourself, or in your own fork.** Agentuto is MIT-licensed; a fork needs nothing from anyone.
+- **Propose it to the project by pull request.** It must be your own work, under the MIT licence, with no third-party
+  material except under a compatible licence and with attribution. Materials you may keep privately but may not share
+  stay in `local/`. It is then reviewed by a model family other than the one that wrote it (Constitution Art. 12.5)
+  before it is listed as part of Agentuto.
+
+To make the pull request, you need three things the project asks of every instrument. A private module can skip them;
+a shared one cannot:
+
+1. **A hand-worked `benchmark`** that `npm run check:module` holds the engine to (see above).
+2. **A `guide`** in the manifest: three lab-protocol steps, at least one thing to explore, at least one question
+   for the optional tutor. The example has one to copy.
+3. **An honest `curriculum` line** naming the one course it is aligned with, for example `MIT 8.01 Classical Mechanics`.
+   Courses describe topic alignment only, never affiliation.
+
+Then, from the project folder:
+
+```bash
+npm run export:module -- local/<id> --course 8.01 --measure "how long a dropped ball takes to land." --dry-run
+npm run export:module -- local/<id> --course 8.01 --measure "how long a dropped ball takes to land."
+```
+
+The first line only shows what would change. The second copies your module into `src/simulations/physics/<id>/`
+(pointing its imports at the project), registers it, adds it to the course with your "you measure" line, and runs
+`npm test`; if the tests fail it puts everything back. It refuses a module that has not passed the checker or is missing
+the three things above, and says which. The id `free-fall` belongs to the shipped example; give your module an id of
+its own.
+
+It only writes files. It does not touch git, so nothing is committed or pushed until you do it. Afterwards:
+
+1. `git switch -c feat/<id>`
+2. `npm run verify && npm run smoke`
+3. Delete or move `local/<id>/`: while both exist, the local copy is refused because its id is taken.
+4. Commit, push, and open the pull request. The template walks you through the checklist.
+
+Commits carry an email address; [CONTRIBUTING](../CONTRIBUTING.md) explains how to keep yours private.
+
+If you would like your AI helper to prepare the module for sharing, this prompt keeps it from doing more than that:
+
+```text
+I want to share my private module local/<id> with the Agentuto project. Rules, all mandatory:
+- Do not touch git, do not push, do not open a pull request. Do not change anything outside local/<id>/ except by running the export command below when I say so.
+- Make sure module.ts has a hand-worked benchmark (show me the calculation), a guide (three protocol steps, something to explore, a tutor question) and a curriculum line that honestly names exactly one course code.
+- Run "npm run check:module -- local/<id>" until nothing is marked with a cross.
+- Then run "npm run export:module -- local/<id> --course <code> --measure \"<a sentence>\" --dry-run" and show me the output. Wait for me to say go before running it without --dry-run.
+- If it refuses, explain the reason in plain words and fix only that.
+```
 
 ## If something does not appear
 

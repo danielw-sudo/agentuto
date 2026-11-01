@@ -12,7 +12,7 @@ not a service.
 |---|---|---|
 | **Use it** | Open the demo or run it on your computer; measure, keep an Inquiry Log, export CSV | Shipped. [User guide](docs/USER_GUIDE.md) |
 | **Extend it privately** | Add instruments and courses of your own, by hand or with an AI helper; they stay on your machine, marked "Local, unreviewed" | Shipped. [Guide](docs/LOCAL_MODULES.md) |
-| **Share it** | Keep a fork (MIT) or send a module upstream by pull request | Open now: [CONTRIBUTING](CONTRIBUTING.md) |
+| **Share it** | Keep a fork (MIT) or send a module to the project by pull request: `npm run export:module` prepares it | Shipped. [Guide](docs/LOCAL_MODULES.md#if-you-want-to-share-it) · [CONTRIBUTING](CONTRIBUTING.md) |
 
 Agentuto provides the software, the docs and the checks. It does not provide or support any AI service, and it
 takes no responsibility for the models, accounts or institutional rules of the people who use it.
@@ -97,8 +97,8 @@ each sandbox's `*Config.ts`.
 
 Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22:
 
-- `npm test` — 45 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
-  6 for the Inquiry Log core, 7 for the Inquiry Log panel, 1 for page addresses, 1 for courses, 1 for design tokens, 1 for search, 1 for private modules and 1 for the module checker.
+- `npm test` — 46 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
+  6 for the Inquiry Log core, 7 for the Inquiry Log panel, 1 for page addresses, 1 for courses, 1 for design tokens, 1 for search, 1 for private modules, 1 for the module checker and 1 for the share path.
 - `npm run build` — TypeScript and production build, zero errors.
 - `npm run check:module -- examples/local-module` — the module checker run on the shipped example, so the tool cannot rot.
 - `npm run smoke` — a browser smoke test on the built site: opens every instrument from a cold link in headless Chrome
@@ -106,7 +106,7 @@ Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22
   screen. CI runs it, and the Pages deploy runs it before publishing, so a broken instrument does not reach the demo. It
   needs Chrome, Chromium or Edge installed (set `CHROME_PATH` if it cannot find it) and a fresh `npm run build`.
 - `npm run check:bundle` — payload budget, as the script prints it: first load 103.9 kB gzip (budget
-  107.4), largest chunk 121.3 kB (budget 180.7), everything 351.1 kB (budget 356.4). Sandboxes are fetched
+  107.4), largest chunk 121.3 kB (budget 180.7), everything 351.4 kB (budget 356.4). Sandboxes are fetched
   when opened, so the catalogue does not wait for any of them.
 
 ## Docs

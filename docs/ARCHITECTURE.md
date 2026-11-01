@@ -277,7 +277,7 @@ Measured after the UI clean-up (2026-11-01), whole `dist/`, in the units the scr
 |---|---|---|
 | First load (entry, React, CSS) | 103.9 kB gzip | 107.4 kB |
 | Largest single chunk (three.js) | 121.3 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 351.1 kB | 356.4 kB |
+| Total gzip (level 9) | 351.4 kB | 356.4 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
@@ -309,6 +309,8 @@ The home page (a list of courses), a page per course (`#/course/<code>`) and an 
 `local/` (git-ignored, absent from a fresh checkout and so from the public build) may hold `<id>/module.ts` files, each default-exporting a manifest object like an upstream registration with its own `load()`, and a `courses.ts` listing courses. `src/simulations/loadLocal.ts` reads them with the bundler's glob before the first render; with no `local/` folder it returns at once and the validation code (`src/simulations/local.ts`, its own chunk) is never fetched. Each module is imported separately, so one that throws is reported, not fatal. `local.ts` is pure so `npm test` can hold its rules: what a manifest must declare, that a local module cannot take an upstream id, that the shipped example (`examples/local-module/`) is valid and matches a closed form worked out in the test, that `local/` is ignored and nothing under it is tracked. Local entries carry `local: true` and are labelled *Local, unreviewed* wherever they appear; the playlist schema leaves them out; the generic telemetry card lists whatever numbers their engine reports with the units they declared. A CI step refuses a public build if a `local/` folder exists. See [LOCAL_MODULES.md](LOCAL_MODULES.md).
 
 The checker (`npm run check:module`, `scripts/check-module.ts` around the pure `src/simulations/moduleCheck.ts`) runs a module's engine in Node and reports in sentences: manifest form, that the engine loads without a DOM, the eight-method contract, declared channels equal reported channels in both directions, the clock, finite numbers across every slider's range, repeatability, that every slider reaches the engine, an optional hand-worked `benchmark` the engine must reproduce, and the renderer's shape. It is held by a test that feeds it the shipped example and 15 deliberately broken modules, including an engine with 0.1% wrong gravity that only the benchmark catches. It never enters the app bundle.
+
+The share path (`npm run export:module`, `scripts/export-module.ts` around the pure `src/simulations/exportModule.ts`) turns `local/<id>/` into the edits a pull request needs: the module's files copied to `src/simulations/physics/<id>/` with `../../src/` imports rewritten to `../../../`, one import and one entry in `src/simulations/index.ts`, one line in a course in `src/courses/courses.ts`. It refuses, with the reason, a module that has failed the checker, has no hand-worked `benchmark` or no `guide`, names no course or several, reuses an existing or reserved id, or sits in a registry laid out differently from what it expects; then it runs `npm test` and puts everything back if that fails. A built-in instrument keeps its guide in `sandboxGuides.ts`; an exported one carries its own in its manifest (`guideOf()` reads either), and any instrument without a hand-built telemetry card gets the generic one. Private modules need none of this, which is the point of keeping the bar for sharing separate from the bar for using.
 
 ### 6.8 Browser smoke test
 
