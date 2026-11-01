@@ -187,6 +187,7 @@ Before submitting a Pull Request, make sure your branch satisfies:
 * [ ] `npm test` passes with zero errors across all core verification tests.
 * [ ] `npm run build` succeeds with zero TypeScript type errors.
 * [ ] `npm run check:bundle` passes — the payload stays inside the Art. 8 budget.
+* [ ] `npm run smoke` passes if you changed anything a visitor sees (it needs Chrome, Chromium or Edge, and a fresh `npm run build`); CI runs it either way.
 * [ ] If the PR proposes an instrument that began as a private module (`docs/LOCAL_MODULES.md`): `npm run check:module -- <folder>` passes with a hand-worked `benchmark`, it is your own work under the MIT licence, and it contains no third-party material except under a compatible licence with attribution.
 * [ ] Any new animation or transition respects `prefers-reduced-motion` (the global guard in `src/styles/globals.css` covers Tailwind's `animate-*` / `transition-*` utilities; hand-written CSS keyframes need their own media query).
 * [ ] The physics engine contains zero DOM/Three.js/React imports (100% headless).

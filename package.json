@@ -34,6 +34,7 @@
     "test": "tsx -e \"import { runCoreVerification } from './src/core/test/core.test'; runCoreVerification().catch((e) => { console.error(e); process.exit(1); });\"",
     "check:bundle": "node scripts/check-bundle.mjs",
     "check:module": "tsx scripts/check-module.ts",
+    "smoke": "tsx scripts/smoke.ts",
     "verify": "npm test && npm run build && npm run check:bundle && npm run check:module -- examples/local-module"
   },
   "dependencies": {
@@ -48,6 +49,7 @@
     "@types/react-dom": "^19.0.0",
     "@types/three": "^0.174.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "puppeteer-core": "^24.43.1",
     "tailwindcss": "^4.0.0",
     "tsx": "^4.23.15",
     "typescript": "~5.7.2",

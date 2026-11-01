@@ -1,0 +1,346 @@
+/**
+ * npm run smoke   (after npm run build)
+ *
+ * A browser smoke test (Constitution Art. 9.2, roadmap R3). It serves the built site, opens it in a real
+ * headless Chrome and checks what a visitor would meet: every instrument opens from a cold link, draws, and
+ * runs; the home, course, About and Instruments pages and the search box work; a phone-sized screen does not
+ * overflow. It exists because the demo is redeployed on every push and a sandbox can break in a way no
+ * Node test sees (a bad chunk, a renderer that throws, a blank canvas).
+ *
+ * CPU only: Chrome is started with its GPU disabled and a software WebGL, so it never touches a graphics card.
+ * It needs Chrome, Chromium or Edge: set CHROME_PATH, or it looks in the usual places (GitHub's Ubuntu runners
+ * have Chrome installed).
+ *
+ * Run it on a build made without a local/ folder; private modules would change the counts it expects. If the
+ * build was made with VITE_BASE (as the Pages deploy does), set the same value here.
+ */
+import { spawn } from 'node:child_process';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import puppeteer from 'puppeteer-core';
+import type { Browser, Page } from 'puppeteer-core';
+import { SIMULATION_CATALOG } from '../src/simulations';
+import { COURSES } from '../src/courses/courses';
+
+const root = resolve(import.meta.dirname ?? '.', '..');
+const PORT = Number(process.env.SMOKE_PORT ?? 4179);
+// Serve the build the way it will be deployed: with VITE_BASE=/agentuto/ it is checked under that sub-path.
+const BASE_PATH = (process.env.VITE_BASE ?? '/').replace(/\/$/, '');
+const BASE = `http://localhost:${PORT}${BASE_PATH}`;
+const only = process.env.SMOKE_ONLY?.split(',').filter(Boolean);
+/**
+ * A drawn canvas compresses to far more than an empty one. Measured: an empty apparatus canvas is ~2.3 kB as a
+ * PNG and the thinnest real scene (Lorentz, 3D) is ~14 kB, so the line sits between them.
+ */
+const MIN_CANVAS_PNG_BYTES = 6000;
+const OUT = join(root, 'test-results', 'smoke');
+
+const failures: string[] = [];
+let checks = 0;
+
+function pass(label: string, detail = ''): void {
+  checks++;
+  console.log(`  ✓ ${label}${detail ? ` — ${detail}` : ''}`);
+}
+function fail(label: string, reason: string): void {
+  checks++;
+  failures.push(`${label}: ${reason}`);
+  console.log(`  ✗ ${label}: ${reason}`);
+}
+
+function findChrome(): string | null {
+  const candidates = [
+    process.env.CHROME_PATH,
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+  ];
+  return candidates.find((p) => p && existsSync(p)) ?? null;
+}
+
+async function startServer(): Promise<{ stop: () => void }> {
+  if (!existsSync(join(root, 'dist', 'index.html'))) {
+    throw new Error('dist/ not found: run `npm run build` first.');
+  }
+  const child = spawn(process.execPath, [join(root, 'node_modules', 'vite', 'bin', 'vite.js'), 'preview', '--port', String(PORT), '--strictPort'], {
+    cwd: root,
+    stdio: 'ignore',
+  });
+  for (let i = 0; i < 60; i++) {
+    try {
+      if ((await fetch(`${BASE}/`)).ok) return { stop: () => child.kill() };
+    } catch {
+      /* not up yet */
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  child.kill();
+  throw new Error(`the preview server did not answer on ${BASE}`);
+}
+
+/** Collects everything that should never happen while a page is used. */
+function watch(page: Page, into: string[]): void {
+  page.on('pageerror', (error) => into.push(`script error: ${String(error).split('\n')[0]}`));
+  page.on('console', (message) => {
+    if (message.type() !== 'error') return;
+    const text = message.text();
+    if (/favicon/i.test(text)) return;
+    into.push(`console error: ${text.slice(0, 160)}`);
+  });
+  page.on('requestfailed', (request) => into.push(`request failed: ${request.url().replace(BASE, '')}`));
+  page.on('response', (response) => {
+    if (response.status() >= 400) into.push(`HTTP ${response.status()}: ${response.url().replace(BASE, '')}`);
+  });
+}
+
+async function snapshotOnFailure(page: Page, name: string): Promise<void> {
+  try {
+    mkdirSync(OUT, { recursive: true });
+    const file = join(OUT, `${name.replace(/[^a-z0-9-]+/gi, '_')}.png`);
+    writeFileSync(file, await page.screenshot({ type: 'png' }));
+    console.log(`    (screenshot: ${file})`);
+  } catch {
+    /* the page may already be gone */
+  }
+}
+
+const simTime = (page: Page) =>
+  page.evaluate(() => {
+    // The readout is "t = <span>1.71</span>s": find the span whose parent reads exactly that.
+    const span = [...document.querySelectorAll('main span')].find((s) => /^t = [0-9.]+s$/.test((s.parentElement?.textContent ?? '').trim()));
+    const value = parseFloat(span?.textContent ?? '');
+    return Number.isFinite(value) ? value : null;
+  });
+
+async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promise<void> {
+  const sim = SIMULATION_CATALOG[id];
+  const problems: string[] = [];
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1280, height: 800 });
+  watch(page, problems);
+  try {
+    await page.goto(`${BASE}/#/sandbox/${id}`, { waitUntil: 'load' });
+    try {
+      await page.waitForSelector('main h1', { timeout: 20000 });
+    } catch {
+      problems.push('the sandbox screen never appeared');
+    }
+    const title = await page.evaluate(() => document.querySelector('main h1')?.textContent ?? '');
+    if (title && title !== sim.title) problems.push(`the heading says "${title}", expected "${sim.title}"`);
+
+    let detail = '';
+    if (sim.mode === '3D' && !webgl) {
+      // The designed behaviour on a machine without WebGL: an explanation, not an empty box.
+      const explained = await page.evaluate(() => /WebGL/.test(document.querySelector('main')?.textContent ?? ''));
+      if (!explained) problems.push('no WebGL here, and the screen does not explain it');
+      detail = 'needs WebGL; the explanation is shown';
+    } else {
+      try {
+        await page.waitForSelector('section[aria-label="Apparatus"] canvas', { timeout: 20000 });
+      } catch {
+        problems.push('no drawing surface appeared');
+      }
+      const canvas = await page.$('section[aria-label="Apparatus"] canvas');
+      if (canvas) {
+        const box = await canvas.boundingBox();
+        if (!box || box.width < 200 || box.height < 150) problems.push(`the drawing surface is only ${Math.round(box?.width ?? 0)}x${Math.round(box?.height ?? 0)}`);
+        const before = await simTime(page);
+        await new Promise((r) => setTimeout(r, 1500));
+        const after = await simTime(page);
+        if (before === null || after === null) problems.push('the transport clock is not on screen');
+        else if (after - before < 0.2) problems.push(`the simulation is not running (t went ${before} → ${after} in 1.5 s)`);
+        const bytes = (await canvas.screenshot({ type: 'png' })).length;
+        if (bytes < MIN_CANVAS_PNG_BYTES) problems.push(`the drawing looks blank (${bytes} bytes as an image)`);
+        detail = `${sim.mode}, t ${before} → ${after}, drawing ${bytes} bytes`;
+      }
+    }
+    if (problems.length > 0) {
+      fail(`sandbox ${id}`, [...new Set(problems)].slice(0, 4).join('; '));
+      await snapshotOnFailure(page, `sandbox-${id}`);
+    } else {
+      pass(`sandbox ${id}`, detail);
+    }
+  } finally {
+    await page.close();
+  }
+}
+
+async function checkSite(browser: Browser): Promise<void> {
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1280, height: 800 });
+  const problems: string[] = [];
+  watch(page, problems);
+  const bad = async (label: string, reason: string) => {
+    fail(label, reason);
+    await snapshotOnFailure(page, label);
+  };
+  const upstream = Object.keys(SIMULATION_CATALOG).length;
+
+  // Home: a list of courses
+  await page.goto(`${BASE}/#/`, { waitUntil: 'load' });
+  await page.waitForSelector('#courses a', { timeout: 20000 }).catch(() => undefined);
+  const cards = await page.$$eval('#courses a', (links) => links.map((a) => a.getAttribute('href')));
+  if (cards.length < COURSES.length) await bad('home page', `${cards.length} course cards, expected at least ${COURSES.length}`);
+  else pass('home page', `${cards.length} course cards`);
+
+  // Every course opens and lists its instruments
+  for (const course of COURSES) {
+    await page.goto(`${BASE}/#/course/${encodeURIComponent(course.id)}`, { waitUntil: 'load' });
+    await page
+      .waitForFunction((title) => document.querySelector('[data-site-page="course"] h1')?.textContent === title, { timeout: 20000 }, course.title)
+      .catch(() => undefined);
+    const rows = await page.$$eval('[data-site-page="course"] ol > li', (items) => items.length);
+    if (rows !== course.modules.length) await bad(`course ${course.id}`, `${rows} instruments listed, expected ${course.modules.length}`);
+    else pass(`course ${course.id}`, `${rows} instruments`);
+  }
+
+  // About and Instruments
+  await page.goto(`${BASE}/#/about`, { waitUntil: 'load' });
+  await page.waitForSelector('[data-site-page="about"] h1', { timeout: 20000 }).catch(() => undefined);
+  const about = await page.$eval('[data-site-page="about"] h1', (h) => h.textContent ?? '').catch(() => 'no About page appeared');
+  if (!/About/.test(about)) await bad('about page', `heading is "${about}"`);
+  else pass('about page');
+
+  await page.goto(`${BASE}/#/instruments`, { waitUntil: 'load' });
+  await page.waitForSelector('[role="dialog"] article', { timeout: 20000 }).catch(() => undefined);
+  const articles = await page.$$eval('[role="dialog"] article', (items) => items.length);
+  if (articles < upstream) await bad('instruments page', `${articles} instruments, expected at least ${upstream}`);
+  else pass('instruments page', `${articles} instruments`);
+
+  // Search, with real key presses: "/" focuses, typing finds, Enter opens
+  await page.goto(`${BASE}/#/`, { waitUntil: 'load' });
+  await page.waitForSelector('input[role="combobox"]', { timeout: 20000 }).catch(() => undefined);
+  await page.keyboard.press('/');
+  await page.keyboard.type('lorentz');
+  const found = await page
+    .waitForSelector('[role="option"]', { timeout: 10000 })
+    .then(() => page.$$eval('[role="option"]', (o) => o.map((x) => x.textContent ?? '')))
+    .catch(() => [] as string[]);
+  if (found.length === 0 || !/Lorentz/.test(found[0])) {
+    await bad('search', `typing "lorentz" gave ${found.length === 0 ? 'no results' : `"${found[0]}" first`}`);
+  } else {
+    await page.keyboard.press('Enter');
+    await page.waitForFunction(() => location.hash === '#/sandbox/lorentz-force', { timeout: 10000 }).catch(() => undefined);
+    const hash = await page.evaluate(() => location.hash);
+    if (hash !== '#/sandbox/lorentz-force') await bad('search', `Enter opened ${hash}`);
+    else pass('search', '"/" then "lorentz" then Enter opens the Lorentz instrument');
+  }
+
+  // An address that is nonsense lands on the home page, not a blank screen
+  await page.goto(`${BASE}/#/nonsense/path`, { waitUntil: 'load' });
+  await page.waitForSelector('#courses a', { timeout: 20000 }).catch(() => undefined);
+  const stray = await page.$$eval('#courses a', (links) => links.length);
+  if (stray < COURSES.length) await bad('unknown address', 'did not fall back to the course list');
+  else pass('unknown address', 'opens the course list');
+
+  if (problems.length > 0) {
+    fail('site pages: errors while browsing', [...new Set(problems)].slice(0, 5).join('; '));
+  } else {
+    pass('site pages: no script errors, failed requests or HTTP errors');
+  }
+  await page.close();
+}
+
+async function checkPhone(browser: Browser, webgl: boolean): Promise<void> {
+  const page = await browser.newPage();
+  await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
+  const problems: string[] = [];
+  watch(page, problems);
+  const overflow = () => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+
+  for (const [label, hash] of [['home', '#/'], ['course', '#/course/8.02'], ['about', '#/about']] as const) {
+    await page.goto(`${BASE}/${hash}`, { waitUntil: 'load' });
+    await page.waitForSelector('[data-site-page] h1', { timeout: 20000 }).catch(() => undefined);
+    if (await overflow()) {
+      fail(`phone ${label}`, 'scrolls sideways');
+      await snapshotOnFailure(page, `phone-${label}`);
+    } else {
+      pass(`phone ${label}`, 'no sideways scroll at 390 px');
+    }
+  }
+
+  // A sandbox: the panels start closed so the apparatus has the screen
+  const id = webgl ? 'lorentz-force' : 'harmonic-oscillator';
+  await page.goto(`${BASE}/#/sandbox/${id}`, { waitUntil: 'load' });
+  await page.waitForSelector('section[aria-label="Apparatus"] canvas', { timeout: 20000 }).catch(() => undefined);
+  const state = await page.evaluate(() => ({
+    left: (document.querySelector('aside[aria-label^="Parameters"]') as HTMLElement | null)?.hidden,
+    right: (document.querySelector('aside[aria-label^="Telemetry"]') as HTMLElement | null)?.hidden,
+    canvasWidth: document.querySelector('section[aria-label="Apparatus"] canvas')?.getBoundingClientRect().width ?? 0,
+  }));
+  if (!state.left || !state.right) fail('phone sandbox', 'the panels start open and would cover the apparatus');
+  else if (state.canvasWidth < 300) fail('phone sandbox', `the apparatus is only ${Math.round(state.canvasWidth)} px wide`);
+  else if (await overflow()) fail('phone sandbox', 'scrolls sideways');
+  else pass('phone sandbox', `${id}: panels closed, apparatus ${Math.round(state.canvasWidth)} px wide`);
+
+  if (problems.length > 0) fail('phone: errors while browsing', [...new Set(problems)].slice(0, 5).join('; '));
+  await page.close();
+}
+
+async function main(): Promise<void> {
+  if (existsSync(join(root, 'local'))) {
+    console.log('Note: a local/ folder exists, so a build made here includes private modules and the counts below may differ.\n');
+  }
+  const chrome = findChrome();
+  if (!chrome) {
+    console.error('No Chrome, Chromium or Edge found. Install one, or set CHROME_PATH to its executable.');
+    process.exit(2);
+  }
+  const server = await startServer();
+  const browser = await puppeteer.launch({
+    executablePath: chrome,
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-dev-shm-usage',
+      // CPU only: no graphics card, a software WebGL.
+      '--disable-gpu',
+      '--use-gl=angle',
+      '--use-angle=swiftshader',
+      '--enable-unsafe-swiftshader',
+      '--ignore-gpu-blocklist',
+    ],
+  });
+  try {
+    const probe = await browser.newPage();
+    await probe.goto('about:blank');
+    const webgl = await probe.evaluate(() => {
+      const c = document.createElement('canvas');
+      return !!(c.getContext('webgl2') || c.getContext('webgl'));
+    });
+    await probe.close();
+    console.log(`Browser: ${await browser.version()}; WebGL (software): ${webgl ? 'available' : 'not available'}\n`);
+
+    console.log('Instruments');
+    for (const id of Object.keys(SIMULATION_CATALOG)) {
+      if (only && !only.includes(id)) continue;
+      await checkSandbox(browser, id, webgl);
+    }
+    if (!only) {
+      console.log('\nSite');
+      await checkSite(browser);
+      console.log('\nPhone');
+      await checkPhone(browser, webgl);
+    }
+  } finally {
+    await browser.close();
+    server.stop();
+  }
+
+  console.log(
+    failures.length === 0
+      ? `\n${checks} checks passed.`
+      : `\n${failures.length} of ${checks} checks failed:\n${failures.map((f) => `  - ${f}`).join('\n')}`,
+  );
+  process.exit(failures.length === 0 ? 0 : 1);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
