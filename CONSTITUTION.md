@@ -1,9 +1,8 @@
 # Agentuto Constitution
 
-> **Status:** v1.2 — **proposed** 2026-10-31 by Claude at the repository owner's instruction. It becomes
-> v1.2, ratified, when the owner merges the pull request carrying this text; nothing in it binds anyone before
-> that. The text on `main` before this change is v1.1 (proposed by DeepSeek the same day). v1.0 was ratified by
-> the repository owner on 2026-10-31.
+> **Status:** v1.2 — **ratified** 2026-10-31 by the repository owner, who merged the pull request carrying it
+> (#17, proposed by Claude at the owner's instruction). It replaces v1.1, whose text it builds on; v1.0 was
+> ratified by the repository owner on 2026-10-31.
 
 This document holds the few rules that must stay true however the project grows. `AGENTS.md` says *how*
 agents work day to day; the skills in `.agents/skills/` say *how to do* specific tasks. When they conflict,
@@ -150,14 +149,16 @@ hand-off reports, and do not block unrelated work. New and changed code must com
 ---
 
 ## Ratification and amendments
-- **Ratified:** 2026-10-31 by the repository owner (v1.0).
+- **Ratified:** 2026-10-31 by the repository owner: v1.0, and v1.2 by merging #17. The v1.1 articles it builds on
+  (Art. 1.5, 9.3, 10.7, 10.8, 11.3) stand as part of v1.2.
 - **Proposed:** 2026-10-31 by DeepSeek (Hermes) at the owner's instruction (v1.1), and by Claude at the owner's
   instruction (v1.2). Merging the pull request that carries a version's text is that version's ratification; no
-  other step is required.
+  other step is required. A later proposal states in its header that it is proposed, and the pull request that
+  merges it updates the header to ratified.
 
 | Version | Date | Change |
 |---|---|---|
 | v0.1 | 2026-10-31 | Draft by Claude for owner review. |
 | v1.0 | 2026-10-31 | Ratified by the owner after revisions (roles not models, transition clause, branch protection). |
 | v1.1 | 2026-10-31 | Proposed by DeepSeek: check independence (Art. 1.5), verified gate claims (Art. 9.3), verification & learner-experience role and no self-review (Art. 10.7–8), provenance without an account (Art. 11.3). |
-| v1.2 | 2026-10-31 | Proposed by Claude: permission notice for AI without naming an age (Art. 3.5); links are conveniences, not integrations (Art. 8.3); ruleset wording (Art. 9.2); local courses are data (Art. 6.3); new Art. 12 on the three uses, what the project is not, no identity checks, local content and sharing. |
+| v1.2 | 2026-10-31 | Ratified (#17). Proposed by Claude: permission notice for AI without naming an age (Art. 3.5); links are conveniences, not integrations (Art. 8.3); ruleset wording (Art. 9.2); local courses are data (Art. 6.3); new Art. 12 on the three uses, what the project is not, no identity checks, local content and sharing. |
