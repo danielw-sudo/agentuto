@@ -144,6 +144,8 @@ email address private. An instrument was exported for real into a working tree: 
 bundle budget and the 35-check smoke test accepted it, then it was reverted.
 
 ### R6 — Depth
+
+**Built — theme toggle.** Auto / Light / Dark in the site footer, remembered in this browser, applied before first paint (see ARCHITECTURE §6.6).
 In this order: ~~Inquiry Log streak and heatmap (Kaizen 3b)~~ (built: see below), independent closed-form recomputation for all 17
 sandboxes (5a, Art. 1.5), micro-feedback (batch 4), then the owner's decision on the five engine initial
 conditions that have no slider, and deriving the CSV units line from the manifest.

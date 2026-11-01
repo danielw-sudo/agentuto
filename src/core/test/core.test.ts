@@ -32,6 +32,7 @@ import { runCoursesVerification } from './courses.test';
 import { runTokensVerification } from './tokens.test';
 import { runSearchVerification } from './search.test';
 import { runActivityVerification } from './activity.test';
+import { runThemeVerification } from './theme.test';
 import { runLocalModulesVerification } from './localModules.test';
 import { runModuleCheckVerification } from './moduleCheck.test';
 import { runExportModuleVerification } from './exportModule.test';
@@ -1282,13 +1283,16 @@ export async function runCoreVerification(): Promise<boolean> {
   // Test 31: home activity grid (roadmap R6) — streak and calendar counted by hand.
   runActivityVerification();
 
-  // Test 32: private modules (roadmap R2b) — the rules for local/, the shipped example, git hygiene.
+  // Test 32: colour theme choice — saved, defaults to the system, survives blocked storage.
+  runThemeVerification();
+
+  // Test 33: private modules (roadmap R2b) — the rules for local/, the shipped example, git hygiene.
   await runLocalModulesVerification();
 
-  // Test 33: module checker (roadmap R2c) — a good module passes, each rule catches a deliberately broken one.
+  // Test 34: module checker (roadmap R2c) — a good module passes, each rule catches a deliberately broken one.
   await runModuleCheckVerification();
 
-  // Test 34: share path (roadmap R5) — a finished module becomes exactly the edits a PR needs; the rest is refused.
+  // Test 35: share path (roadmap R5) — a finished module becomes exactly the edits a PR needs; the rest is refused.
   await runExportModuleVerification();
 
   console.log('\n🎉 ALL CORE ENGINE CONTRACTS VERIFIED SUCCESSFULLY!');
