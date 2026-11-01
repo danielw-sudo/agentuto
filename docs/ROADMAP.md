@@ -147,7 +147,9 @@ bundle budget and the 35-check smoke test accepted it, then it was reverted.
 
 **Built — independent closed forms (Art. 1.5).** One case per built-in instrument in `src/core/test/closedForm.test.ts` (see ARCHITECTURE §6.7a), mutation-tested with 25 deliberate engine errors, all caught. Fixed what it found: Lorentz kinetic-energy unit (J to µJ), the Doppler receiver-speed sign on the ahead/behind channels, and first-order RC/RL heat. Left for the owner: decisions 6 and 7 below.
 
-**Built — theme toggle.** Auto / Light / Dark in the site footer, remembered in this browser, applied before first paint (see ARCHITECTURE §6.6).
+**Built — theme toggle.** An icon button at the top right (Auto, Light, Dark), remembered in this browser, applied before first paint (see ARCHITECTURE §6.6).
+
+**Built — community links.** Discuss, report and propose are linked from every page and from inside each instrument, from one tested source (ARCHITECTURE §6.6a). Longer-term topics the owner raised (courses and correctness, look and feel, running as a community, and what is worth sharing if no community forms) are in [`OPEN_TOPICS.md`](OPEN_TOPICS.md).
 In this order: ~~Inquiry Log streak and heatmap (Kaizen 3b)~~ (built: see below), independent closed-form recomputation for all 17
 sandboxes (5a, Art. 1.5), micro-feedback (batch 4), then the owner's decision on the five engine initial
 conditions that have no slider, and deriving the CSV units line from the manifest.

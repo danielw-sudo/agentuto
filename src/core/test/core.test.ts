@@ -34,6 +34,7 @@ import { runSearchVerification } from './search.test';
 import { runActivityVerification } from './activity.test';
 import { runThemeVerification } from './theme.test';
 import { runClosedFormVerification } from './closedForm.test';
+import { runCommunityVerification } from './community.test';
 import { runLocalModulesVerification } from './localModules.test';
 import { runModuleCheckVerification } from './moduleCheck.test';
 import { runExportModuleVerification } from './exportModule.test';
@@ -1290,13 +1291,16 @@ export async function runCoreVerification(): Promise<boolean> {
   // Test 33: independent closed forms for every instrument (Art. 1.5, roadmap R6) — own constants, off-default parameters.
   await runClosedFormVerification();
 
-  // Test 34: private modules (roadmap R2b) — the rules for local/, the shipped example, git hygiene.
+  // Test 34: community links — one source, held against the repository's issue forms and Discussions categories.
+  runCommunityVerification();
+
+  // Test 35: private modules (roadmap R2b) — the rules for local/, the shipped example, git hygiene.
   await runLocalModulesVerification();
 
-  // Test 35: module checker (roadmap R2c) — a good module passes, each rule catches a deliberately broken one.
+  // Test 36: module checker (roadmap R2c) — a good module passes, each rule catches a deliberately broken one.
   await runModuleCheckVerification();
 
-  // Test 36: share path (roadmap R5) — a finished module becomes exactly the edits a PR needs; the rest is refused.
+  // Test 37: share path (roadmap R5) — a finished module becomes exactly the edits a PR needs; the rest is refused.
   await runExportModuleVerification();
 
   console.log('\n🎉 ALL CORE ENGINE CONTRACTS VERIFIED SUCCESSFULLY!');

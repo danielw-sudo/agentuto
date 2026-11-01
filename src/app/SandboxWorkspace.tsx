@@ -3,6 +3,7 @@ import { Activity, ChevronLeft, Eye, EyeOff, MoreHorizontal, Sliders, Sparkles }
 import { ViewportContainer } from './layout/ViewportContainer';
 import { DockLayout } from './layout/DockLayout';
 import { SiteSearch } from '../ui/site/SiteSearch';
+import { COMMUNITY, feedbackUrl } from '../community';
 import { LocalBadge } from '../ui/site/LocalBadge';
 import { coursesOfSandbox } from '../courses/courses';
 import { GlassPanel } from '../ui/components/GlassPanel';
@@ -333,10 +334,23 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
               <button type="button" onClick={() => setIsSchedulerOpen(true)} className={headerButton}>
                 Planner
               </button>
+              <a
+                href={feedbackUrl(simRegistration.id)}
+                target="_blank"
+                rel="noreferrer"
+                data-community="feedback"
+                title="Report a problem with this instrument (opens GitHub)"
+                className={headerButton}
+              >
+                Feedback
+              </a>
+              <a href={COMMUNITY.discussions} target="_blank" rel="noreferrer" data-community="discuss" className={headerButton}>
+                Discuss
+              </a>
             </div>
             <details className="relative lg:hidden">
               <summary
-                aria-label="More: instruments, guide, planner"
+                aria-label="More: instruments, guide, planner, feedback, discussions"
                 className={`${headerButton} list-none [&::-webkit-details-marker]:hidden`}
               >
                 <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
@@ -358,6 +372,12 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
                 >
                   Planner
                 </button>
+                <a href={feedbackUrl(simRegistration.id)} target="_blank" rel="noreferrer" className={`${headerButton} justify-start border-0`}>
+                  Feedback
+                </a>
+                <a href={COMMUNITY.discussions} target="_blank" rel="noreferrer" className={`${headerButton} justify-start border-0`}>
+                  Discuss
+                </a>
               </div>
             </details>
             <span className="flex items-center gap-1.5" role="group" aria-label="Panels">

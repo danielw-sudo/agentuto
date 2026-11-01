@@ -1,4 +1,5 @@
 import React from 'react';
+import { COMMUNITY } from '../../community';
 import { AgentMark, AgentMarkName } from '../components/AgentMark';
 import { SiteLayout, focusRing } from './SiteLayout';
 
@@ -70,15 +71,22 @@ export const AboutPage: React.FC = () => (
         <Section title="Take part">
           <ul className="m-0 list-none space-y-2 p-0">
             <li>
-              <ExternalLink href="https://github.com/danielw-sudo/agentuto">The project on GitHub</ExternalLink>
+              <ExternalLink href={COMMUNITY.repo}>The project on GitHub</ExternalLink>
             </li>
             <li>
-              <ExternalLink href="https://github.com/danielw-sudo/agentuto/issues/new/choose">
-                Report a physics discrepancy or a bug
-              </ExternalLink>
+              <ExternalLink href={COMMUNITY.discussions}>Discussions: questions, ideas, and what you built</ExternalLink>
             </li>
             <li>
-              <ExternalLink href="https://github.com/danielw-sudo/agentuto/discussions">Course mapping and discussion</ExternalLink>
+              <ExternalLink href={COMMUNITY.physics}>Report a physics or maths discrepancy</ExternalLink>
+            </li>
+            <li>
+              <ExternalLink href={COMMUNITY.issues}>Report any other problem</ExternalLink>
+            </li>
+            <li>
+              <ExternalLink href={COMMUNITY.proposeInstrument}>Propose an instrument</ExternalLink>
+            </li>
+            <li>
+              <ExternalLink href={COMMUNITY.mapCourse}>Map your course to the instruments</ExternalLink>
             </li>
           </ul>
         </Section>
