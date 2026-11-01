@@ -631,8 +631,9 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
                   Agentuto operates no backend servers and collects no analytics or telemetry. When you send a message to
                   the tutor, your prompt, active slider parameters, and summary telemetry are sent directly to the AI
                   provider you configured under that provider&apos;s terms of service (including age and regional
-                  requirements). If you are a student, please check with a parent, guardian, or teacher before using AI
-                  features.
+                  requirements). Use only services you are allowed to use. If you need permission from a parent, teacher or
+                  institution to use an AI service, get it first, and follow the rules that apply to you: many schools,
+                  colleges and employers restrict generative AI.
                 </p>
                 <p>
                   The Socratic tutor is instructed not to compute or hand out final numerical answers, and instead points

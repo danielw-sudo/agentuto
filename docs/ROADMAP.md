@@ -68,6 +68,13 @@ Outcome: the concept is written down and the entry prompt is safe.
 - README leads with the positioning sentence. No "free tier" claims (we cannot verify or promise them).
 - Check: `npm test` unchanged, links resolve, no number contradicts a check.
 
+*Built (R0):* `CONSTITUTION.md` v1.2 is **proposed** in its pull request and takes effect only when the owner merges it
+(Art. 12 on scope, audiences, no identity checks, local content and sharing; the permission notice in Art. 3.5; links
+are conveniences in Art. 8.3). The permission notice is in the README, user guide, About page and the in-app notices.
+The setup prompt in the user guide is hardened and works on Windows, macOS and Linux. It still says *do not edit any
+file inside the project*; when R2b ships `local/`, that rule becomes *write only inside `local/`*, and not before
+(Art. 4.1). The README leads with the positioning sentence and marks "extend it privately" as planned.
+
 ### R1 — Tidy the repository
 Outcome: a visitor sees what matters. Prose moved under `docs/` (`ARCHITECTURE.md`, `devlog.md`);
 `README.md`, `LICENSE`, `CONTRIBUTING.md`, `AGENTS.md` and `CONSTITUTION.md` stay at the root because

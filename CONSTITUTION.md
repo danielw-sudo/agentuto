@@ -1,7 +1,8 @@
 # Agentuto Constitution
 
-> **Status:** v1.1 — **proposed** 2026-10-31 by DeepSeek (Hermes) at the repository owner's instruction. It
-> becomes v1.1, ratified, when the owner merges the pull request carrying this text. v1.0 was ratified by
+> **Status:** v1.2 — **proposed** 2026-10-31 by Claude at the repository owner's instruction. It becomes
+> v1.2, ratified, when the owner merges the pull request carrying this text; nothing in it binds anyone before
+> that. The text on `main` before this change is v1.1 (proposed by DeepSeek the same day). v1.0 was ratified by
 > the repository owner on 2026-10-31.
 
 This document holds the few rules that must stay true however the project grows. `AGENTS.md` says *how*
@@ -45,6 +46,9 @@ hand-off reports, and do not block unrelated work. New and changed code must com
    a particular user. The "AI Features & Disclaimer" text (README, user guide §5, and the in-app key
    dialog) stays in place.
 4. Course labels say "aligned with" and never imply affiliation with or endorsement by any institution.
+5. **Permission notice.** Wherever AI is offered, docs and UI say, without naming an age or a school level:
+   Use only services you are allowed to use. If you need permission from a parent, teacher or institution to use an AI service, get it first, and follow the rules that apply to you: many schools, colleges and employers restrict generative AI.
+   It is a notice, not a check; Agentuto verifies no one (Art. 12.3).
 
 ## Article 4: Truthful documentation
 1. Docs describe what has shipped. Plans live only in clearly marked roadmap sections.
@@ -62,7 +66,7 @@ hand-off reports, and do not block unrelated work. New and changed code must com
 2. A new shared primitive is extracted when a pattern already appears in at least two sandboxes, not
    speculatively.
 3. Courses are content (data) over shared sandboxes. A new course adds a new sandbox only when no existing one
-   can express the experiment.
+   can express the experiment. A course on a learner's own machine (Art. 12.4) is data in the same form.
 
 ## Article 7: Design system
 1. Colours, type, spacing and motion come only from design tokens. Raw colour literals and ad-hoc font sizes
@@ -76,11 +80,15 @@ hand-off reports, and do not block unrelated work. New and changed code must com
 ## Article 8: Simple and light
 1. No backend, accounts or analytics. Static hosting must remain possible.
 2. Every new runtime dependency needs a stated reason. Bundle-size budgets are checked in CI once defined.
+3. **Links are conveniences, integrations are not allowed.** A link that opens another service in the user's own
+   browser with the details filled in (an "add to Google Calendar" link) is a convenience. Agentuto holds no
+   third-party credentials, tokens or OAuth client, and calls no third-party API except the provider the user
+   configured for the optional AI (Art. 3.2).
 
 ## Article 9: Verification gates
 1. Before any commit to `main`: `npm test` and `npm run build` pass.
 2. CI must run the engine checks, the build and (once it exists) a browser smoke test that loads every
-   sandbox. Red CI blocks merging, enforced by GitHub branch protection on `main` (set by the owner).
+   sandbox. Red CI blocks merging, enforced by a GitHub ruleset on `main` (set by the owner).
 3. A gate claim is verified by someone other than the author of the change. A hand-off report that says a
    gate passed names the command, the commit it ran on and what it printed; a claim that cannot be
    reproduced is a defect under Art. 1.3.
@@ -116,13 +124,40 @@ hand-off reports, and do not block unrelated work. New and changed code must com
 
 ---
 
+## Article 12: Scope, audiences and local content
+1. **Three uses, each optional.** *Use it*: open the demo site or run it on your own computer. *Extend it
+   privately*: add modules of your own that stay on your machine. *Share it*: keep a fork (MIT needs nothing
+   from us) or propose a module upstream by pull request. Docs describe these by what people do, never by who
+   they are (Art. 3.3).
+2. **What the project is and is not.** Agentuto provides free, open-source software, documentation, shared
+   skills and automated checks. The GitHub Pages site is a demonstration, not a service. The project does not
+   provide support, accounts or hosting, and takes no responsibility for the AI models, tools and services a user
+   chooses, for any institution's rules, or for content a user creates. Anyone who wants more brings their own
+   resources.
+3. **No identity checks.** Using an AI coding tool requires accounts with that tool's provider, and holding them is
+   the only gate. Agentuto identifies, verifies and tracks no one (Art. 8.1) and makes no statement about
+   anyone's eligibility. The notice in Art. 3.5 is the whole of what the docs say about it.
+4. **Local content.** A user's private modules (sandboxes, courses, notes) live in one folder, `local/`, which is
+   never tracked by git and never part of the public build. The interface labels them *local, unreviewed*.
+   Art. 1.2 and 1.4 are the standard for what is listed as part of Agentuto, not a requirement on what a person
+   keeps for themselves. A check must fail if anything under `local/` is tracked. Until the loader that reads
+   `local/` ships, no document says it works (Art. 4.1).
+5. **Sharing.** A module proposed upstream is the contributor's own work under the MIT licence, with no
+   third-party material except under a compatible licence with attribution (Art. 11.2). It is reviewed by a model
+   family other than its author's (Art. 1.4) and passes the module checks before it is listed as complete.
+   Materials a person may keep privately but may not share stay private.
+
+---
+
 ## Ratification and amendments
 - **Ratified:** 2026-10-31 by the repository owner (v1.0).
-- **Proposed:** 2026-10-31 by DeepSeek (Hermes) at the owner's instruction (v1.1). Merging the pull request
-  that carries this text is the ratification; no other step is required.
+- **Proposed:** 2026-10-31 by DeepSeek (Hermes) at the owner's instruction (v1.1), and by Claude at the owner's
+  instruction (v1.2). Merging the pull request that carries a version's text is that version's ratification; no
+  other step is required.
 
 | Version | Date | Change |
 |---|---|---|
 | v0.1 | 2026-10-31 | Draft by Claude for owner review. |
 | v1.0 | 2026-10-31 | Ratified by the owner after revisions (roles not models, transition clause, branch protection). |
 | v1.1 | 2026-10-31 | Proposed by DeepSeek: check independence (Art. 1.5), verified gate claims (Art. 9.3), verification & learner-experience role and no self-review (Art. 10.7–8), provenance without an account (Art. 11.3). |
+| v1.2 | 2026-10-31 | Proposed by Claude: permission notice for AI without naming an age (Art. 3.5); links are conveniences, not integrations (Art. 8.3); ruleset wording (Art. 9.2); local courses are data (Art. 6.3); new Art. 12 on the three uses, what the project is not, no identity checks, local content and sharing. |

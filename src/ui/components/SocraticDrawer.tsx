@@ -136,7 +136,7 @@ export const SocraticDrawer: React.FC<SocraticDrawerProps> = ({
                   </a>
                 </div>
                 <p className="text-xs text-neutral-400 leading-relaxed">
-                  Optional: every simulation works without AI. Your key stays in this browser's <code className="text-neutral-300">localStorage</code>; your messages and telemetry are sent to Google. Use is governed by Google's terms, including age and regional rules. Students: please check with a parent, guardian or teacher first.
+                  Optional: every simulation works without AI. Your key stays in this browser's <code className="text-neutral-300">localStorage</code>; your messages and telemetry are sent to Google. Use is governed by Google's terms, including age and regional rules. Use only services you are allowed to use: if you need permission from a parent, teacher or institution, get it first; many schools, colleges and employers restrict generative AI.
                 </p>
                 <div className="flex gap-2">
                   <input
