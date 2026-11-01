@@ -271,13 +271,13 @@ Art. 8 asks for a stated reason behind every runtime dependency and a bundle-siz
 
 Sandboxes are loaded on demand (§6.4), so the budget has two meanings: what a visitor downloads to see the
 catalogue (**first load**: the files `index.html` asks for) and the ceiling for opening everything.
-Measured after private modules (2026-10-31), whole `dist/`, in the units the script prints:
+Measured after the module checker (2026-10-31), whole `dist/`, in the units the script prints:
 
 | Measure | Measured | Budget |
 |---|---|---|
 | First load (entry, React, CSS) | 105.1 kB gzip | 107.4 kB |
 | Largest single chunk (three.js) | 121.3 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 353.2 kB | 356.4 kB |
+| Total gzip (level 9) | 353.5 kB | 356.4 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
@@ -307,6 +307,8 @@ The home page (a list of courses), a page per course (`#/course/<code>`) and an 
 ### 6.7 Private modules
 
 `local/` (git-ignored, absent from a fresh checkout and so from the public build) may hold `<id>/module.ts` files, each default-exporting a manifest object like an upstream registration with its own `load()`, and a `courses.ts` listing courses. `src/simulations/loadLocal.ts` reads them with the bundler's glob before the first render; with no `local/` folder it returns at once and the validation code (`src/simulations/local.ts`, its own chunk) is never fetched. Each module is imported separately, so one that throws is reported, not fatal. `local.ts` is pure so `npm test` can hold its rules: what a manifest must declare, that a local module cannot take an upstream id, that the shipped example (`examples/local-module/`) is valid and matches a closed form worked out in the test, that `local/` is ignored and nothing under it is tracked. Local entries carry `local: true` and are labelled *Local, unreviewed* wherever they appear; the playlist schema leaves them out; the generic telemetry card lists whatever numbers their engine reports with the units they declared. A CI step refuses a public build if a `local/` folder exists. See [LOCAL_MODULES.md](LOCAL_MODULES.md).
+
+The checker (`npm run check:module`, `scripts/check-module.ts` around the pure `src/simulations/moduleCheck.ts`) runs a module's engine in Node and reports in sentences: manifest form, that the engine loads without a DOM, the eight-method contract, declared channels equal reported channels in both directions, the clock, finite numbers across every slider's range, repeatability, that every slider reaches the engine, an optional hand-worked `benchmark` the engine must reproduce, and the renderer's shape. It is held by a test that feeds it the shipped example and 15 deliberately broken modules, including an engine with 0.1% wrong gravity that only the benchmark catches. It never enters the app bundle.
 
 ### 6.8 Search
 

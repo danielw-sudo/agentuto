@@ -102,8 +102,12 @@ Three PRs, one at a time, on a clean `main`.
 *Built (R2b):* `local/<id>/module.ts` and `local/courses.ts` load into the same registry and course list, marked *Local,
 unreviewed* everywhere; refused modules are listed with a reason on the home page; `examples/local-module/` is a tested
 starting point; `docs/LOCAL_MODULES.md` has the guide and a hardened prompt; a CI step and a test keep `local/` out of
-the repository and the public build. The module *checker* (R2c) is still to come: today only the form of a manifest is
-checked, not the physics or that every declared channel is emitted.
+the repository and the public build. 
+
+*Built (R2c):* `npm run check:module` runs a private module's engine in Node and reports, in sentences, form, contract,
+declared-versus-reported channels, finite numbers across every slider, repeatability, sliders that do nothing, and a
+hand-worked `benchmark` the engine must reproduce. `npm run verify` runs it on the shipped example. It establishes that
+a module is well formed and agrees with the result its author worked out; it cannot establish that the physics is right.
 
 ### R3 — Safety net
 Outcome: a silent break cannot reach the demo. A browser smoke test, CPU-only, loads every sandbox and runs

@@ -91,6 +91,31 @@ export function describeProblem(raw: unknown, folder: string, taken: (id: string
     if (!isText(unit)) return `telemetryUnits.${channel} needs a unit ("dimensionless" if it has none)`;
   }
 
+  if (raw.benchmark !== undefined) {
+    const b = raw.benchmark;
+    if (!isRecord(b) || !isNumber(b.time) || b.time <= 0) return 'benchmark.time must be a positive number of seconds';
+    if (!isRecord(b.expected) || Object.keys(b.expected).length === 0) {
+      return 'benchmark.expected must give at least one channel and its worked value';
+    }
+    for (const [channel, value] of Object.entries(b.expected)) {
+      if (!isNumber(value)) return `benchmark.expected.${channel} must be a finite number`;
+      if (!(channel in (raw.telemetryUnits as Record<string, unknown>))) {
+        return `benchmark.expected.${channel} is not a channel declared in telemetryUnits`;
+      }
+    }
+    if (b.params !== undefined) {
+      if (!isRecord(b.params)) return 'benchmark.params must be an object of parameter values';
+      for (const [key, value] of Object.entries(b.params)) {
+        if (!isNumber(value) || !(key in (raw.defaultParams as Record<string, unknown>))) {
+          return `benchmark.params.${key} must be a number for a parameter that exists in defaultParams`;
+        }
+      }
+    }
+    if (b.tolerance !== undefined && !(isNumber(b.tolerance) && b.tolerance > 0 && b.tolerance <= 1)) {
+      return 'benchmark.tolerance must be a number above 0 and at most 1';
+    }
+  }
+
   if (typeof raw.load !== 'function') {
     return 'load must be a function returning a promise of { createEngine, createRenderer }';
   }

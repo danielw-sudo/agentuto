@@ -30,6 +30,11 @@ const manifest: SimulationRegistration = {
   // Write "dimensionless" for a quantity that has none; an empty unit is refused.
   telemetryUnits: { height: 'm', velocity: 'm/s' },
 
+  // A result worked out by hand, not read off the engine: from rest at 20 m with 5 m/s upward and g = 9.81,
+  // after 2 s the height is 20 + 5·2 − ½·9.81·2² = 10.38 m and the velocity 5 − 9.81·2 = −14.62 m/s.
+  // `npm run check:module -- examples/local-module` holds the engine to it.
+  benchmark: { time: 2, expected: { height: 10.38, velocity: -14.62 } },
+
   // Fetched only when the instrument is opened, so it costs nothing until then.
   load: async () => {
     const [{ FreeFallEngine }, { FreeFallRenderer2D }] = await Promise.all([

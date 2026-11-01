@@ -97,11 +97,12 @@ each sandbox's `*Config.ts`.
 
 Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22:
 
-- `npm test` — 44 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
-  6 for the Inquiry Log core, 7 for the Inquiry Log panel, 1 for page addresses, 1 for courses, 1 for design tokens, 1 for search and 1 for private modules.
+- `npm test` — 45 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
+  6 for the Inquiry Log core, 7 for the Inquiry Log panel, 1 for page addresses, 1 for courses, 1 for design tokens, 1 for search, 1 for private modules and 1 for the module checker.
 - `npm run build` — TypeScript and production build, zero errors.
+- `npm run check:module -- examples/local-module` — the module checker run on the shipped example, so the tool cannot rot.
 - `npm run check:bundle` — payload budget, as the script prints it: first load 105.1 kB gzip (budget
-  107.4), largest chunk 121.3 kB (budget 180.7), everything 353.2 kB (budget 356.4). Sandboxes are fetched
+  107.4), largest chunk 121.3 kB (budget 180.7), everything 353.5 kB (budget 356.4). Sandboxes are fetched
   when opened, so the catalogue does not wait for any of them.
 
 ## Docs
@@ -109,7 +110,7 @@ Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22
 - [User guide](docs/USER_GUIDE.md) — running it, driving each sandbox, the instruments and the notebook.
 - [Contributor guide](CONTRIBUTING.md) — the three-file sandbox pattern and the pull-request checklist.
 - [Architecture](docs/ARCHITECTURE.md) — interfaces, loops, schemas, benchmarks, bundle budget.
-- [Your own instruments](docs/LOCAL_MODULES.md) — private modules in `local/`, with a prompt for an AI helper.
+- [Your own instruments](docs/LOCAL_MODULES.md) — private modules in `local/`, the `npm run check:module` checker, and a prompt for an AI helper.
 - [Roadmap](docs/ROADMAP.md) — the shared plan, and what is not built yet.
 - [Agents](AGENTS.md) · [Constitution](CONSTITUTION.md) — how the agents working on this repo are
   organised, and the rules that outrank them.

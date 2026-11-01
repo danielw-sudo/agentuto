@@ -61,6 +61,18 @@ export interface SimulationRuntime<TParams = any, TState extends SimulationState
  * is plain data here and is available at once. The engine and renderer are not: `load()` fetches them
  * when a learner opens the sandbox.
  */
+/**
+ * A result worked out by hand that the module checker holds an engine to: run for `time` seconds from the
+ * default parameters (or `params` laid over them) and each `expected` channel must match within `tolerance`
+ * (relative, default 1e-6). It is only as good as the calculation behind it, so it must not be read off the engine.
+ */
+export interface ModuleBenchmark {
+  time: number;
+  expected: Record<string, number>;
+  params?: Record<string, number>;
+  tolerance?: number;
+}
+
 export interface SimulationRegistration<TParams = any, TState extends SimulationState = SimulationState> {
   id: string;
   title: string;
@@ -77,6 +89,8 @@ export interface SimulationRegistration<TParams = any, TState extends Simulation
   telemetryUnits: Record<string, string>;
   /** True for a private module read from `local/`: never reviewed, shown as such, never part of the public build. */
   local?: boolean;
+  /** Optional worked result for `npm run check:module`; see {@link ModuleBenchmark}. */
+  benchmark?: ModuleBenchmark;
 }
 
 export const SIMULATION_CATALOG: Record<string, SimulationRegistration> = {
