@@ -263,11 +263,11 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
                         {/* Top Metadata Badges */}
                         <div className="flex items-center justify-between gap-1.5 flex-wrap">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] font-mono font-semibold px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-300">
+                            <span className="text-xs font-mono font-semibold px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-300">
                               #{String(catalogIndex).padStart(2, '0')}
                             </span>
                             <span
-                              className={`text-[11px] font-mono font-semibold px-1.5 py-0.5 rounded border ${
+                              className={`text-xs font-mono font-semibold px-1.5 py-0.5 rounded border ${
                                 sim.mode === '3D'
                                   ? 'bg-indigo-950/70 text-indigo-300 border-indigo-500/30'
                                   : 'bg-sky-950/70 text-sky-300 border-sky-500/30'
@@ -276,19 +276,19 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
                               {sim.mode}
                             </span>
                             {sim.mode === '3D' && !webglAvailable && (
-                              <span className="text-[11px] font-mono font-semibold px-1.5 py-0.5 rounded border bg-amber-950/60 text-amber-300 border-amber-500/30">
+                              <span className="text-xs font-mono font-semibold px-1.5 py-0.5 rounded border bg-amber-950/60 text-amber-300 border-amber-500/30">
                                 needs WebGL
                               </span>
                             )}
                           </div>
 
                           {isCurrent ? (
-                            <span className="text-[11px] font-mono text-emerald-400 font-medium flex items-center gap-1">
+                            <span className="text-xs font-mono text-emerald-400 font-medium flex items-center gap-1">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                               Active
                             </span>
                           ) : (
-                            <span className="text-[11px] font-mono text-neutral-500">
+                            <span className="text-xs font-mono text-neutral-500">
                               {sim.curriculum.split(' ')[0]}
                             </span>
                           )}
@@ -300,7 +300,7 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
                         </h3>
 
                         {/* Compact Governing ODE Formula Pill */}
-                        <div className="bg-neutral-950/90 border border-neutral-800/90 rounded-lg px-2.5 py-1.5 font-mono text-[11px] text-indigo-300 overflow-x-auto whitespace-nowrap">
+                        <div className="bg-neutral-950/90 border border-neutral-800/90 rounded-lg px-2.5 py-1.5 font-mono text-xs text-indigo-300 overflow-x-auto whitespace-nowrap">
                           {sim.formattedODE}
                         </div>
 
@@ -311,7 +311,7 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
 
                         {/* Course Equivalence Pill (UTSG, MIT, AP/IB) */}
                         {eq && (
-                          <div className="flex items-center gap-1.5 text-[11px] font-mono text-neutral-400 bg-neutral-950/60 px-2 py-1 rounded border border-neutral-800/80">
+                          <div className="flex items-center gap-1.5 text-xs font-mono text-neutral-400 bg-neutral-950/60 px-2 py-1 rounded border border-neutral-800/80">
                             <span className="text-indigo-400 font-semibold">{eq.utsg}</span>
                             <span className="text-neutral-600">•</span>
                             <span className="text-neutral-400 truncate">{eq.secondary}</span>

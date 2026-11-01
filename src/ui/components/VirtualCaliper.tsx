@@ -82,7 +82,7 @@ export const VirtualCaliper: React.FC<VirtualCaliperProps> = ({
         </div>
 
         {/* Caliper Slider Control for Jaw Span */}
-        <div className="flex flex-col gap-1 text-[10px] text-neutral-400 font-mono">
+        <div className="flex flex-col gap-1 text-xs text-neutral-400 font-mono">
           <div className="flex justify-between">
             <span>Jaw Opening:</span>
             <span>{jawSpanPx}px</span>
@@ -118,7 +118,7 @@ export const VirtualCaliper: React.FC<VirtualCaliperProps> = ({
             }}
           />
 
-          <span className="absolute bottom-1 inset-x-0 text-center text-[9px] text-neutral-500 font-mono">
+          <span className="absolute bottom-1 inset-x-0 text-center text-xs text-neutral-500 font-mono">
             Align jaws to orbit or oscillation bounds
           </span>
         </div>

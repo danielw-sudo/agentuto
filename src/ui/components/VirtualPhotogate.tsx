@@ -90,7 +90,7 @@ export const VirtualPhotogate: React.FC<VirtualPhotogateProps> = ({
         </div>
 
         {/* Gate Position Selector */}
-        <div className="flex flex-col gap-1 text-[11px] font-mono">
+        <div className="flex flex-col gap-1 text-xs font-mono">
           <div className="flex justify-between text-neutral-300">
             <span>Gate Position (x):</span>
             <span className="text-emerald-300 font-bold">{gateThresholdX.toFixed(2)} m</span>
@@ -107,15 +107,15 @@ export const VirtualPhotogate: React.FC<VirtualPhotogateProps> = ({
         </div>
 
         {/* Latest Period & Speed Readout */}
-        <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
+        <div className="grid grid-cols-2 gap-2 text-xs font-mono">
           <div className="flex flex-col bg-neutral-900/60 p-2 rounded-xl border border-neutral-800">
-            <span className="text-[10px] text-neutral-500">Period (T)</span>
+            <span className="text-xs text-neutral-500">Period (T)</span>
             <span className="text-emerald-300 font-bold text-sm">
               {latestTransit?.period ? `${latestTransit.period.toFixed(3)}s` : '--'}
             </span>
           </div>
           <div className="flex flex-col bg-neutral-900/60 p-2 rounded-xl border border-neutral-800">
-            <span className="text-[10px] text-neutral-500">Gate Speed</span>
+            <span className="text-xs text-neutral-500">Gate Speed</span>
             <span className="text-sky-300 font-bold text-sm">
               {latestTransit?.speed ? `${latestTransit.speed.toFixed(2)} m/s` : '--'}
             </span>
@@ -123,7 +123,7 @@ export const VirtualPhotogate: React.FC<VirtualPhotogateProps> = ({
         </div>
 
         {/* Transits Log */}
-        <div className="flex flex-col gap-1 border-t border-neutral-800/80 pt-1.5 text-[10px] font-mono">
+        <div className="flex flex-col gap-1 border-t border-neutral-800/80 pt-1.5 text-xs font-mono">
           <div className="flex items-center gap-1 text-neutral-400">
             <Activity className="w-3 h-3 text-emerald-400" />
             <span>Recent Sensor Crossings:</span>

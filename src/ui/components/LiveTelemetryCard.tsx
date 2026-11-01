@@ -612,13 +612,13 @@ export const LiveTelemetryCard: React.FC<LiveTelemetryCardProps> = React.memo(({
           <div className="flex flex-col bg-sunken p-1.5 rounded border border-line">
             <span className="text-xs text-muted">Ahead f'</span>
             <span className="text-emerald-400 font-semibold">{fAhead.toFixed(1)} Hz</span>
-            <span className="text-[9px] text-muted">λ'={lamAhead.toFixed(1)}m</span>
+            <span className="text-xs text-muted">λ'={lamAhead.toFixed(1)}m</span>
           </div>
 
           <div className="flex flex-col bg-sunken p-1.5 rounded border border-line">
             <span className="text-xs text-muted">Behind f'</span>
             <span className="text-rose-400 font-semibold">{fBehind.toFixed(1)} Hz</span>
-            <span className="text-[9px] text-muted">λ'={lamBehind.toFixed(1)}m</span>
+            <span className="text-xs text-muted">λ'={lamBehind.toFixed(1)}m</span>
           </div>
 
           {isSuper && (

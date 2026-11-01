@@ -530,17 +530,17 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
 
       {/* Cross-Disciplinary Analogy Badge */}
       {analogies.length > 0 && (
-        <div className="bg-indigo-950/40 border border-indigo-500/20 rounded-xl p-2.5 text-[11px] flex flex-col gap-1">
+        <div className="bg-indigo-950/40 border border-indigo-500/20 rounded-xl p-2.5 text-xs flex flex-col gap-1">
           <div className="flex items-center gap-1.5 text-accent font-medium">
             <GitMerge className="w-3.5 h-3.5" />
             <span>Cross-Discipline Analogy:</span>
           </div>
-          <p className="text-ink leading-relaxed text-[10px]">
+          <p className="text-ink leading-relaxed text-xs">
             {analogies[0].explanation}
           </p>
           <button
             onClick={() => onSelectSandbox(analogies[0].concept.sandbox_id || 'harmonic-oscillator')}
-            className="text-[10px] text-accent hover:text-accent flex items-center gap-1 mt-1 font-medium cursor-pointer"
+            className="text-xs text-accent hover:text-accent flex items-center gap-1 mt-1 font-medium cursor-pointer"
           >
             <span>Compare with {analogies[0].concept.title}</span>
             <ArrowRight className="w-3 h-3" />
@@ -550,7 +550,7 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
 
       {/* Curated Presets */}
       <div className="flex flex-col gap-1.5">
-        <span className="text-[11px] font-medium text-muted">Curated Lab Presets:</span>
+        <span className="text-xs font-medium text-muted">Curated Lab Presets:</span>
         <div className="space-y-1.5">
           {curatedPresets[currentSandboxId]?.map((preset, idx) => (
             <button
@@ -564,7 +564,7 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
                 </span>
                 <PlayCircle className="w-3.5 h-3.5 text-muted group-hover:text-accent" />
               </div>
-              <p className="text-[10px] text-muted mt-0.5 leading-snug">{preset.desc}</p>
+              <p className="text-xs text-muted mt-0.5 leading-snug">{preset.desc}</p>
             </button>
           ))}
         </div>
@@ -582,11 +582,11 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
             <div className="flex justify-between items-start">
               <div>
                 <h4 className="text-xs font-semibold text-accent">{activePlaylist.playlist_title}</h4>
-                <p className="text-[10px] text-muted leading-snug mt-0.5">{activePlaylist.description}</p>
+                <p className="text-xs text-muted leading-snug mt-0.5">{activePlaylist.description}</p>
               </div>
               <button
                 onClick={() => setActivePlaylist(null)}
-                className="text-[10px] text-muted hover:text-ink cursor-pointer"
+                className="text-xs text-muted hover:text-ink cursor-pointer"
               >
                 Reset
               </button>
@@ -597,7 +597,7 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
                 <button
                   key={step.step_index}
                   onClick={() => handleSelectStep(step)}
-                  className={`w-full text-left p-2 rounded-lg text-[11px] transition-all cursor-pointer ${
+                  className={`w-full text-left p-2 rounded-lg text-xs transition-all cursor-pointer ${
                     activeStepIndex === step.step_index
                       ? 'bg-indigo-600/30 border border-indigo-500/50 text-ink'
                       : 'bg-sunken border border-line text-muted hover:text-ink'
@@ -607,11 +607,11 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
                     {activeStepIndex === step.step_index ? (
                       <CheckCircle className="w-3 h-3 text-emerald-400" />
                     ) : (
-                      <span className="w-3 text-center text-[10px] text-muted">{step.step_index + 1}.</span>
+                      <span className="w-3 text-center text-xs text-muted">{step.step_index + 1}.</span>
                     )}
                     <span>{step.learning_objective}</span>
                   </div>
-                  <p className="text-[10px] text-muted mt-1 pl-4.5 leading-snug">
+                  <p className="text-xs text-muted mt-1 pl-4.5 leading-snug">
                     🔬 {step.socratic_challenge}
                   </p>
                 </button>
@@ -627,7 +627,7 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
               value={goalInput}
               onChange={(e) => setGoalInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleGeneratePlaylist()}
-              className="w-full bg-sunken border border-line rounded-xl px-2.5 py-1.5 text-[11px] text-ink placeholder-neutral-500 focus:outline-none focus:border-indigo-500 disabled:opacity-50"
+              className="w-full bg-sunken border border-line rounded-xl px-2.5 py-1.5 text-xs text-ink placeholder-neutral-500 focus:outline-none focus:border-indigo-500 disabled:opacity-50"
             />
             <button
               onClick={handleGeneratePlaylist}
@@ -649,7 +649,7 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
           </div>
         )}
 
-        {error && <span className="text-[10px] text-rose-400">{error}</span>}
+        {error && <span className="text-xs text-rose-400">{error}</span>}
       </div>
     </GlassPanel>
   );
