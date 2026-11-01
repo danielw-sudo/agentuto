@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { SiteSearch } from './SiteSearch';
 
 /** Shared by every link and button on the site pages, so keyboard focus is always visible. */
 export const focusRing =
@@ -74,6 +75,9 @@ export const SiteLayout: React.FC<SiteLayoutProps> = ({ current, label, children
             );
           })}
         </nav>
+        <div className="w-full sm:ml-auto sm:w-80 lg:w-96">
+          <SiteSearch />
+        </div>
       </div>
     </header>
 
