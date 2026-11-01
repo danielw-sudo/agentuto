@@ -275,9 +275,9 @@ Measured after the UI clean-up (2026-11-01), whole `dist/`, in the units the scr
 
 | Measure | Measured | Budget |
 |---|---|---|
-| First load (entry, React, CSS) | 104.4 kB gzip | 107.4 kB |
+| First load (entry, React, CSS) | 104.5 kB gzip | 107.4 kB |
 | Largest single chunk (three.js) | 121.3 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 353.6 kB | 356.4 kB |
+| Total gzip (level 9) | 353.7 kB | 356.4 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
@@ -313,6 +313,12 @@ The site pages follow the operating system's light or dark setting unless the le
 The checker (`npm run check:module`, `scripts/check-module.ts` around the pure `src/simulations/moduleCheck.ts`) runs a module's engine in Node and reports in sentences: manifest form, that the engine loads without a DOM, the eight-method contract, declared channels equal reported channels in both directions, the clock, finite numbers across every slider's range, repeatability, that every slider reaches the engine, an optional hand-worked `benchmark` the engine must reproduce, and the renderer's shape. It is held by a test that feeds it the shipped example and 15 deliberately broken modules, including an engine with 0.1% wrong gravity that only the benchmark catches. It never enters the app bundle.
 
 The share path (`npm run export:module`, `scripts/export-module.ts` around the pure `src/simulations/exportModule.ts`) turns `local/<id>/` into the edits a pull request needs: the module's files copied to `src/simulations/physics/<id>/` with `../../src/` imports rewritten to `../../../`, one import and one entry in `src/simulations/index.ts`, one line in a course in `src/courses/courses.ts`. It refuses, with the reason, a module that has failed the checker, has no hand-worked `benchmark` or no `guide`, names no course or several, reuses an existing or reserved id, or sits in a registry laid out differently from what it expects; then it runs `npm test` and puts everything back if that fails. A built-in instrument keeps its guide in `sandboxGuides.ts`; an exported one carries its own in its manifest (`guideOf()` reads either), and any instrument without a hand-built telemetry card gets the generic one. Private modules need none of this, which is the point of keeping the bar for sharing separate from the bar for using.
+
+### 6.7a Closed-form checks (Art. 1.5)
+
+`src/core/test/closedForm.test.ts` holds one case per built-in instrument. Each states the textbook formula, writes its physical constants out in the test (CODATA values, never imported from an engine), reaches the engine only through the registry at the app's 200 Hz step, and uses parameters that are not the defaults. The cases cover, for example: the E×B drift and cyclotron phase (Lorentz), damped and driven oscillator solutions, the Lorenz equations differenced along the engine's own trajectory plus their fixed points, dipole flux through a loop (Faraday), Kepler's equation solved by bisection against the integrated orbit, `T(k)` of a rectangular barrier averaged over the packet's wave numbers, the multi-slit intensity at all 250 screen points, series RLC free decay and steady-state impedance, Carnot adiabats and entropy, Gauss's law with off-centre spheres, and the restitution collision formulas. A learner's module shared with `npm run export:module` is covered by its manifest benchmark instead; the test fails if an instrument has neither. The check was mutation-tested with 25 deliberate engine errors (a coefficient 0.2 to 10 % off, an exponent, a sign, a constant), one or two per instrument; all 25 are caught.
+
+It found three real defects that the earlier checks missed, now fixed: the Lorentz instrument declared kinetic energy in joules while the number was in microjoules (mass is in milligrams); the Doppler instrument's ahead/behind frequencies took the receiver's speed with the opposite sign from its own receiver frequency; and the RC/RL heat channel was integrated to first order, so it was about 5 % low at a 100 ms time constant and about 40 % low at the default 10 ms, and stored energy plus heat did not add up to the work done by the source. It also records, as conventions rather than defects, that three instruments run in scaled units: see ROADMAP §4.
 
 ### 6.8 Browser smoke test
 

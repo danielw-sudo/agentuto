@@ -86,8 +86,9 @@ export class TransientEngine implements SimulationEngine<TransientParams, Transi
       this.qCoulombs = Math.max(0.0, this.qCoulombs + iAvg * dt);
       this.currentAmps = (Vin - this.qCoulombs / C) / R;
 
-      // Ohmic Joule heat dissipation: dE = I^2 * R * dt
-      this.totalHeatJoules += this.currentAmps * this.currentAmps * R * dt;
+      // Ohmic Joule heat dE = I^2 R dt, integrated with the same RK4 stage currents (k1..k4 are the currents at
+      // the four stages) so that source work = stored energy + heat holds to fourth order, not to O(dt/tau).
+      this.totalHeatJoules += ((k1 * k1 + 2 * k2 * k2 + 2 * k3 * k3 + k4 * k4) / 6.0) * R * dt;
     } else {
       // --- RL Circuit: di/dt = (Vin - R*i) / L ---
       // RK4 integration for current i
@@ -98,8 +99,13 @@ export class TransientEngine implements SimulationEngine<TransientParams, Transi
       const k3 = f(this.currentAmps + 0.5 * dt * k2, Vin);
       const k4 = f(this.currentAmps + dt * k3, Vin);
 
+      // Stage currents, for the heat integral (same RK4 weights as the current itself).
+      const i1 = this.currentAmps;
+      const i2 = this.currentAmps + 0.5 * dt * k1;
+      const i3 = this.currentAmps + 0.5 * dt * k2;
+      const i4 = this.currentAmps + dt * k3;
+      this.totalHeatJoules += ((i1 * i1 + 2 * i2 * i2 + 2 * i3 * i3 + i4 * i4) / 6.0) * R * dt;
       this.currentAmps += ((k1 + 2 * k2 + 2 * k3 + k4) / 6.0) * dt;
-      this.totalHeatJoules += this.currentAmps * this.currentAmps * R * dt;
     }
 
     this.time += dt;
