@@ -287,7 +287,7 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
             {/* Control Bar: Axes & Model Selection */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 bg-neutral-900/40 p-3 rounded-xl border border-neutral-800">
               <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-medium text-neutral-400">X-Axis Variable</label>
+                <label className="text-xs font-medium text-neutral-400">X-Axis Variable</label>
                 <select
                   value={xKey}
                   onChange={(e) => setXKey(e.target.value)}
@@ -302,7 +302,7 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-medium text-neutral-400">Y-Axis Variable</label>
+                <label className="text-xs font-medium text-neutral-400">Y-Axis Variable</label>
                 <select
                   value={yKey}
                   onChange={(e) => setYKey(e.target.value)}
@@ -317,7 +317,7 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-medium text-neutral-400">Mathematical Model</label>
+                <label className="text-xs font-medium text-neutral-400">Mathematical Model</label>
                 <div className="flex bg-neutral-900 p-0.5 rounded-lg border border-neutral-700/80">
                   <button
                     onClick={() => setFitType('linear')}
@@ -345,7 +345,7 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
                 <div className="flex flex-wrap items-center justify-between gap-3 bg-neutral-900/60 p-3.5 rounded-xl border border-neutral-800">
                   <div className="flex items-center gap-4">
                     <div>
-                      <span className="text-[10px] text-neutral-400 uppercase tracking-wider font-semibold block">
+                      <span className="text-xs text-neutral-400 uppercase tracking-wider font-semibold block">
                         Regression Fit Equation
                       </span>
                       <span className="font-mono text-sm text-amber-300 font-semibold">
@@ -356,7 +356,7 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
                     <div className="h-6 w-[1px] bg-neutral-800" />
 
                     <div>
-                      <span className="text-[10px] text-neutral-400 uppercase tracking-wider font-semibold block">
+                      <span className="text-xs text-neutral-400 uppercase tracking-wider font-semibold block">
                         Goodness of Fit (R²)
                       </span>
                       <span
@@ -383,7 +383,7 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
                 </div>
 
                 {fitType === 'exponential' && yVals.filter((y) => y > 1e-9).length < yVals.length && (
-                  <div className="text-[10px] text-amber-400/90 bg-amber-950/30 px-3 py-1 rounded-lg border border-amber-500/20 font-mono">
+                  <div className="text-xs text-amber-400/90 bg-amber-950/30 px-3 py-1 rounded-lg border border-amber-500/20 font-mono">
                     ⓘ Exponential model ln(y) = ln(A) + Bx requires y &gt; 0; fitted on {yVals.filter((y) => y > 1e-9).length} of {yVals.length} positive samples.
                   </div>
                 )}

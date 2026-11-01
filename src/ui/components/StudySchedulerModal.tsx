@@ -202,7 +202,7 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
                           {item.title}
                         </span>
                         {eq && (
-                          <span className="text-[11px] font-mono px-1.5 py-0.2 rounded bg-neutral-900 text-indigo-300 border border-neutral-700">
+                          <span className="text-xs font-mono px-1.5 py-0.2 rounded bg-neutral-900 text-indigo-300 border border-neutral-700">
                             {eq.utsg}
                           </span>
                         )}
@@ -270,7 +270,7 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-[11px] text-neutral-400 mb-1">Target Apparatus</label>
+                <label className="block text-xs text-neutral-400 mb-1">Target Apparatus</label>
                 <select
                   value={newSimId}
                   onChange={(e) => setNewSimId(e.target.value as SimulationId)}
@@ -285,7 +285,7 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] text-neutral-400 mb-1">Target Date</label>
+                <label className="block text-xs text-neutral-400 mb-1">Target Date</label>
                 <input
                   type="date"
                   value={newDate}
@@ -295,7 +295,7 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-[11px] text-neutral-400 mb-1">Duration (Min)</label>
+                <label className="block text-xs text-neutral-400 mb-1">Duration (Min)</label>
                 <input
                   type="number"
                   min="15"

@@ -80,11 +80,11 @@ export const SocraticDrawer: React.FC<SocraticDrawerProps> = ({
                 <div>
                   <h3 className="text-xs font-semibold text-neutral-100 flex items-center gap-1.5">
                     Socratic AI Tutor
-                    <span className="text-[10px] text-emerald-400 font-mono bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-500/20">
+                    <span className="text-xs text-emerald-400 font-mono bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-500/20">
                       Gemini
                     </span>
                   </h3>
-                  <p className="text-[10px] text-neutral-400">Context-Aware Science Mentor</p>
+                  <p className="text-xs text-neutral-400">Context-Aware Science Mentor</p>
                 </div>
               </div>
 
@@ -130,12 +130,12 @@ export const SocraticDrawer: React.FC<SocraticDrawerProps> = ({
                     href="https://aistudio.google.com/app/apikey"
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[10px] text-indigo-400 hover:underline"
+                    className="text-xs text-indigo-400 hover:underline"
                   >
                     Get a key ↗
                   </a>
                 </div>
-                <p className="text-[10px] text-neutral-400 leading-relaxed">
+                <p className="text-xs text-neutral-400 leading-relaxed">
                   Optional: every simulation works without AI. Your key stays in this browser's <code className="text-neutral-300">localStorage</code>; your messages and telemetry are sent to Google. Use is governed by Google's terms, including age and regional rules. Students: please check with a parent, guardian or teacher first.
                 </p>
                 <div className="flex gap-2">
@@ -168,7 +168,7 @@ export const SocraticDrawer: React.FC<SocraticDrawerProps> = ({
                 <div className="h-full flex flex-col items-center justify-center text-center p-4 text-neutral-400">
                   <Bot className="w-8 h-8 text-neutral-600 mb-2" />
                   <p className="font-medium text-neutral-300 text-xs">I am observing your simulation.</p>
-                  <p className="text-[11px] text-neutral-500 mt-1 max-w-[260px]">
+                  <p className="text-xs text-neutral-500 mt-1 max-w-[260px]">
                     Adjust variables, run experiments, or ask me to interpret what's happening.
                   </p>
                 </div>
@@ -208,12 +208,12 @@ export const SocraticDrawer: React.FC<SocraticDrawerProps> = ({
                   <div className="w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300">
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   </div>
-                  <span className="text-[11px] animate-pulse">Analyzing active telemetry...</span>
+                  <span className="text-xs animate-pulse">Analyzing active telemetry...</span>
                 </div>
               )}
 
               {error && (
-                <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-[11px] leading-relaxed">
+                <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs leading-relaxed">
                   {error}
                 </div>
               )}
@@ -229,7 +229,7 @@ export const SocraticDrawer: React.FC<SocraticDrawerProps> = ({
                     key={i}
                     onClick={() => onSendMessage(prompt)}
                     disabled={isLoading}
-                    className="text-[10px] px-2.5 py-1 rounded-full bg-neutral-900/60 hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200 border border-neutral-800 cursor-pointer transition-colors"
+                    className="text-xs px-2.5 py-1 rounded-full bg-neutral-900/60 hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200 border border-neutral-800 cursor-pointer transition-colors"
                   >
                     {prompt}
                   </button>
