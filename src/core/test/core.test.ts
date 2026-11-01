@@ -29,6 +29,7 @@ import { runJournalVerification } from './journal.test';
 import { runInquiryLogUiVerification } from './inquiryLogUi.test';
 import { runRoutesVerification } from './routes.test';
 import { runCoursesVerification } from './courses.test';
+import { runTokensVerification } from './tokens.test';
 
 export async function runCoreVerification(): Promise<boolean> {
   console.log('🧪 Running Core Engine Verification Suite...\n');
@@ -1266,6 +1267,9 @@ export async function runCoreVerification(): Promise<boolean> {
 
   // Test 28: courses (roadmap R4a) — courses are data over sandboxes and agree with each sandbox's own claim.
   runCoursesVerification();
+
+  // Test 29: design tokens (roadmap R4b) — both themes complete and consistent, text and graphics meet WCAG AA.
+  await runTokensVerification();
 
   console.log('\n🎉 ALL CORE ENGINE CONTRACTS VERIFIED SUCCESSFULLY!');
   return true;

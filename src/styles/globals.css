@@ -1,5 +1,79 @@
 @import "tailwindcss";
 
+/* Design tokens (Constitution Art. 7.1). Colour, type and spacing for the site pages come from here and
+ * from nowhere else; `npm test` measures the contrast of every text pair below (Art. 7.3).
+ *
+ * Light is the default. A dark OS preference switches it, and `data-theme="light" | "dark"` on <html>
+ * overrides the preference either way. The dark values are written twice because CSS cannot share one
+ * declaration between a media query and a selector; the test fails if the two copies disagree.
+ *
+ * `field-e`, `field-b` and `velocity` keep one meaning in every sandbox (Art. 7.2). */
+:root {
+  --paper: #f7f6f2;
+  --card: #ffffff;
+  --sunken: #efede6;
+  --ink: #181a1f;
+  --muted: #5b6270;
+  --line: #dad7ce;
+  --accent: #2347b8;
+  --on-accent: #ffffff;
+  --accent-soft: #e4e9f8;
+  --field-e: #b45309;
+  --field-b: #0f766e;
+  --velocity: #2347b8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0d1015;
+    --card: #151a21;
+    --sunken: #10141a;
+    --ink: #e9ecf1;
+    --muted: #9aa4b2;
+    --line: #252c36;
+    --accent: #8fa6ff;
+    --on-accent: #0d1015;
+    --accent-soft: #1b2440;
+    --field-e: #f2a65a;
+    --field-b: #4fd1c5;
+    --velocity: #8fa6ff;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #0d1015;
+  --card: #151a21;
+  --sunken: #10141a;
+  --ink: #e9ecf1;
+  --muted: #9aa4b2;
+  --line: #252c36;
+  --accent: #8fa6ff;
+  --on-accent: #0d1015;
+  --accent-soft: #1b2440;
+  --field-e: #f2a65a;
+  --field-b: #4fd1c5;
+  --velocity: #8fa6ff;
+}
+
+/* Utilities `bg-paper text-ink border-line text-accent font-display …` read the tokens above. System
+ * fonts only: Agentuto is local-first, so nothing is fetched at run time (and nothing is added to the
+ * bundle). */
+@theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-sunken: var(--sunken);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-field-e: var(--field-e);
+  --color-field-b: var(--field-b);
+  --color-velocity: var(--velocity);
+  --font-display: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+
 @layer utilities {
   .glass-panel {
     background-color: rgba(15, 23, 42, 0.75);

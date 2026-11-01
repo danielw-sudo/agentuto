@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { SIMULATION_CATALOG } from '../simulations';
-import { Route, parseRoute, routeToHash } from './routes';
+import { courseById } from '../courses/courses';
+import { Route, RouteTargets, parseRoute, routeToHash } from './routes';
 
-const isKnownSandbox = (id: string) => Object.prototype.hasOwnProperty.call(SIMULATION_CATALOG, id);
+const targets: RouteTargets = {
+  isSandbox: (id) => Object.prototype.hasOwnProperty.call(SIMULATION_CATALOG, id),
+  isCourse: (id) => courseById(id) !== undefined,
+};
 
-const readRoute = (): Route => parseRoute(window.location.hash, isKnownSandbox);
+const readRoute = (): Route => parseRoute(window.location.hash, targets);
 
 /**
  * The current page, read from the address bar. The address is the single source of truth: navigating
