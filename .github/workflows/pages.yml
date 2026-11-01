@@ -45,6 +45,12 @@ jobs:
       - name: Check bundle budgets
         run: npm run check:bundle
 
+      # A broken instrument must not reach the demo: open the real build, at its real sub-path, in a browser.
+      - name: Smoke test the build in a browser
+        run: npm run smoke
+        env:
+          VITE_BASE: /agentuto/
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3

@@ -114,6 +114,11 @@ Outcome: a silent break cannot reach the demo. A browser smoke test, CPU-only, l
 in CI (this is Kaizen 5b, moved earlier). Consider deploying Pages from tagged releases instead of every push.
 Check: break one sandbox on purpose and watch CI go red.
 
+*Built (R3):* `npm run smoke` opens all 17 instruments from cold links in headless Chrome (software WebGL, no graphics card),
+the site pages, search and a phone screen, and fails on a blank drawing, a clock that does not run, a script or network
+error. CI runs it (Node 22) and the Pages workflow runs it before uploading, under the `/agentuto/` sub-path. The deploy is
+still on every push to `main`; moving it to tagged releases is the owner's decision (below).
+
 ### R4 — Shell and design
 Outcome: a calm landing page that lists courses; each course has its own page; search covers courses,
 sandboxes, equations and docs; header, footer and home are uncrowded; long legal text lives on an About page.

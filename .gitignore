@@ -37,3 +37,6 @@ temp/
 
 # Private modules: a learner's own instruments and courses, never part of the repository or the public build
 local/
+
+# Browser smoke-test screenshots of failures
+test-results/

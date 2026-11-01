@@ -35,3 +35,11 @@ jobs:
 
     - name: Check bundle budgets (Constitution Art. 8.2)
       run: npm run check:bundle
+
+    - name: Check the shipped private-module example
+      run: npm run check:module -- examples/local-module
+
+    # Chrome is preinstalled on the runner. One Node version is enough for a browser check.
+    - name: Smoke test the build in a browser (Constitution Art. 9.2)
+      if: matrix.node-version == '22.x'
+      run: npm run smoke
