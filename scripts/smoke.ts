@@ -191,6 +191,23 @@ async function checkSite(browser: Browser): Promise<void> {
   if (cards.length < COURSES.length) await bad('home page', `${cards.length} course cards, expected at least ${COURSES.length}`);
   else pass('home page', `${cards.length} course cards`);
 
+  // The activity card stays away until there is an entry, then shows the learner's own streak
+  await page.waitForNetworkIdle({ idleTime: 500, timeout: 20000 }).catch(() => undefined); // the card is a lazy chunk
+  if (await page.$('section[aria-label="Your inquiry log"]')) await bad('activity card', 'shown on a visit with no entries');
+  else {
+    const entry = {
+      id: 'smoke-1', sandboxId: 'free-fall', createdAt: new Date().toISOString(), prediction: { text: 'p' }, parameters: { g: 9.81 },
+      measurement: { channel: 'height', value: 1 }, explanation: '',
+    };
+    await page.evaluate((e) => localStorage.setItem('agentuto.inquiry-log.v1', JSON.stringify({ version: 1, entries: [e] })), entry);
+    await page.reload({ waitUntil: 'load' });
+    await page.waitForSelector('section[aria-label="Your inquiry log"] [role="img"]', { timeout: 20000 }).catch(() => undefined);
+    const label = await page.$eval('section[aria-label="Your inquiry log"] [role="img"]', (el) => el.getAttribute('aria-label') ?? '').catch(() => 'no activity card appeared');
+    if (label !== '1 entry on 1 day. Current streak 1, longest 1.') await bad('activity card', `read "${label}"`);
+    else pass('activity card', 'absent when empty, streak shown after one entry');
+    await page.evaluate(() => localStorage.removeItem('agentuto.inquiry-log.v1'));
+  }
+
   // Every course opens and lists its instruments
   for (const course of COURSES) {
     await page.goto(`${BASE}/#/course/${encodeURIComponent(course.id)}`, { waitUntil: 'load' });

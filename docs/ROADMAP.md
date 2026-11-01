@@ -144,9 +144,11 @@ email address private. An instrument was exported for real into a working tree: 
 bundle budget and the 35-check smoke test accepted it, then it was reverted.
 
 ### R6 — Depth
-In this order: Inquiry Log streak and heatmap (Kaizen 3b), independent closed-form recomputation for all 17
+In this order: ~~Inquiry Log streak and heatmap (Kaizen 3b)~~ (built: see below), independent closed-form recomputation for all 17
 sandboxes (5a, Art. 1.5), micro-feedback (batch 4), then the owner's decision on the five engine initial
 conditions that have no slider, and deriving the CSV units line from the manifest.
+
+**Built — streak and heatmap.** The home page shows "Your inquiry log" once the learner has a first entry: current and longest streak, entry count, and a 26-week calendar (Monday to Sunday columns, today last, UTC days, four shades). It reads only the browser's own storage, sits in a lazy chunk so the first load is unchanged (104.0 kB), and draws nothing for a new visitor. The grid is a pure function (`src/ui/journal/activityModel.ts`) checked against hand-counted dates, mutation-tested six ways; the smoke test seeds an entry and reads the card (35 checks). It reuses the existing UTC series, so no streak rule changed.
 
 ## 4. Decisions that are the owner's
 
