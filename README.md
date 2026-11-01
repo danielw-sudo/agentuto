@@ -1,8 +1,21 @@
 # Agentuto
 
-**Interactive physics and mathematics simulations in a browser — local-first, no account, no backend.**
-Seventeen sandboxes across mechanics, electromagnetism, waves, thermodynamics, quantum mechanics and
-circuits. Every engine runs headless and is checked against a closed-form result.
+**Use it. Extend it privately. Share it if you're proud of it.**
+
+A small library of physics and mathematics instruments that run in your browser, record real data, and ask you
+to predict before you measure. Seventeen sandboxes across mechanics, electromagnetism, waves, thermodynamics,
+quantum mechanics and circuits; every engine runs headless and is checked against a closed-form result. Local-first:
+no account, no backend, no tracking. The [demo site](https://danielw-sudo.github.io/agentuto/) is a demonstration,
+not a service.
+
+| | What you do | Where it stands |
+|---|---|---|
+| **Use it** | Open the demo or run it on your computer; measure, keep an Inquiry Log, export CSV | Shipped. [User guide](docs/USER_GUIDE.md) |
+| **Extend it privately** | Add instruments of your own with an AI helper; they stay on your machine | Planned: [roadmap](docs/ROADMAP.md) R2 |
+| **Share it** | Keep a fork (MIT) or send a module upstream by pull request | Open now: [CONTRIBUTING](CONTRIBUTING.md) |
+
+Agentuto provides the software, the docs and the checks. It does not provide or support any AI service, and it
+takes no responsibility for the models, accounts or institutional rules of the people who use it.
 
 MIT · React 19 + TypeScript + Vite + Three.js / Canvas2D · topic alignment with MIT OCW 8.01–8.044 and
 18.03, and with AP/IB syllabi (alignment only — see the disclaimer at the end).
@@ -26,7 +39,7 @@ MIT · React 19 + TypeScript + Vite + Three.js / Canvas2D · topic alignment wit
 ```bash
 npm install
 npm run dev          # http://localhost:5173
-npm test             # 32 engine checks against analytical results
+npm test             # 43 checks: engines against analytical results, plus the app's own rules
 npm run build        # tsc -b && vite build
 npm run check:bundle # payload budget
 ```
@@ -96,6 +109,7 @@ Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22
 - [User guide](docs/USER_GUIDE.md) — running it, driving each sandbox, the instruments and the notebook.
 - [Contributor guide](CONTRIBUTING.md) — the three-file sandbox pattern and the pull-request checklist.
 - [Architecture](docs/ARCHITECTURE.md) — interfaces, loops, schemas, benchmarks, bundle budget.
+- [Roadmap](docs/ROADMAP.md) — the shared plan, and what is not built yet.
 - [Agents](AGENTS.md) · [Constitution](CONSTITUTION.md) — how the agents working on this repo are
   organised, and the rules that outrank them.
 - [Devlog](docs/devlog.md) — dated record of what shipped.
@@ -114,7 +128,7 @@ border.
 
 ## AI Features & Disclaimer
 
-**AI is optional.** All simulations, instruments, the lab notebook and CSV export work fully without any AI. Optional AI features connect to a third-party provider using your own account and API key, and your use is governed by that provider's terms, including age and regional requirements, which vary by provider and location. If you are a student, please check with a parent, guardian or teacher before using AI features.
+**AI is optional.** All simulations, instruments, the lab notebook and CSV export work fully without any AI. Optional AI features connect to a third-party provider using your own account and API key, and your use is governed by that provider's terms, including age and regional requirements, which vary by provider and location. Use only services you are allowed to use. If you need permission from a parent, teacher or institution to use an AI service, get it first, and follow the rules that apply to you: many schools, colleges and employers restrict generative AI.
 
 Agentuto is an independent open-source project. It is not affiliated with or endorsed by MIT, the College Board (AP), the International Baccalaureate, Google or Anthropic; course labels describe topic alignment only. Simulations are educational models: verify important results independently.
 

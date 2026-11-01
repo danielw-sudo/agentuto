@@ -19,35 +19,49 @@ Traditional digital science simulations often railroad learners through linear, 
 
 #### Option A (easiest): let an AI coding agent set it up for you
 
-If you have an AI coding agent app on your Mac, such as **Google Antigravity** (sign in with your Google account) or the **Claude desktop app** (its **Code** tab), it can do the whole setup for you. Open a new chat or agent session, paste the prompt below, and approve the steps it asks about.
+If you already have an AI coding agent (a command-line tool or an editor with one built in) that you are allowed
+to use, it can do the whole setup for you. Open a new session, paste the prompt below, and approve the steps it
+asks about. Agentuto does not provide, support or vouch for any AI service: what is available, what it costs and
+what its limits are is up to its provider, and your school, college or employer may restrict generative AI.
+Follow the rules that apply to you. Without an agent, use Option B.
+
+The prompt has rules as well as steps. They are there so that a model of any size stays inside the project
+folder and does nothing you did not ask for.
 
 ```text
-Please set up and launch the Agentuto science simulator on my Mac. I am not a developer, so explain anything you need me to do in plain words.
+Please set up and run the Agentuto science simulator on my computer. I am not a developer, so explain anything you need me to do in plain words, and tell me what each command does before you run it.
 
-1. Check that git and Node.js are installed (run `git --version` and `node --version`).
-   - If macOS shows a pop-up asking to install "Command Line Developer Tools", tell me to click Install and wait until it finishes, then continue.
-   - If Node.js is missing or older than version 20, stop and tell me to install the LTS version from https://nodejs.org (open the .pkg file and click through), then continue when I say it's done.
-2. If the folder ~/agentuto does not exist, run:
-   git clone https://github.com/danielw-sudo/agentuto.git ~/agentuto
-   If it already exists, run `git pull` inside it instead.
-3. Inside ~/agentuto, run `npm ci` to install the dependencies. If npm prints "allow-scripts" warnings about esbuild, ignore them; the app works without approving those scripts.
-4. Inside ~/agentuto, start the app with `npm run dev`. Run it in the background so it keeps running, and wait until it prints a "Local:" address (normally http://localhost:5173).
-5. Open that address in my default browser (`open http://localhost:5173`), or give me the link to click.
-6. Finally, tell me in two short lines: how to stop the app, and what to ask you next time to start it again.
+Rules. All of them are mandatory.
+- Work only inside a folder named "agentuto" in my home folder. Use the real full path: never pass a literal "~" to a command. Do not create, change or delete anything outside that folder, and do not edit any file inside the project.
+- Do not use sudo or administrator rights. Do not install anything globally. Do not download and run installer scripts ("curl | sh" and anything like it). If something must be installed, stop, tell me what and why, and wait for my answer.
+- Do not commit, push, reset, clean or force anything in git, and do not change git settings or remotes. The only git commands you may run are "git --version", "git clone", and "git pull --ff-only". If "git pull --ff-only" fails or reports local changes, stop and tell me.
+- Do not read, print or ask for passwords, API keys, tokens or the contents of any .env file.
+- If any command fails, stop, explain the error in plain words, and ask me before trying anything different. Do not retry in a loop.
+- Do not open any web page except http://localhost on the port the app reports, and https://nodejs.org if Node.js needs installing.
 
-Rules: do not use sudo, do not install anything globally without asking me first, and do not change any files inside the project.
+Steps.
+1. Tell me which operating system you are on. Check that git and Node.js are installed ("git --version", "node --version").
+   - If git is missing, tell me how to install it on my system and wait.
+   - If Node.js is missing or older than version 20, tell me to install the LTS version from https://nodejs.org and wait until I say it is done.
+2. If the folder agentuto does not exist in my home folder, run:
+   git clone https://github.com/danielw-sudo/agentuto.git <full path of the folder>
+   If it already exists, run "git pull --ff-only" inside it.
+3. Inside that folder run "npm ci" to install the dependencies. If npm prints "allow-scripts" warnings about esbuild, ignore them: the app works without approving those scripts.
+4. Inside that folder start the app with "npm run dev". Run it in the background so it keeps running, and wait until it prints a "Local:" address (normally http://localhost:5173).
+5. Open that address in my default browser, or give me the link to click.
+6. Finally, tell me in two short lines how to stop the app and what to ask you next time to start it again.
 ```
 
 **Next time**, paste this shorter prompt:
 
 ```text
-Please start Agentuto: inside ~/agentuto run `npm run dev` in the background, wait for the "Local:" address, then open it in my browser.
+Please start Agentuto: inside the agentuto folder in my home folder run "npm run dev" in the background, wait for the "Local:" address, then open it in my browser. Follow the same rules as before: stay inside that folder, no sudo, no global installs, no git commands, and if anything fails stop and explain it to me.
 ```
 
 **To get the latest version**, paste:
 
 ```text
-Please update Agentuto: inside ~/agentuto run `git pull`, then `npm ci`, then start it with `npm run dev` in the background and open the "Local:" address in my browser.
+Please update Agentuto: inside the agentuto folder in my home folder run "git pull --ff-only", then "npm ci", then start it with "npm run dev" in the background and open the "Local:" address in my browser. Follow the same rules as before: stay inside that folder, no sudo, no global installs, no other git commands, and if "git pull --ff-only" fails or anything else goes wrong, stop and explain it to me.
 ```
 
 > If something goes wrong, copy the agent's error message back to it and ask *"What does this mean and how do I fix it?"*. If the address is not `5173` (for example `5174`, because another copy is already running), use the address the agent reports.
@@ -263,7 +277,7 @@ Please update Agentuto: inside ~/agentuto run `git pull`, then `npm ci`, then st
 
 ## 5. The Optional Socratic AI Tutor (bring your own key)
 
-> **Disclaimer: AI is optional.** All simulations, instruments, the lab notebook and CSV export work fully without any AI. The tutor connects to a third-party provider (Google Gemini) using your own account and API key, and your use is governed by that provider's terms, including age and regional requirements, which vary by provider and location. Read [Google's Gemini API terms](https://ai.google.dev/gemini-api/terms) before creating a key. If you are a student, please check with a parent, guardian or teacher before using AI features.
+> **Disclaimer: AI is optional.** All simulations, instruments, the lab notebook and CSV export work fully without any AI. The tutor connects to a third-party provider (Google Gemini) using your own account and API key, and your use is governed by that provider's terms, including age and regional requirements, which vary by provider and location. Read [Google's Gemini API terms](https://ai.google.dev/gemini-api/terms) before creating a key. Use only services you are allowed to use. If you need permission from a parent, teacher or institution to use an AI service, get it first, and follow the rules that apply to you: many schools, colleges and employers restrict generative AI.
 
 ### 5.1 Getting a Gemini API Key
 1. Go to **[Google AI Studio → API Keys](https://aistudio.google.com/apikey)** and sign in with a Google account.
