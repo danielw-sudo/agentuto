@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { instrumentTheme } from '../ui/theme';
 import { SIMULATION_CATALOG, SimulationId, SimulationRuntime } from '../simulations';
 import { courseById } from '../courses/courses';
 import { HomePage } from '../ui/site/HomePage';
@@ -59,10 +60,13 @@ export const App: React.FC = () => {
   // take focus or keystrokes until the learner returns.
   const pageOpen = route.view !== 'sandbox';
   const course = route.view === 'course' ? courseById(route.id) : undefined;
+  // The instrument screens are always dark; high contrast is dark too, so a learner who chose it keeps it there.
+  // Read at render: the choice is made on the site pages, and opening an instrument is a route change.
+  const sandboxTheme = instrumentTheme(document.documentElement);
 
   return (
     <div
-      data-theme={route.view === 'sandbox' ? 'dark' : undefined}
+      data-theme={route.view === 'sandbox' ? sandboxTheme : undefined}
       className="relative w-screen h-screen overflow-hidden bg-paper font-sans"
     >
       <Suspense fallback={null}>

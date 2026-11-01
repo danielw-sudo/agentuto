@@ -28,9 +28,9 @@ an experiment you are missing".
 
 There is a long way to go, and most of it is cheap with a high return.
 
-- **Themes.** Light, dark and auto exist. More optional palettes are a tokens-only change (`src/styles/globals.css`;
-  the contrast test measures every pair), for example a high-contrast theme, a paper-and-ink theme, a colour-blind-safe
-  field palette.
+- **Themes.** Auto, light, dark and high contrast exist (the last is held to 7:1 text and a field pair that differs in
+  lightness). More optional palettes are a tokens-only change (`src/styles/globals.css`; the contrast test measures every
+  pair), for example a paper-and-ink theme or a palette tuned for a particular colour-vision difference.
 - **Icons.** The app already uses [Lucide](https://lucide.dev) (`lucide-react`, ISC licence, free for any use,
   tree-shaken so only the icons used are shipped). Alternatives under permissive licences, if a different feel is wanted:
   Tabler Icons (MIT), Phosphor (MIT), Heroicons (MIT), Material Symbols (Apache-2.0). Keep one set per surface so the

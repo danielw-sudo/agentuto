@@ -4,6 +4,7 @@ import { ViewportContainer } from './layout/ViewportContainer';
 import { DockLayout } from './layout/DockLayout';
 import { SiteSearch } from '../ui/site/SiteSearch';
 import { COMMUNITY, feedbackUrl } from '../community';
+import { instrumentTheme } from '../ui/theme';
 import { LocalBadge } from '../ui/site/LocalBadge';
 import { coursesOfSandbox } from '../courses/courses';
 import { GlassPanel } from '../ui/components/GlassPanel';
@@ -292,7 +293,7 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
 
   return (
     <main
-      data-theme="dark"
+      data-theme={instrumentTheme(document.documentElement)}
       className="relative flex h-screen w-screen flex-col overflow-hidden bg-paper font-sans text-ink select-none"
     >
       <DockLayout

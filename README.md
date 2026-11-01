@@ -105,8 +105,8 @@ Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22
   (CPU only), checks that it draws and runs, then the home, course, About and Instruments pages, search and a phone-sized
   screen. CI runs it, and the Pages deploy runs it before publishing, so a broken instrument does not reach the demo. It
   needs Chrome, Chromium or Edge installed (set `CHROME_PATH` if it cannot find it) and a fresh `npm run build`.
-- `npm run check:bundle` — payload budget, as the script prints it: first load 105.5 kB gzip (budget
-  107.4), largest chunk 121.3 kB (budget 180.7), everything 356.4 kB (budget 366.2). Sandboxes are fetched
+- `npm run check:bundle` — payload budget, as the script prints it: first load 105.7 kB gzip (budget
+  107.4), largest chunk 121.3 kB (budget 180.7), everything 356.6 kB (budget 366.2). Sandboxes are fetched
   when opened, so the catalogue does not wait for any of them.
 
 ## Docs

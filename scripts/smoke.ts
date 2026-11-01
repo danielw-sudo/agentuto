@@ -218,7 +218,7 @@ async function checkSite(browser: Browser): Promise<void> {
     const paper = () => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--paper').trim());
     const choice = () => page.$eval('button[data-theme-toggle]', (b) => b.getAttribute('data-choice') ?? '').catch(() => 'no toggle');
     const choose = async (name: string) => {
-      for (let i = 0; i < 3 && (await choice()) !== name; i += 1) await page.click('button[data-theme-toggle]');
+      for (let i = 0; i < 4 && (await choice()) !== name; i += 1) await page.click('button[data-theme-toggle]');
     };
     const placement = await page.$eval('button[data-theme-toggle]', (b) => {
       const box = b.getBoundingClientRect();
@@ -234,12 +234,18 @@ async function checkSite(browser: Browser): Promise<void> {
     const stillLight = await choice();
     await choose('auto');
     const auto = await paper();
+    await choose('contrast');
+    const contrastPaper = await paper();
+    await page.goto(`${BASE}/#/sandbox/harmonic-oscillator`, { waitUntil: 'load' });
+    await page.waitForSelector('main h1', { timeout: 20000 }).catch(() => undefined);
+    const inInstrument = await page.evaluate(() => getComputedStyle(document.querySelector('main') as Element).getPropertyValue('--paper').trim());
     await page.evaluate(() => localStorage.removeItem('agentuto.theme.v1'));
     if (!placement || placement.top > 80 || placement.right > 120) await bad('theme toggle', 'not at the top right: ' + JSON.stringify(placement));
     else if (start !== '#0d1015' || light !== '#f7f6f2') await bad('theme toggle', `system dark gave ${start}, Light gave ${light}`);
     else if (afterReload !== '#f7f6f2' || stillLight !== 'light') await bad('theme toggle', `after a reload: ${afterReload}, choice "${stillLight}"`);
     else if (auto !== start) await bad('theme toggle', `Auto gave ${auto}, expected ${start}`);
-    else pass('theme toggle', 'top-right icon; Light overrides a dark system, is remembered across a reload, Auto returns to the system choice');
+    else if (!/^#000(000)?$/.test(contrastPaper) || !/^#000(000)?$/.test(inInstrument)) await bad('theme toggle', `high contrast gave ${contrastPaper} on the page and ${inInstrument} on an instrument screen, expected #000000 on both`);
+    else pass('theme toggle', 'top-right icon; Light overrides a dark system, is remembered across a reload, Auto returns to the system choice, high contrast reaches the instrument screens too');
   }
 
   // Community links are on every page, point at the project, and open outside the app (this is a plain localhost server)
@@ -264,6 +270,7 @@ async function checkSite(browser: Browser): Promise<void> {
     await page.goto(`${BASE}/#/`, { waitUntil: 'load' });
     await page.evaluate((entries) => localStorage.setItem('agentuto.inquiry-log.v1', JSON.stringify({ version: 1, entries })), [mk('m1', 1), mk('m2', 2, 1.4)]);
     await page.goto(`${BASE}/#/sandbox/harmonic-oscillator`, { waitUntil: 'load' });
+    await page.reload({ waitUntil: 'load' }); // the log is read when an instrument opens, so open it fresh
     await page.waitForSelector('button[aria-label="Toggle the Inquiry Log"]', { timeout: 20000 }).catch(() => undefined);
     await page.click('button[aria-label="Toggle the Inquiry Log"]').catch(() => undefined);
     await page.waitForSelector('details[data-milestones]', { timeout: 10000 }).catch(() => undefined);
