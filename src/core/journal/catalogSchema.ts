@@ -52,10 +52,11 @@ export function schemaFromCatalog(sandboxId: string): JournalSandboxSchema {
  * disagree in either direction (a declared channel the engine never emits, or an emitted channel
  * nobody declared, which is what an engine rename looks like).
  */
-export function engineChannelsFromSandbox(sandboxId: string): string[] {
+export async function engineChannelsFromSandbox(sandboxId: string): Promise<string[]> {
   const registration = requireRegistration(sandboxId);
 
-  const engine = registration.createEngine();
+  const { createEngine } = await registration.load();
+  const engine = createEngine();
   try {
     engine.init(registration.defaultParams);
     engine.step(0.005);

@@ -269,16 +269,32 @@ CREATE TABLE IF NOT EXISTS sandboxes (
 
 Art. 8 asks for a stated reason behind every runtime dependency and a bundle-size budget checked in CI. The budget is now defined and enforced by `scripts/check-bundle.mjs` (`npm run check:bundle`, run in CI after the build).
 
-Measured on `feat/manifest-telemetry-units` (2026-10-31, the commit that declared channel units), whole
-`dist/`:
+Sandboxes are loaded on demand (§6.4), so the budget has two meanings: what a visitor downloads to see the
+catalogue (**first load**: the files `index.html` asks for) and the ceiling for opening everything.
+Measured on the lazy-loading change (2026-10-31), whole `dist/`, in the units the script prints:
 
-| Measure | Baseline | Budget |
+| Measure | Measured | Budget |
 |---|---|---|
-| Total raw | ~1.18 MB | 1.3 MB |
-| Total gzip (level 9) | ~313 kB | 330 kB |
-| Largest single chunk (`index-*.js`) | ~173 kB gzip | 185 kB gzip |
+| First load (entry, React, CSS) | 159.9 kB gzip | 170.9 kB |
+| Largest single chunk (`index-*.js`) | 141.6 kB gzip | 180.7 kB |
+| Total gzip (level 9) | 339.0 kB | 356.4 kB |
+| Total raw | ~1.25 MB | 1.3 MB |
+
+Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
+322.3 kB to 356.4 kB (330,000 B to 365,000 B) because seventeen separately compressed chunks cost about
+17 kB more than one: the price of the smaller first load.
 
 Gzip is measured by that script (Node `zlib`), which is why its numbers differ slightly from the ones Vite prints; comparisons use one measurement or the other, never both. The budgets sit ~5% above baseline: ordinary feature work fits, a 20 kB regression does not slip through. Raising a budget is an owner decision and the PR states in one line why that weight is worth carrying.
+
+### 6.4 Lazy sandboxes, addresses and offline
+
+A manifest entry is plain data (title, parameters, units, mode) plus `load()`, which fetches the engine
+and renderer. The catalogue, the journal and the playlist schema read only the data, so none of them
+pulls a sandbox in. `src/app/routes.ts` gives every page an address (`#/`, `#/guide`, `#/sandbox/<id>`);
+hash routes because the demo is a static site on a sub-path. The address bar is the single source of truth,
+so the back button works and a sandbox can be linked to. `public/sw.js` fetches every built asset when it
+installs (`precache.json`, written by the build), so an installed copy still works offline for sandboxes
+its owner never opened.
 
 ---
 

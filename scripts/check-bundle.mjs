@@ -26,8 +26,15 @@ import { join, extname } from 'node:path';
 const DIST = 'dist';
 const SHIPPED = new Set(['.js', '.css', '.html']);
 
+// Sandboxes load on demand, so two numbers matter and they mean different things:
+//   firstLoadGzip  what a visitor downloads to see the catalogue (entry, its static imports, CSS)
+//   totalGzip      everything shipped; a ceiling for "open every sandbox". Compressing seventeen small
+//                  chunks one by one costs ~17 kB more than one big chunk, which is why it rose from
+//                  330,000 to 365,000 when the sandboxes were split out — the price of a first load
+//                  of ~160 kB instead of ~320 kB (as this script prints them).
 const BUDGET = {
-  totalGzip: 330_000,
+  firstLoadGzip: 175_000,
+  totalGzip: 365_000,
   totalRaw: 1_300_000,
   largestGzip: 185_000,
 };
@@ -65,9 +72,21 @@ for (const r of [...rows].sort((a, b) => b.gzip - a.gzip)) {
 console.log('');
 console.log(`  ${'total'.padEnd(42)} ${kb(totalRaw)} kB raw ${kb(totalGzip)} kB gzip  (budget ${kb(BUDGET.totalRaw)} / ${kb(BUDGET.totalGzip)} kB)`);
 console.log(`  ${'largest chunk'.padEnd(42)} ${' '.repeat(11)} ${kb(largest.gzip)} kB gzip  (budget ${kb(BUDGET.largestGzip)} kB) → ${largest.path}`);
+
+// First load = the files index.html asks for up front. Dynamic imports (sandboxes, three.js for the
+// 3D ones) are not in it, which is the point of loading them on demand.
+const indexHtml = readFileSync(join(DIST, 'index.html'), 'utf8');
+const firstLoadPaths = new Set(
+  [...indexHtml.matchAll(/(?:src|href)="[^"]*?(assets\/[^"]+\.(?:js|css))"/g)].map((m) => join(DIST, m[1])),
+);
+const firstLoad = rows.filter((r) => firstLoadPaths.has(r.path));
+const firstLoadGzip = firstLoad.reduce((s, r) => s + r.gzip, 0);
+console.log(`  ${'first load'.padEnd(42)} ${' '.repeat(11)} ${kb(firstLoadGzip)} kB gzip  (budget ${kb(BUDGET.firstLoadGzip)} kB) → ${firstLoad.length} files`);
 console.log('');
 
 const failures = [];
+if (firstLoad.length === 0) failures.push('could not find the files index.html loads; the first-load measurement is meaningless');
+if (firstLoadGzip > BUDGET.firstLoadGzip) failures.push(`first load ${firstLoadGzip} B gzip exceeds budget ${BUDGET.firstLoadGzip} B`);
 if (totalGzip > BUDGET.totalGzip) failures.push(`total gzip ${totalGzip} B exceeds budget ${BUDGET.totalGzip} B`);
 if (totalRaw > BUDGET.totalRaw) failures.push(`total raw ${totalRaw} B exceeds budget ${BUDGET.totalRaw} B`);
 if (largest.gzip > BUDGET.largestGzip) failures.push(`largest chunk ${largest.path} is ${largest.gzip} B gzip, budget ${BUDGET.largestGzip} B`);

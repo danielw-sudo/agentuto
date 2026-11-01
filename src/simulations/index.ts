@@ -1,139 +1,21 @@
 import { SimulationEngine, ViewportRenderer, ParameterDescriptor, SimulationState } from '../core/types/simulation';
-import {
-  LorentzEngine,
-  LorentzRenderer3D,
-  LORENTZ_METADATA,
-  LORENTZ_DEFAULT_PARAMS,
-  LORENTZ_PARAM_DESCRIPTORS,
-} from './physics/lorentz-force';
-
-import {
-  OscillatorEngine,
-  OscillatorRenderer2D,
-  OSCILLATOR_METADATA,
-  OSCILLATOR_DEFAULT_PARAMS,
-  OSCILLATOR_PARAM_DESCRIPTORS,
-} from './physics/harmonic-oscillator';
-
-import {
-  LorenzEngine,
-  LorenzRenderer3D,
-  LORENZ_METADATA,
-  LORENZ_DEFAULT_PARAMS,
-  LORENZ_PARAM_DESCRIPTORS,
-} from './physics/lorenz-attractor';
-
-import {
-  InductionEngine,
-  InductionRenderer3D,
-  INDUCTION_METADATA,
-  INDUCTION_DEFAULT_PARAMS,
-  INDUCTION_PARAM_DESCRIPTORS,
-} from './physics/faraday-induction';
-
-import {
-  GasEngine,
-  GasRenderer2D,
-  GAS_METADATA,
-  GAS_DEFAULT_PARAMS,
-  GAS_PARAM_DESCRIPTORS,
-} from './physics/maxwell-boltzmann';
-
-import {
-  QuantumEngine,
-  QuantumRenderer2D,
-  QUANTUM_METADATA,
-  QUANTUM_DEFAULT_PARAMS,
-  QUANTUM_PARAM_DESCRIPTORS,
-} from './physics/quantum-tunneling';
-
-import {
-  OpticsEngine,
-  OpticsRenderer2D,
-  OPTICS_METADATA,
-  OPTICS_DEFAULT_PARAMS,
-  OPTICS_PARAM_DESCRIPTORS,
-} from './physics/wave-optics';
-
-import {
-  KeplerEngine,
-  KeplerRenderer3D,
-  KEPLER_METADATA,
-  KEPLER_DEFAULT_PARAMS,
-  KEPLER_PARAM_DESCRIPTORS,
-} from './physics/kepler-orbits';
-
-import {
-  ProjectileEngine,
-  ProjectileRenderer2D,
-  PROJECTILE_METADATA,
-  PROJECTILE_DEFAULT_PARAMS,
-  PROJECTILE_PARAM_DESCRIPTORS,
-} from './physics/projectile-drag';
-
-import {
-  LcrEngine,
-  LcrRenderer2D,
-  LCR_METADATA,
-  LCR_DEFAULT_PARAMS,
-  LCR_PARAM_DESCRIPTORS,
-} from './physics/lcr-circuit';
-
-import {
-  StandingWavesEngine,
-  StandingWavesRenderer2D,
-  STANDING_WAVES_METADATA,
-  STANDING_WAVES_DEFAULT_PARAMS,
-  STANDING_WAVES_PARAM_DESCRIPTORS,
-} from './physics/standing-waves';
-
-import {
-  DopplerEngine,
-  DopplerRenderer2D,
-  DOPPLER_METADATA,
-  DOPPLER_DEFAULT_PARAMS,
-  DOPPLER_PARAM_DESCRIPTORS,
-} from './physics/doppler-shift';
-
-import {
-  PhotoelectricEngine,
-  PhotoelectricRenderer2D,
-  PHOTOELECTRIC_METADATA,
-  PHOTOELECTRIC_DEFAULT_PARAMS,
-  PHOTOELECTRIC_PARAM_DESCRIPTORS,
-} from './physics/photoelectric-effect';
-
-import {
-  CarnotEngine,
-  CarnotRenderer2D,
-  CARNOT_METADATA,
-  CARNOT_DEFAULT_PARAMS,
-  CARNOT_PARAM_DESCRIPTORS,
-} from './physics/carnot-cycle';
-
-import {
-  GaussEngine,
-  GaussRenderer3D,
-  GAUSS_METADATA,
-  GAUSS_DEFAULT_PARAMS,
-  GAUSS_PARAM_DESCRIPTORS,
-} from './physics/gauss-flux';
-
-import {
-  MomentumEngine,
-  MomentumRenderer2D,
-  MOMENTUM_METADATA,
-  MOMENTUM_DEFAULT_PARAMS,
-  MOMENTUM_PARAM_DESCRIPTORS,
-} from './physics/conservation-momentum';
-
-import {
-  TransientEngine,
-  TransientRenderer2D,
-  TRANSIENT_METADATA,
-  TRANSIENT_DEFAULT_PARAMS,
-  TRANSIENT_PARAM_DESCRIPTORS,
-} from './physics/rc-rl-circuits';
+import { LORENTZ_METADATA, LORENTZ_DEFAULT_PARAMS, LORENTZ_PARAM_DESCRIPTORS } from './physics/lorentz-force/LorentzConfig';
+import { OSCILLATOR_METADATA, OSCILLATOR_DEFAULT_PARAMS, OSCILLATOR_PARAM_DESCRIPTORS } from './physics/harmonic-oscillator/OscillatorConfig';
+import { LORENZ_METADATA, LORENZ_DEFAULT_PARAMS, LORENZ_PARAM_DESCRIPTORS } from './physics/lorenz-attractor/LorenzConfig';
+import { INDUCTION_METADATA, INDUCTION_DEFAULT_PARAMS, INDUCTION_PARAM_DESCRIPTORS } from './physics/faraday-induction/InductionConfig';
+import { GAS_METADATA, GAS_DEFAULT_PARAMS, GAS_PARAM_DESCRIPTORS } from './physics/maxwell-boltzmann/GasConfig';
+import { QUANTUM_METADATA, QUANTUM_DEFAULT_PARAMS, QUANTUM_PARAM_DESCRIPTORS } from './physics/quantum-tunneling/QuantumConfig';
+import { OPTICS_METADATA, OPTICS_DEFAULT_PARAMS, OPTICS_PARAM_DESCRIPTORS } from './physics/wave-optics/OpticsConfig';
+import { KEPLER_METADATA, KEPLER_DEFAULT_PARAMS, KEPLER_PARAM_DESCRIPTORS } from './physics/kepler-orbits/KeplerConfig';
+import { PROJECTILE_METADATA, PROJECTILE_DEFAULT_PARAMS, PROJECTILE_PARAM_DESCRIPTORS } from './physics/projectile-drag/ProjectileConfig';
+import { LCR_METADATA, LCR_DEFAULT_PARAMS, LCR_PARAM_DESCRIPTORS } from './physics/lcr-circuit/LcrConfig';
+import { STANDING_WAVES_METADATA, STANDING_WAVES_DEFAULT_PARAMS, STANDING_WAVES_PARAM_DESCRIPTORS } from './physics/standing-waves/StandingWavesConfig';
+import { DOPPLER_METADATA, DOPPLER_DEFAULT_PARAMS, DOPPLER_PARAM_DESCRIPTORS } from './physics/doppler-shift/DopplerConfig';
+import { PHOTOELECTRIC_METADATA, PHOTOELECTRIC_DEFAULT_PARAMS, PHOTOELECTRIC_PARAM_DESCRIPTORS } from './physics/photoelectric-effect/PhotoelectricConfig';
+import { CARNOT_METADATA, CARNOT_DEFAULT_PARAMS, CARNOT_PARAM_DESCRIPTORS } from './physics/carnot-cycle/CarnotConfig';
+import { GAUSS_METADATA, GAUSS_DEFAULT_PARAMS, GAUSS_PARAM_DESCRIPTORS } from './physics/gauss-flux/GaussConfig';
+import { MOMENTUM_METADATA, MOMENTUM_DEFAULT_PARAMS, MOMENTUM_PARAM_DESCRIPTORS } from './physics/conservation-momentum/MomentumConfig';
+import { TRANSIENT_METADATA, TRANSIENT_DEFAULT_PARAMS, TRANSIENT_PARAM_DESCRIPTORS } from './physics/rc-rl-circuits/TransientConfig';
 
 /**
  * Units of every numeric telemetry channel, per sandbox (Constitution Art. 5.1: the manifest is the
@@ -168,6 +50,17 @@ const TELEMETRY_UNITS = {
   'rc-rl-circuits': { circuit_mode: 'dimensionless', tau_ms: 'ms', v_in: 'V', v_component: 'V', v_resistor: 'V', current_mA: 'mA', charge_uC: 'µC', stored_energy_mJ: 'mJ', heat_dissipated_mJ: 'mJ', relaxation_pct: '%' },
 } satisfies Record<string, Record<string, string>>;
 
+/** What a sandbox needs to run. Loaded on demand, so the heavy engine and renderer code is not part of the first page. */
+export interface SimulationRuntime<TParams = any, TState extends SimulationState = SimulationState> {
+  createEngine: () => SimulationEngine<TParams, TState>;
+  createRenderer: () => ViewportRenderer<TState>;
+}
+
+/**
+ * One sandbox's manifest entry. Everything a catalogue, a course page, a search index or the journal needs
+ * is plain data here and is available at once. The engine and renderer are not: `load()` fetches them
+ * when a learner opens the sandbox.
+ */
 export interface SimulationRegistration<TParams = any, TState extends SimulationState = SimulationState> {
   id: string;
   title: string;
@@ -177,8 +70,7 @@ export interface SimulationRegistration<TParams = any, TState extends Simulation
   formattedODE: string;
   description: string;
   mode: '3D' | '2D';
-  createEngine: () => SimulationEngine<TParams, TState>;
-  createRenderer: () => ViewportRenderer<TState>;
+  load: () => Promise<SimulationRuntime<TParams, TState>>;
   defaultParams: TParams;
   paramDescriptors: ParameterDescriptor<number>[];
   /** Unit of every numeric telemetry channel this sandbox emits; checked against the engine. */
@@ -190,154 +82,205 @@ export const SIMULATION_CATALOG: Record<string, SimulationRegistration> = {
     ...LORENTZ_METADATA,
     mode: '3D',
     telemetryUnits: TELEMETRY_UNITS['lorentz-force'],
-    createEngine: () => new LorentzEngine(),
-    createRenderer: () => new LorentzRenderer3D(),
     defaultParams: LORENTZ_DEFAULT_PARAMS,
     paramDescriptors: LORENTZ_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/lorentz-force').then((m) => ({
+        createEngine: () => new m.LorentzEngine(),
+        createRenderer: () => new m.LorentzRenderer3D(),
+      })),
   },
   'harmonic-oscillator': {
     ...OSCILLATOR_METADATA,
     mode: '2D',
     telemetryUnits: TELEMETRY_UNITS['harmonic-oscillator'],
-    createEngine: () => new OscillatorEngine(),
-    createRenderer: () => new OscillatorRenderer2D(),
     defaultParams: OSCILLATOR_DEFAULT_PARAMS,
     paramDescriptors: OSCILLATOR_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/harmonic-oscillator').then((m) => ({
+        createEngine: () => new m.OscillatorEngine(),
+        createRenderer: () => new m.OscillatorRenderer2D(),
+      })),
   },
   'lorenz-attractor': {
     ...LORENZ_METADATA,
     mode: '3D',
     telemetryUnits: TELEMETRY_UNITS['lorenz-attractor'],
-    createEngine: () => new LorenzEngine(),
-    createRenderer: () => new LorenzRenderer3D(),
     defaultParams: LORENZ_DEFAULT_PARAMS,
     paramDescriptors: LORENZ_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/lorenz-attractor').then((m) => ({
+        createEngine: () => new m.LorenzEngine(),
+        createRenderer: () => new m.LorenzRenderer3D(),
+      })),
   },
   'faraday-induction': {
     ...INDUCTION_METADATA,
     mode: '3D',
     telemetryUnits: TELEMETRY_UNITS['faraday-induction'],
-    createEngine: () => new InductionEngine(),
-    createRenderer: () => new InductionRenderer3D(),
     defaultParams: INDUCTION_DEFAULT_PARAMS,
     paramDescriptors: INDUCTION_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/faraday-induction').then((m) => ({
+        createEngine: () => new m.InductionEngine(),
+        createRenderer: () => new m.InductionRenderer3D(),
+      })),
   },
   'maxwell-boltzmann': {
     ...GAS_METADATA,
     mode: '2D',
     telemetryUnits: TELEMETRY_UNITS['maxwell-boltzmann'],
-    createEngine: () => new GasEngine(),
-    createRenderer: () => new GasRenderer2D(),
     defaultParams: GAS_DEFAULT_PARAMS,
     paramDescriptors: GAS_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/maxwell-boltzmann').then((m) => ({
+        createEngine: () => new m.GasEngine(),
+        createRenderer: () => new m.GasRenderer2D(),
+      })),
   },
   'quantum-tunneling': {
     ...QUANTUM_METADATA,
     mode: '2D',
     telemetryUnits: TELEMETRY_UNITS['quantum-tunneling'],
-    createEngine: () => new QuantumEngine(),
-    createRenderer: () => new QuantumRenderer2D(),
     defaultParams: QUANTUM_DEFAULT_PARAMS,
     paramDescriptors: QUANTUM_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/quantum-tunneling').then((m) => ({
+        createEngine: () => new m.QuantumEngine(),
+        createRenderer: () => new m.QuantumRenderer2D(),
+      })),
   },
   'wave-optics': {
     ...OPTICS_METADATA,
     mode: '2D',
     telemetryUnits: TELEMETRY_UNITS['wave-optics'],
-    createEngine: () => new OpticsEngine(),
-    createRenderer: () => new OpticsRenderer2D(),
     defaultParams: OPTICS_DEFAULT_PARAMS,
     paramDescriptors: OPTICS_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/wave-optics').then((m) => ({
+        createEngine: () => new m.OpticsEngine(),
+        createRenderer: () => new m.OpticsRenderer2D(),
+      })),
   },
   'kepler-orbits': {
     ...KEPLER_METADATA,
     mode: '3D',
     telemetryUnits: TELEMETRY_UNITS['kepler-orbits'],
-    createEngine: () => new KeplerEngine(),
-    createRenderer: () => new KeplerRenderer3D(),
     defaultParams: KEPLER_DEFAULT_PARAMS,
     paramDescriptors: KEPLER_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/kepler-orbits').then((m) => ({
+        createEngine: () => new m.KeplerEngine(),
+        createRenderer: () => new m.KeplerRenderer3D(),
+      })),
   },
   'projectile-drag': {
     ...PROJECTILE_METADATA,
     mode: '2D',
     telemetryUnits: TELEMETRY_UNITS['projectile-drag'],
-    createEngine: () => new ProjectileEngine(),
-    createRenderer: () => new ProjectileRenderer2D(),
     defaultParams: PROJECTILE_DEFAULT_PARAMS,
     paramDescriptors: PROJECTILE_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/projectile-drag').then((m) => ({
+        createEngine: () => new m.ProjectileEngine(),
+        createRenderer: () => new m.ProjectileRenderer2D(),
+      })),
   },
   'lcr-circuit': {
     ...LCR_METADATA,
     mode: '2D',
     telemetryUnits: TELEMETRY_UNITS['lcr-circuit'],
-    createEngine: () => new LcrEngine(),
-    createRenderer: () => new LcrRenderer2D(),
     defaultParams: LCR_DEFAULT_PARAMS,
     paramDescriptors: LCR_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/lcr-circuit').then((m) => ({
+        createEngine: () => new m.LcrEngine(),
+        createRenderer: () => new m.LcrRenderer2D(),
+      })),
   },
   'standing-waves': {
     ...STANDING_WAVES_METADATA,
     mode: '2D',
     telemetryUnits: TELEMETRY_UNITS['standing-waves'],
-    createEngine: () => new StandingWavesEngine(),
-    createRenderer: () => new StandingWavesRenderer2D(),
     defaultParams: STANDING_WAVES_DEFAULT_PARAMS,
     paramDescriptors: STANDING_WAVES_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/standing-waves').then((m) => ({
+        createEngine: () => new m.StandingWavesEngine(),
+        createRenderer: () => new m.StandingWavesRenderer2D(),
+      })),
   },
   'doppler-shift': {
     ...DOPPLER_METADATA,
     mode: '2D',
     telemetryUnits: TELEMETRY_UNITS['doppler-shift'],
-    createEngine: () => new DopplerEngine(),
-    createRenderer: () => new DopplerRenderer2D(),
     defaultParams: DOPPLER_DEFAULT_PARAMS,
     paramDescriptors: DOPPLER_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/doppler-shift').then((m) => ({
+        createEngine: () => new m.DopplerEngine(),
+        createRenderer: () => new m.DopplerRenderer2D(),
+      })),
   },
   'photoelectric-effect': {
     ...PHOTOELECTRIC_METADATA,
     mode: '2D',
     telemetryUnits: TELEMETRY_UNITS['photoelectric-effect'],
-    createEngine: () => new PhotoelectricEngine(),
-    createRenderer: () => new PhotoelectricRenderer2D(),
     defaultParams: PHOTOELECTRIC_DEFAULT_PARAMS,
     paramDescriptors: PHOTOELECTRIC_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/photoelectric-effect').then((m) => ({
+        createEngine: () => new m.PhotoelectricEngine(),
+        createRenderer: () => new m.PhotoelectricRenderer2D(),
+      })),
   },
   'carnot-cycle': {
     ...CARNOT_METADATA,
     mode: '2D',
     telemetryUnits: TELEMETRY_UNITS['carnot-cycle'],
-    createEngine: () => new CarnotEngine(),
-    createRenderer: () => new CarnotRenderer2D(),
     defaultParams: CARNOT_DEFAULT_PARAMS,
     paramDescriptors: CARNOT_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/carnot-cycle').then((m) => ({
+        createEngine: () => new m.CarnotEngine(),
+        createRenderer: () => new m.CarnotRenderer2D(),
+      })),
   },
   'gauss-flux': {
     ...GAUSS_METADATA,
     mode: '3D',
     telemetryUnits: TELEMETRY_UNITS['gauss-flux'],
-    createEngine: () => new GaussEngine(),
-    createRenderer: () => new GaussRenderer3D(),
     defaultParams: GAUSS_DEFAULT_PARAMS,
     paramDescriptors: GAUSS_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/gauss-flux').then((m) => ({
+        createEngine: () => new m.GaussEngine(),
+        createRenderer: () => new m.GaussRenderer3D(),
+      })),
   },
   'conservation-momentum': {
     ...MOMENTUM_METADATA,
     mode: '2D',
     telemetryUnits: TELEMETRY_UNITS['conservation-momentum'],
-    createEngine: () => new MomentumEngine(),
-    createRenderer: () => new MomentumRenderer2D(),
     defaultParams: MOMENTUM_DEFAULT_PARAMS,
     paramDescriptors: MOMENTUM_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/conservation-momentum').then((m) => ({
+        createEngine: () => new m.MomentumEngine(),
+        createRenderer: () => new m.MomentumRenderer2D(),
+      })),
   },
   'rc-rl-circuits': {
     ...TRANSIENT_METADATA,
     mode: '2D',
     telemetryUnits: TELEMETRY_UNITS['rc-rl-circuits'],
-    createEngine: () => new TransientEngine(),
-    createRenderer: () => new TransientRenderer2D(),
     defaultParams: TRANSIENT_DEFAULT_PARAMS,
     paramDescriptors: TRANSIENT_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/rc-rl-circuits').then((m) => ({
+        createEngine: () => new m.TransientEngine(),
+        createRenderer: () => new m.TransientRenderer2D(),
+      })),
   },
 };
 
