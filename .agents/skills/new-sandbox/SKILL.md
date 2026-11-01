@@ -42,7 +42,10 @@ description: Add a new interactive simulation (sandbox) to Agentuto the standard
 - Keep the region the learner needs clear of the HUD panels at phone and desktop widths.
 
 ## 4. Verification
-- Add a check to `src/core/test/core.test.ts` against the analytical result (state the tolerance).
+- Add a check to `src/core/test/core.test.ts` against the analytical result (state the tolerance), and a case to
+  `src/core/test/closedForm.test.ts`: the textbook formula with its own constants, off-default parameters, the
+  engine reached only through the registry (Art. 1.5). Mutation-test it: break the engine by a few per cent and
+  see the case fail.
 - Run the `faculty-review` checklist on the new sandbox.
 - `npm test` and `npm run build` pass. Load the sandbox in `npm run dev`, switch to and from it, export
   a CSV, and check the console is clean.

@@ -33,6 +33,7 @@ import { runTokensVerification } from './tokens.test';
 import { runSearchVerification } from './search.test';
 import { runActivityVerification } from './activity.test';
 import { runThemeVerification } from './theme.test';
+import { runClosedFormVerification } from './closedForm.test';
 import { runLocalModulesVerification } from './localModules.test';
 import { runModuleCheckVerification } from './moduleCheck.test';
 import { runExportModuleVerification } from './exportModule.test';
@@ -1286,13 +1287,16 @@ export async function runCoreVerification(): Promise<boolean> {
   // Test 32: colour theme choice — saved, defaults to the system, survives blocked storage.
   runThemeVerification();
 
-  // Test 33: private modules (roadmap R2b) — the rules for local/, the shipped example, git hygiene.
+  // Test 33: independent closed forms for every instrument (Art. 1.5, roadmap R6) — own constants, off-default parameters.
+  await runClosedFormVerification();
+
+  // Test 34: private modules (roadmap R2b) — the rules for local/, the shipped example, git hygiene.
   await runLocalModulesVerification();
 
-  // Test 34: module checker (roadmap R2c) — a good module passes, each rule catches a deliberately broken one.
+  // Test 35: module checker (roadmap R2c) — a good module passes, each rule catches a deliberately broken one.
   await runModuleCheckVerification();
 
-  // Test 35: share path (roadmap R5) — a finished module becomes exactly the edits a PR needs; the rest is refused.
+  // Test 36: share path (roadmap R5) — a finished module becomes exactly the edits a PR needs; the rest is refused.
   await runExportModuleVerification();
 
   console.log('\n🎉 ALL CORE ENGINE CONTRACTS VERIFIED SUCCESSFULLY!');

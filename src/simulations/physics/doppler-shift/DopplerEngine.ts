@@ -118,16 +118,17 @@ export class DopplerEngine implements SimulationEngine<DopplerParams, DopplerSta
     const machAngleDeg = isSupersonic ? (Math.asin(1.0 / machNumber) * 180.0) / Math.PI : 90.0;
 
     // Head-on frequency shifts:
-    // Approaching (ahead): f' = f0 * (c + vr) / (c - vs) (for vs < c)
+    // Observer ahead of the source (on the +x side), velocities positive along +x as in the oblique formula below:
+    // f' = f0 * (c - vr) / (c - vs) (for vs < c)
     let observedAhead = 0;
     if (Math.abs(c - vs) > 1e-3) {
-      observedAhead = f0 * ((c + vr) / Math.max(1e-3, c - vs));
+      observedAhead = f0 * ((c - vr) / Math.max(1e-3, c - vs));
     }
 
-    // Receding (behind): f' = f0 * (c - vr) / (c + vs)
+    // Observer behind the source (on the -x side): f' = f0 * (c + vr) / (c + vs)
     let observedBehind = 0;
     if (c + vs > 1e-3) {
-      observedBehind = f0 * ((c - vr) / (c + vs));
+      observedBehind = f0 * ((c + vr) / (c + vs));
     }
 
     // Oblique observer frequency: f' = f0 * (c - v_r · n) / (c - v_s · n)

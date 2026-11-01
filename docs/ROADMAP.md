@@ -145,6 +145,8 @@ bundle budget and the 35-check smoke test accepted it, then it was reverted.
 
 ### R6 — Depth
 
+**Built — independent closed forms (Art. 1.5).** One case per built-in instrument in `src/core/test/closedForm.test.ts` (see ARCHITECTURE §6.7a), mutation-tested with 25 deliberate engine errors, all caught. Fixed what it found: Lorentz kinetic-energy unit (J to µJ), the Doppler receiver-speed sign on the ahead/behind channels, and first-order RC/RL heat. Left for the owner: decisions 6 and 7 below.
+
 **Built — theme toggle.** Auto / Light / Dark in the site footer, remembered in this browser, applied before first paint (see ARCHITECTURE §6.6).
 In this order: ~~Inquiry Log streak and heatmap (Kaizen 3b)~~ (built: see below), independent closed-form recomputation for all 17
 sandboxes (5a, Art. 1.5), micro-feedback (batch 4), then the owner's decision on the five engine initial
@@ -160,6 +162,15 @@ conditions that have no slider, and deriving the CSV units line from the manifes
 4. Whether Pages deploys from `main` or from tags (R3).
 5. Whether to freeze the AI tutor and playlist agent (keep working, add nothing) and drop the SQLite and
    Tauri plans from the docs, since they will not ship soon.
+6. Three instruments run in scaled units that a learner is not told about, and their labels read as SI. Faraday uses an
+   effective permeability of 1e-3 T·m/A where the real value is 4π×10⁻⁷, so flux, EMF and force are about 800 times the
+   real ones (the engine says so in a code comment only); the tunnelling instrument is in units where ħ = m = 1 but is
+   labelled eV and nm (a real electron at 5 eV has k = 11.5 nm⁻¹, not 3.16); the gas instrument has k_B = 1 and is labelled
+   K, Pa and J. Options: say so in each instrument's guide and relabel the units as reduced, or move to real constants
+   (this changes how fast things happen and what the sliders mean, so it needs a faculty review).
+7. The tunnelling grid has 240 points over 20 length units, so the barrier is drawn in whole cells of 0.084 and the
+   transmission is within about 4 % of the exact packet-averaged value only after that rounding is allowed for; a barrier
+   width set to 1.00 is really 1.004, and one set to 0.8 is 0.837, which changes T by about 25 %. A finer grid costs CPU.
 
 ## 5. Out of scope
 

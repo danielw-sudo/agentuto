@@ -32,7 +32,7 @@ import { TRANSIENT_METADATA, TRANSIENT_DEFAULT_PARAMS, TRANSIENT_PARAM_DESCRIPTO
  * channel nobody got round to describing.
  */
 const TELEMETRY_UNITS = {
-  'lorentz-force': { x: 'm', y: 'm', z: 'm', vx: 'm/s', vy: 'm/s', vz: 'm/s', speed: 'm/s', kinetic_energy: 'J', B_z: 'T', E_y: 'V/m' },
+  'lorentz-force': { x: 'm', y: 'm', z: 'm', vx: 'm/s', vy: 'm/s', vz: 'm/s', speed: 'm/s', kinetic_energy: 'µJ', B_z: 'T', E_y: 'V/m' },
   'harmonic-oscillator': { x: 'm', v: 'm/s', accel: 'm/s²', driving_force: 'N', kinetic_energy: 'J', potential_energy: 'J', total_energy: 'J', damping_b: 'N·s/m', spring_k: 'N/m' },
   'lorenz-attractor': { x1: 'dimensionless', y1: 'dimensionless', z1: 'dimensionless', x2: 'dimensionless', y2: 'dimensionless', z2: 'dimensionless', divergence: 'dimensionless', sigma: 'dimensionless', rho: 'dimensionless', beta: 'dimensionless' },
   'faraday-induction': { z: 'm', vz: 'm/s', emf: 'V', current: 'A', flux: 'Wb', lenz_force: 'N', mechanical_energy: 'J', dissipated_power: 'W' },
