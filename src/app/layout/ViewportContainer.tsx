@@ -39,14 +39,14 @@ export const ViewportContainer: React.FC<ViewportContainerProps> = ({ renderer, 
 
   if (!renderer && fallback) {
     return (
-      <div className="absolute inset-0 w-full h-full overflow-hidden bg-neutral-950">{fallback}</div>
+      <div className="absolute inset-0 w-full h-full overflow-hidden bg-paper">{fallback}</div>
     );
   }
 
   return (
     <div
       ref={containerRef}
-      className="absolute inset-0 w-full h-full overflow-hidden bg-neutral-950"
+      className="absolute inset-0 w-full h-full overflow-hidden bg-paper"
       style={{ touchAction: 'none' }}
     />
   );

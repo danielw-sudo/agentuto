@@ -105,7 +105,7 @@ export const TelemetryBar: React.FC<TelemetryBarProps> = ({
               onClick={() => onSetSpeed(s)}
               className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded cursor-pointer transition-colors ${
                 speedMultiplier === s
-                  ? 'bg-indigo-600 text-white font-semibold'
+                  ? 'bg-accent text-on-accent font-semibold'
                   : 'text-muted hover:text-ink'
               }`}
             >
@@ -200,7 +200,7 @@ export const TelemetryBar: React.FC<TelemetryBarProps> = ({
                 aria-label="Toggle the Inquiry Log"
                 className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl transition-all cursor-pointer ${
                   isInquiryLogOpen
-                    ? 'bg-indigo-500/20 text-accent border border-indigo-500/40'
+                    ? 'bg-accent-soft text-accent border border-accent'
                     : 'text-muted hover:text-ink hover:bg-sunken'
                 }`}
                 title="Toggle the Inquiry Log (prediction, conditions, measurement, conclusion)"

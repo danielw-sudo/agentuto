@@ -134,21 +134,21 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <div className="relative w-full max-w-3xl max-h-[85vh] bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      <div className="relative w-full max-w-3xl max-h-[85vh] bg-card border border-line rounded-2xl shadow-2xl flex flex-col overflow-hidden">
         {/* Modal Header */}
-        <div className="p-5 border-b border-neutral-800 flex items-center justify-between bg-neutral-950/60">
+        <div className="p-5 border-b border-line flex items-center justify-between bg-paper">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+            <div className="p-2 rounded-xl bg-accent-soft border border-accent text-accent">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-neutral-100 flex items-center gap-2">
+              <h2 className="text-base font-semibold text-ink flex items-center gap-2">
                 <span>Personal Study Scheduler &amp; Checkpoints</span>
                 <span className="text-xs font-mono px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-500/30">
                   Local-First
                 </span>
               </h2>
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-muted">
                 Pace your academic curriculum and add 1-click checkpoints directly to your Google Calendar
               </p>
             </div>
@@ -156,7 +156,7 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-muted hover:text-ink hover:bg-sunken transition-colors cursor-pointer"
             title="Close Scheduler"
           >
             <X className="w-5 h-5" />
@@ -175,14 +175,14 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
                   key={item.id}
                   className={`p-4 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                     item.completed
-                      ? 'bg-neutral-950/40 border-neutral-800/60 opacity-60'
-                      : 'bg-neutral-950/90 border-neutral-800 hover:border-neutral-700'
+                      ? 'bg-paper border-line opacity-60'
+                      : 'bg-paper border-line hover:border-muted'
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <button
                       onClick={() => handleToggleCompleted(item.id)}
-                      className="mt-0.5 text-neutral-400 hover:text-emerald-400 transition-colors cursor-pointer"
+                      className="mt-0.5 text-muted hover:text-emerald-400 transition-colors cursor-pointer"
                       title={item.completed ? 'Mark uncompleted' : 'Mark completed'}
                     >
                       {item.completed ? (
@@ -196,25 +196,25 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
                       <div className="flex items-center gap-2 flex-wrap">
                         <span
                           className={`text-sm font-medium ${
-                            item.completed ? 'line-through text-neutral-400' : 'text-neutral-100'
+                            item.completed ? 'line-through text-muted' : 'text-ink'
                           }`}
                         >
                           {item.title}
                         </span>
                         {eq && (
-                          <span className="text-xs font-mono px-1.5 py-0.2 rounded bg-neutral-900 text-indigo-300 border border-neutral-700">
+                          <span className="text-xs font-mono px-1.5 py-0.2 rounded bg-card text-accent border border-line">
                             {eq.utsg}
                           </span>
                         )}
                       </div>
 
-                      <p className="text-xs text-neutral-400 leading-relaxed max-w-xl">
+                      <p className="text-xs text-muted leading-relaxed max-w-xl">
                         {item.objective}
                       </p>
 
-                      <div className="flex items-center gap-3 text-xs font-mono text-neutral-500 pt-1">
+                      <div className="flex items-center gap-3 text-xs font-mono text-muted pt-1">
                         <span className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-neutral-400" />
+                          <Clock className="w-3.5 h-3.5 text-muted" />
                           <span>{item.targetDate}</span>
                         </span>
                         <span>•</span>
@@ -229,12 +229,12 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
                       href={gcalUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-2.5 py-1.5 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-200 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="px-2.5 py-1.5 rounded-lg bg-accent-soft hover:bg-accent-soft border border-accent text-accent text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
                       title="Add 1-Click Checkpoint to Google Calendar (Web Intent)"
                     >
-                      <Calendar className="w-3.5 h-3.5 text-indigo-400" />
+                      <Calendar className="w-3.5 h-3.5 text-accent" />
                       <span>Google Cal</span>
-                      <ExternalLink className="w-3 h-3 text-indigo-400" />
+                      <ExternalLink className="w-3 h-3 text-accent" />
                     </a>
 
                     <button
@@ -242,7 +242,7 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
                         onSelectSandbox(item.sandboxId);
                         onClose();
                       }}
-                      className="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-medium transition-colors cursor-pointer"
+                      className="px-3 py-1.5 rounded-lg bg-sunken hover:bg-sunken text-ink text-xs font-medium transition-colors cursor-pointer"
                       title="Launch Simulation Sandbox"
                     >
                       Launch
@@ -250,7 +250,7 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
 
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="p-1.5 text-neutral-500 hover:text-rose-400 hover:bg-neutral-800/60 rounded transition-colors cursor-pointer"
+                      className="p-1.5 text-muted hover:text-rose-400 hover:bg-sunken rounded transition-colors cursor-pointer"
                       title="Remove checkpoint"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -262,19 +262,19 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
           </div>
 
           {/* Add Checkpoint Creator Form */}
-          <div className="p-4 rounded-xl bg-neutral-950/70 border border-neutral-800/80 space-y-3">
-            <h3 className="text-xs font-semibold text-neutral-200 uppercase tracking-wide flex items-center gap-1.5">
-              <Plus className="w-4 h-4 text-indigo-400" />
+          <div className="p-4 rounded-xl bg-paper border border-line space-y-3">
+            <h3 className="text-xs font-semibold text-ink uppercase tracking-wide flex items-center gap-1.5">
+              <Plus className="w-4 h-4 text-accent" />
               <span>Add Custom Milestone Checkpoint</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs text-neutral-400 mb-1">Target Apparatus</label>
+                <label className="block text-xs text-muted mb-1">Target Apparatus</label>
                 <select
                   value={newSimId}
                   onChange={(e) => setNewSimId(e.target.value as SimulationId)}
-                  className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-2.5 py-1.5 text-xs text-neutral-200 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  className="w-full bg-card border border-line rounded-lg px-2.5 py-1.5 text-xs text-ink focus:outline-none focus:border-accent cursor-pointer"
                 >
                   {Object.values(SIMULATION_CATALOG).map((s) => (
                     <option key={s.id} value={s.id}>
@@ -285,17 +285,17 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs text-neutral-400 mb-1">Target Date</label>
+                <label className="block text-xs text-muted mb-1">Target Date</label>
                 <input
                   type="date"
                   value={newDate}
                   onChange={(e) => setNewDate(e.target.value)}
-                  className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-2.5 py-1.5 text-xs text-neutral-200 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  className="w-full bg-card border border-line rounded-lg px-2.5 py-1.5 text-xs text-ink focus:outline-none focus:border-accent cursor-pointer"
                 />
               </div>
 
               <div>
-                <label className="block text-xs text-neutral-400 mb-1">Duration (Min)</label>
+                <label className="block text-xs text-muted mb-1">Duration (Min)</label>
                 <input
                   type="number"
                   min="15"
@@ -303,14 +303,14 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
                   step="15"
                   value={newMinutes}
                   onChange={(e) => setNewMinutes(parseInt(e.target.value, 10))}
-                  className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-2.5 py-1.5 text-xs text-neutral-200 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-card border border-line rounded-lg px-2.5 py-1.5 text-xs text-ink focus:outline-none focus:border-accent"
                 />
               </div>
             </div>
 
             <button
               onClick={handleAddCheckpoint}
-              className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-lg bg-accent hover:opacity-90 text-on-accent text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add to Study Schedule</span>
@@ -319,13 +319,13 @@ export const StudySchedulerModal: React.FC<StudySchedulerModalProps> = ({
         </div>
 
         {/* Modal Footer Note */}
-        <div className="p-4 border-t border-neutral-800 bg-neutral-950/70 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-400 gap-2">
+        <div className="p-4 border-t border-line bg-paper flex flex-col sm:flex-row items-center justify-between text-xs text-muted gap-2">
           <span>
-            Checkpoints are stored privately in your browser&apos;s <code className="font-mono text-neutral-300">localStorage</code>. Zero server tracking.
+            Checkpoints are stored privately in your browser&apos;s <code className="font-mono text-ink">localStorage</code>. Zero server tracking.
           </span>
           <button
             onClick={() => setSchedule(DEFAULT_SCHEDULE)}
-            className="text-xs text-indigo-400 hover:text-indigo-300 underline cursor-pointer"
+            className="text-xs text-accent hover:text-accent underline cursor-pointer"
           >
             Reset Default Curriculum Track
           </button>

@@ -1050,7 +1050,7 @@ export const LiveTelemetryCard: React.FC<LiveTelemetryCardProps> = React.memo(({
           </div>
           <div className="w-full h-1.5 bg-emerald-950/80 rounded-full overflow-hidden flex">
             <div
-              className="bg-indigo-500 transition-all duration-75"
+              className="bg-accent transition-all duration-75"
               style={{ width: `${kePercent}%` }}
               title={`Kinetic Energy: ${ke.toFixed(2)} J`}
             />

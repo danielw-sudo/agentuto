@@ -5,12 +5,12 @@ import { SiteSearch } from './SiteSearch';
 export const focusRing =
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent';
 
-export type SitePageName = 'home' | 'course' | 'about';
+export type SitePageName = 'home' | 'course' | 'about' | 'instruments' | 'guide';
 
 const NAV: { href: string; label: string; page?: SitePageName }[] = [
   { href: '#/', label: 'Courses', page: 'home' },
-  { href: '#/instruments', label: 'Instruments' },
-  { href: '#/guide', label: 'User guide' },
+  { href: '#/instruments', label: 'Instruments', page: 'instruments' },
+  { href: '#/guide', label: 'User guide', page: 'guide' },
   { href: '#/about', label: 'About', page: 'about' },
 ];
 

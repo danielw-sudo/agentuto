@@ -1,9 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import {
-  Atom,
-  BookOpen,
   Compass,
-  Play,
   Search,
   Ruler,
   Timer,
@@ -13,21 +10,20 @@ import {
   ShieldAlert,
   ArrowRight,
   Layers,
-  X,
 } from 'lucide-react';
 import { SIMULATION_CATALOG, SimulationId, SimulationRegistration } from '../../simulations';
 import { SANDBOX_LAB_GUIDES } from '../../simulations/sandboxGuides';
-import { COURSE_EQUIVALENCE_MAP } from '../../knowledge/courseEquivalence';
 import { COURSES } from '../../courses/courses';
 import { LocalBadge } from '../site/LocalBadge';
+import { SiteLayout } from '../site/SiteLayout';
 
 export interface LabIndexViewProps {
   isOpen: boolean;
   activeTab: 'catalog' | 'guide';
   onTabChange: (tab: 'catalog' | 'guide') => void;
-  currentSandboxId: SimulationId;
+  /** The sandbox already open underneath, if any, so the page can offer to resume it. */
+  resumeSandboxId: string | null;
   onSelectSandbox: (id: SimulationId) => void;
-  onClose: () => void;
   /** When false, 3D sandboxes are marked as unavailable instead of failing silently on click. */
   webglAvailable?: boolean;
 }
@@ -47,16 +43,15 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
   isOpen,
   activeTab,
   onTabChange,
-  currentSandboxId,
+  resumeSandboxId,
   onSelectSandbox,
-  onClose,
   webglAvailable = true,
 }) => {
   const [courseFilter, setCourseFilter] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const allSimulations = useMemo(() => Object.values(SIMULATION_CATALOG), []);
-  const activeSim = SIMULATION_CATALOG[currentSandboxId];
+  const activeSim = resumeSandboxId ? SIMULATION_CATALOG[resumeSandboxId] : undefined;
 
   const filteredSimulations = useMemo(() => {
     const activeFilterObj = COURSE_FILTERS.find((f) => f.id === courseFilter) ?? COURSE_FILTERS[0];
@@ -79,120 +74,33 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
 
   const handleLaunch = (id: string) => {
     onSelectSandbox(id as SimulationId);
-    onClose();
   };
 
+  const isCatalog = activeTab === 'catalog';
+
   return (
-    <div
-      className="fixed inset-0 z-50 bg-neutral-950/98 text-neutral-100 overflow-y-auto select-text"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Agentuto Laboratory Module Index and User Guide"
-    >
-      {/* Top Sticky Navigation Bar */}
-      <header className="sticky top-0 z-20 bg-neutral-950/95 backdrop-blur-md border-b border-neutral-800 px-4 sm:px-8 py-4">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-400">
-              <Atom className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-lg font-semibold tracking-tight text-neutral-100">Instruments</h1>
-                <a href="#/" className="text-sm text-neutral-300 hover:text-neutral-100 underline underline-offset-4">&larr; Courses</a>
-              </div>
-            </div>
+    <SiteLayout current={isCatalog ? 'instruments' : 'guide'} label={isCatalog ? 'Instruments · Agentuto' : 'User guide · Agentuto'}>
+      <main className="mx-auto max-w-6xl space-y-10 px-6 py-12 sm:px-8">
+        <header className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
+          <div className="max-w-2xl">
+            <h1 className="font-display text-4xl font-medium tracking-tight sm:text-5xl">
+              {isCatalog ? 'Instruments' : 'User guide'}
+            </h1>
+            <p className="mt-4 text-lg text-muted">
+              {isCatalog
+                ? `All ${allSimulations.length} instruments, with a filter by course. Topic alignment only: Agentuto is not affiliated with or endorsed by any institution.`
+                : 'How to run Agentuto, how to drive an instrument, and what each one lets you measure.'}
+            </p>
           </div>
-
-          {/* Primary View Switcher & Return to Active Apparatus */}
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <div
-              className="flex bg-neutral-900 p-1 rounded-xl border border-neutral-800"
-              role="tablist"
-              aria-label="Index view tabs"
+          {activeSim && (
+            <a
+              href={`#/sandbox/${encodeURIComponent(activeSim.id)}`}
+              className="inline-flex min-h-11 items-center font-medium text-accent underline underline-offset-4"
             >
-              <button
-                role="tab"
-                aria-selected={activeTab === 'catalog'}
-                onClick={() => onTabChange('catalog')}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                  activeTab === 'catalog'
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-neutral-400 hover:text-neutral-200'
-                }`}
-              >
-                <Compass className="w-4 h-4" />
-                <span>Module Catalog ({allSimulations.length})</span>
-              </button>
-              <button
-                role="tab"
-                aria-selected={activeTab === 'guide'}
-                onClick={() => onTabChange('guide')}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                  activeTab === 'guide'
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-neutral-400 hover:text-neutral-200'
-                }`}
-              >
-                <BookOpen className="w-4 h-4" />
-                <span>User Guide &amp; Lab Manual</span>
-              </button>
-            </div>
-
-            <button
-              onClick={onClose}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-700 text-sm font-medium transition-colors cursor-pointer"
-              title={`Return to active simulation (${activeSim?.title})`}
-            >
-              <Play className="w-3.5 h-3.5 text-emerald-400 fill-current" />
-              <span className="hidden sm:inline">Return to Apparatus</span>
-              <X className="w-4 h-4 text-neutral-400 sm:hidden" />
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Container */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 space-y-8">
-        {/* Scholarly Scope & Non-Affiliation Banner */}
-        <section className="rounded-2xl bg-neutral-900/60 border border-neutral-800/90 p-5 sm:p-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div className="space-y-2 max-w-3xl">
-              <h2 className="text-base font-semibold text-neutral-100">
-                Open-Ended Empirical Science Sandbox
-              </h2>
-              <p className="text-sm text-neutral-300 leading-relaxed">
-                Agentuto provides continuous parameter spaces, fixed-step numerical integrators (200 Hz RK4 &amp;
-                Crank-Nicolson), virtual measurement instruments (caliper, photogate, OLS &amp; exponential regression
-                notebook, RFC-4180 CSV export), and an optional bring-your-own-key Socratic AI tutor. Every simulation,
-                instrument, and data export works completely offline without AI.
-              </p>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                <strong>Topic Alignment:</strong> Modules are aligned with topics from MIT OpenCourseWare (8.01, 8.02,
-                8.03, 8.04, 8.044, 18.03) and AP/IB Physics syllabi. Course labels describe topic alignment only;
-                Agentuto is an independent open-source project and is not affiliated with or endorsed by these
-                institutions.
-              </p>
-            </div>
-
-            {activeSim && (
-              <div className="shrink-0 rounded-xl bg-neutral-950/90 border border-indigo-500/30 p-4 flex flex-col gap-2 min-w-[260px]">
-                <span className="text-xs font-mono uppercase tracking-wider text-indigo-400">
-                  Currently Loaded Apparatus
-                </span>
-                <div className="text-sm font-semibold text-neutral-100">{activeSim.title}</div>
-                <div className="text-xs font-mono text-neutral-400 truncate">{activeSim.formattedODE}</div>
-                <button
-                  onClick={onClose}
-                  className="mt-1 w-full py-2 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                >
-                  <span>Resume Active Sandbox</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
-          </div>
-        </section>
+              Resume {activeSim.title} &rarr;
+            </a>
+          )}
+        </header>
 
         {activeTab === 'catalog' ? (
           /* ================================================================
@@ -208,8 +116,8 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
                     onClick={() => setCourseFilter(f.id)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
                       courseFilter === f.id
-                        ? 'bg-indigo-600/20 border-indigo-500/50 text-indigo-200'
-                        : 'bg-neutral-900/60 border-neutral-800 text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
+                        ? 'bg-accent-soft border-accent text-ink'
+                        : 'bg-card border-line text-muted hover:text-ink hover:border-muted'
                     }`}
                   >
                     {f.label}
@@ -218,28 +126,28 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
               </div>
 
               <div className="relative min-w-[240px]">
-                <Search className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Filter by topic, equation, or keyword…"
+                  placeholder="Filter these instruments"
                   aria-label="Filter modules by keyword"
-                  className="w-full bg-neutral-900 border border-neutral-800 rounded-xl pl-9 pr-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-card border border-line rounded-xl pl-9 pr-3 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-accent"
                 />
               </div>
             </div>
 
             {/* Module Cards Grid - Clean, Compact 3-Column Benchmarked Layout */}
             {filteredSimulations.length === 0 ? (
-              <div className="rounded-2xl bg-neutral-900/40 border border-neutral-800 p-8 text-center space-y-2">
-                <p className="text-base text-neutral-300 font-medium">No modules match your current filter.</p>
+              <div className="rounded-2xl bg-card border border-line p-8 text-center space-y-2">
+                <p className="text-base text-ink font-medium">No modules match your current filter.</p>
                 <button
                   onClick={() => {
                     setCourseFilter('ALL');
                     setSearchQuery('');
                   }}
-                  className="text-sm text-indigo-400 hover:text-indigo-300 underline cursor-pointer"
+                  className="text-sm text-accent hover:text-accent underline cursor-pointer"
                 >
                   Reset filters
                 </button>
@@ -248,81 +156,72 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredSimulations.map((sim: SimulationRegistration) => {
                   const catalogIndex = allSimulations.findIndex((s) => s.id === sim.id) + 1;
-                  const eq = COURSE_EQUIVALENCE_MAP[sim.id];
-                  const isCurrent = sim.id === currentSandboxId;
+                  const isCurrent = sim.id === resumeSandboxId;
 
                   return (
                     <article
                       key={sim.id}
                       className={`rounded-xl border p-4 flex flex-col justify-between gap-3 transition-all hover:shadow-xl ${
                         isCurrent
-                          ? 'bg-neutral-900/90 border-indigo-500/60 ring-1 ring-indigo-500/30'
-                          : 'bg-neutral-900/50 border-neutral-800/90 hover:border-neutral-700 hover:bg-neutral-900/70'
+                          ? 'bg-card border-accent ring-1 ring-accent'
+                          : 'bg-card border-line hover:border-muted hover:bg-sunken'
                       }`}
                     >
                       <div className="space-y-2.5">
                         {/* Top Metadata Badges */}
                         <div className="flex items-center justify-between gap-1.5 flex-wrap">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-mono font-semibold px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-300">
+                            <span className="text-xs font-mono font-semibold px-1.5 py-0.5 rounded bg-sunken text-ink">
                               #{String(catalogIndex).padStart(2, '0')}
                             </span>
                             <span
                               className={`text-xs font-mono font-semibold px-1.5 py-0.5 rounded border ${
                                 sim.mode === '3D'
-                                  ? 'bg-indigo-950/70 text-indigo-300 border-indigo-500/30'
-                                  : 'bg-sky-950/70 text-sky-300 border-sky-500/30'
+                                  ? 'bg-accent-soft text-accent border-accent'
+                                  : 'bg-sky-100 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border-sky-600/40 dark:border-sky-500/30'
                               }`}
                             >
                               {sim.mode}
                             </span>
                             {sim.local && <LocalBadge variant="dark" />}
                             {sim.mode === '3D' && !webglAvailable && (
-                              <span className="text-xs font-mono font-semibold px-1.5 py-0.5 rounded border bg-amber-950/60 text-amber-300 border-amber-500/30">
+                              <span className="text-xs font-mono font-semibold px-1.5 py-0.5 rounded border bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-600/40 dark:border-amber-500/30">
                                 needs WebGL
                               </span>
                             )}
                           </div>
 
                           {isCurrent ? (
-                            <span className="text-xs font-mono text-emerald-400 font-medium flex items-center gap-1">
+                            <span className="text-xs font-mono text-emerald-700 dark:text-emerald-300 font-medium flex items-center gap-1">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                               Active
                             </span>
                           ) : (
-                            <span className="text-xs font-mono text-neutral-500">
+                            <span className="text-xs font-mono text-muted">
                               {sim.curriculum.split(' ')[0]}
                             </span>
                           )}
                         </div>
 
                         {/* Title */}
-                        <h3 className="text-sm font-semibold text-neutral-100 leading-snug line-clamp-1" title={sim.title}>
+                        <h3 className="text-sm font-semibold text-ink leading-snug line-clamp-1" title={sim.title}>
                           {sim.title}
                         </h3>
 
                         {/* Compact Governing ODE Formula Pill */}
-                        <div className="bg-neutral-950/90 border border-neutral-800/90 rounded-lg px-2.5 py-1.5 font-mono text-xs text-indigo-300 overflow-x-auto whitespace-nowrap">
+                        <div className="bg-paper border border-line rounded-lg px-2.5 py-1.5 font-mono text-xs text-accent overflow-x-auto whitespace-nowrap">
                           {sim.formattedODE}
                         </div>
 
                         {/* Description (2 lines clamped) */}
-                        <p className="text-xs text-neutral-300 leading-relaxed line-clamp-2">
+                        <p className="text-xs text-ink leading-relaxed line-clamp-2">
                           {sim.description}
                         </p>
 
-                        {/* Course Equivalence Pill (UTSG, MIT, AP/IB) */}
-                        {eq && (
-                          <div className="flex items-center gap-1.5 text-xs font-mono text-neutral-400 bg-neutral-950/60 px-2 py-1 rounded border border-neutral-800/80">
-                            <span className="text-indigo-400 font-semibold">{eq.utsg}</span>
-                            <span className="text-neutral-600">•</span>
-                            <span className="text-neutral-400 truncate">{eq.secondary}</span>
-                          </div>
-                        )}
                       </div>
 
                       {/* Card Bottom Actions */}
-                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-800/70">
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-line">
                         <button
                           onClick={() => {
                             onTabChange('guide');
@@ -330,14 +229,14 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
                               document.getElementById(`guide-${sim.id}`)?.scrollIntoView({ behavior: 'smooth' });
                             }, 50);
                           }}
-                          className="text-xs text-neutral-400 hover:text-neutral-200 underline cursor-pointer"
+                          className="text-xs text-muted hover:text-ink underline cursor-pointer"
                         >
                           Manual
                         </button>
 
                         <button
                           onClick={() => handleLaunch(sim.id)}
-                          className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg bg-accent hover:opacity-90 text-on-accent text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
                           <span>Open</span>
                           <ArrowRight className="w-3.5 h-3.5" />
@@ -357,63 +256,63 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
             {/* Quick Section Jump Bar */}
             <nav
               aria-label="Manual sections"
-              className="rounded-xl bg-neutral-900/70 border border-neutral-800 p-4 flex flex-wrap gap-2 items-center"
+              className="rounded-xl bg-card border border-line p-4 flex flex-wrap gap-2 items-center"
             >
-              <span className="text-xs font-mono uppercase text-neutral-400 mr-2">Jump to Section:</span>
-              <a href="#manual-workflow" className="text-xs px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200">
+              <span className="text-xs font-mono uppercase text-muted mr-2">Jump to Section:</span>
+              <button type="button" onClick={() => document.getElementById('manual-workflow')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs px-2.5 py-1 rounded bg-sunken hover:bg-sunken text-ink cursor-pointer">
                 1. Inquiry Workflow
-              </a>
-              <a href="#manual-controls" className="text-xs px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200">
+              </button>
+              <button type="button" onClick={() => document.getElementById('manual-controls')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs px-2.5 py-1 rounded bg-sunken hover:bg-sunken text-ink cursor-pointer">
                 2. Operating Controls
-              </a>
-              <a href="#manual-instruments" className="text-xs px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200">
+              </button>
+              <button type="button" onClick={() => document.getElementById('manual-instruments')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs px-2.5 py-1 rounded bg-sunken hover:bg-sunken text-ink cursor-pointer">
                 3. Measurement Instruments
-              </a>
-              <a href="#manual-modules" className="text-xs px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200">
+              </button>
+              <button type="button" onClick={() => document.getElementById('manual-modules')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs px-2.5 py-1 rounded bg-sunken hover:bg-sunken text-ink cursor-pointer">
                 4. Module Reference ({allSimulations.length})
-              </a>
-              <a href="#manual-ai" className="text-xs px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200">
+              </button>
+              <button type="button" onClick={() => document.getElementById('manual-ai')?.scrollIntoView({ behavior: 'smooth' })} className="text-xs px-2.5 py-1 rounded bg-sunken hover:bg-sunken text-ink cursor-pointer">
                 5. Optional AI Tutor &amp; Disclaimer
-              </a>
+              </button>
             </nav>
 
             {/* Section 1: Inquiry Workflow */}
-            <div id="manual-workflow" className="rounded-2xl bg-neutral-900/50 border border-neutral-800 p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-neutral-100 flex items-center gap-2">
-                <Compass className="w-5 h-5 text-indigo-400" />
+            <div id="manual-workflow" className="rounded-2xl bg-card border border-line p-6 space-y-4">
+              <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
+                <Compass className="w-5 h-5 text-accent" />
                 <span>1. Laboratory Philosophy &amp; Inquiry Workflow</span>
               </h2>
-              <p className="text-sm text-neutral-300 leading-relaxed">
+              <p className="text-sm text-ink leading-relaxed">
                 Unlike step-by-step demonstrations with fixed outcomes, Agentuto treats each simulation as an open
                 experimental apparatus. Every module integrates its governing differential equations at a fixed timestep
-                of <code className="font-mono text-indigo-300">Δt = 0.005 s (200 Hz)</code>, decoupled from your monitor
+                of <code className="font-mono text-accent">Δt = 0.005 s (200 Hz)</code>, decoupled from your monitor
                 refresh rate.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                <div className="rounded-xl bg-neutral-950/80 border border-neutral-800 p-4 space-y-1.5">
-                  <div className="text-xs font-mono text-indigo-400 font-semibold">STEP 1 • HYPOTHESIZE</div>
-                  <p className="text-sm text-neutral-300 leading-relaxed">
+                <div className="rounded-xl bg-paper border border-line p-4 space-y-1.5">
+                  <div className="text-xs font-mono text-accent font-semibold">STEP 1 • HYPOTHESIZE</div>
+                  <p className="text-sm text-ink leading-relaxed">
                     Inspect the governing differential equation in the header and predict how changing a physical
                     parameter will alter the trajectory or waveform.
                   </p>
                 </div>
-                <div className="rounded-xl bg-neutral-950/80 border border-neutral-800 p-4 space-y-1.5">
-                  <div className="text-xs font-mono text-sky-400 font-semibold">STEP 2 • MANIPULATE</div>
-                  <p className="text-sm text-neutral-300 leading-relaxed">
+                <div className="rounded-xl bg-paper border border-line p-4 space-y-1.5">
+                  <div className="text-xs font-mono text-sky-700 dark:text-sky-300 font-semibold">STEP 2 • MANIPULATE</div>
+                  <p className="text-sm text-ink leading-relaxed">
                     Vary continuous sliders in the Parameter Deck or load a curated benchmark preset from the Curriculum
                     Roadmap tab.
                   </p>
                 </div>
-                <div className="rounded-xl bg-neutral-950/80 border border-neutral-800 p-4 space-y-1.5">
-                  <div className="text-xs font-mono text-emerald-400 font-semibold">STEP 3 • MEASURE &amp; RECORD</div>
-                  <p className="text-sm text-neutral-300 leading-relaxed">
+                <div className="rounded-xl bg-paper border border-line p-4 space-y-1.5">
+                  <div className="text-xs font-mono text-emerald-700 dark:text-emerald-300 font-semibold">STEP 3 • MEASURE &amp; RECORD</div>
+                  <p className="text-sm text-ink leading-relaxed">
                     Use the Digital Caliper, Photogate, and 50 Hz Telemetry Recorder to gather empirical measurements
                     independent of theoretical formulas.
                   </p>
                 </div>
-                <div className="rounded-xl bg-neutral-950/80 border border-neutral-800 p-4 space-y-1.5">
-                  <div className="text-xs font-mono text-amber-400 font-semibold">STEP 4 • FIT &amp; VERIFY</div>
-                  <p className="text-sm text-neutral-300 leading-relaxed">
+                <div className="rounded-xl bg-paper border border-line p-4 space-y-1.5">
+                  <div className="text-xs font-mono text-amber-700 dark:text-amber-300 font-semibold">STEP 4 • FIT &amp; VERIFY</div>
+                  <p className="text-sm text-ink leading-relaxed">
                     Fit linear (<code className="font-mono">y = mx + b</code>) or exponential (
                     <code className="font-mono">y = A·e^(Bx)</code>) models in the Lab Notebook, or export RFC-4180 CSV
                     data to Python, Excel, or Logger Pro.
@@ -423,22 +322,22 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
             </div>
 
             {/* Section 2: Operating Controls */}
-            <div id="manual-controls" className="rounded-2xl bg-neutral-900/50 border border-neutral-800 p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-neutral-100 flex items-center gap-2">
-                <Sliders className="w-5 h-5 text-indigo-400" />
+            <div id="manual-controls" className="rounded-2xl bg-card border border-line p-6 space-y-4">
+              <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
+                <Sliders className="w-5 h-5 text-accent" />
                 <span>2. Operating the Interface &amp; 3D Viewport Controls</span>
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm text-neutral-300 leading-relaxed">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm text-ink leading-relaxed">
                 <div className="space-y-2">
-                  <h3 className="font-semibold text-neutral-100">HUD Panels &amp; Playback Shortcuts</h3>
-                  <ul className="list-disc list-inside space-y-1.5 text-neutral-300">
+                  <h3 className="font-semibold text-ink">HUD Panels &amp; Playback Shortcuts</h3>
+                  <ul className="list-disc list-inside space-y-1.5 text-ink">
                     <li>
-                      <strong>Play / Pause (<code className="font-mono text-indigo-300">Space</code>):</strong> Starts
+                      <strong>Play / Pause (<code className="font-mono text-accent">Space</code>):</strong> Starts
                       or freezes time integration while keeping the 3D camera interactive.
                     </li>
                     <li>
                       <strong>Single Step Forward:</strong> Pauses and advances the physics clock by exactly one fixed
-                      step (<code className="font-mono text-indigo-300">Δt = 0.005 s</code>).
+                      step (<code className="font-mono text-accent">Δt = 0.005 s</code>).
                     </li>
                     <li>
                       <strong>Speed Multipliers:</strong> Switch between <code className="font-mono">0.25×</code>,{' '}
@@ -453,8 +352,8 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className="font-semibold text-neutral-100">3D Camera Navigation (Windows &amp; Mac)</h3>
-                  <ul className="list-disc list-inside space-y-1.5 text-neutral-300">
+                  <h3 className="font-semibold text-ink">3D Camera Navigation (Windows &amp; Mac)</h3>
+                  <ul className="list-disc list-inside space-y-1.5 text-ink">
                     <li>
                       <strong>Orbit / Rotate:</strong> Left-click and drag (or single-finger click-and-drag on a Mac
                       trackpad).
@@ -477,41 +376,41 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
             </div>
 
             {/* Section 3: Virtual Laboratory Measurement Instruments */}
-            <div id="manual-instruments" className="rounded-2xl bg-neutral-900/50 border border-neutral-800 p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-neutral-100 flex items-center gap-2">
-                <Ruler className="w-5 h-5 text-sky-400" />
+            <div id="manual-instruments" className="rounded-2xl bg-card border border-line p-6 space-y-4">
+              <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
+                <Ruler className="w-5 h-5 text-sky-700 dark:text-sky-300" />
                 <span>3. Virtual Laboratory Measurement Instruments</span>
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="rounded-xl bg-neutral-950/70 border border-neutral-800 p-4 space-y-1.5">
-                  <div className="flex items-center gap-2 text-sky-300 font-semibold text-sm">
+                <div className="rounded-xl bg-paper border border-line p-4 space-y-1.5">
+                  <div className="flex items-center gap-2 text-sky-700 dark:text-sky-300 font-semibold text-sm">
                     <Ruler className="w-4 h-4" />
                     <span>Digital Caliper</span>
                   </div>
-                  <p className="text-sm text-neutral-300 leading-relaxed">
+                  <p className="text-sm text-ink leading-relaxed">
                     Toggle from the bottom dock and drag either jaw to measure spatial distances on screen (e.g., Young
                     double-slit fringe spacing <code className="font-mono">Δy</code>, cyclotron diameter, or spring
                     extension).
                   </p>
                 </div>
 
-                <div className="rounded-xl bg-neutral-950/70 border border-neutral-800 p-4 space-y-1.5">
-                  <div className="flex items-center gap-2 text-emerald-300 font-semibold text-sm">
+                <div className="rounded-xl bg-paper border border-line p-4 space-y-1.5">
+                  <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300 font-semibold text-sm">
                     <Timer className="w-4 h-4" />
                     <span>Virtual Photogate Sensor</span>
                   </div>
-                  <p className="text-sm text-neutral-300 leading-relaxed">
+                  <p className="text-sm text-ink leading-relaxed">
                     Measures beam interruption timestamps and transit intervals <code className="font-mono">Δt</code> to
                     determine oscillation periods and instantaneous speeds empirically.
                   </p>
                 </div>
 
-                <div className="rounded-xl bg-neutral-950/70 border border-neutral-800 p-4 space-y-1.5">
-                  <div className="flex items-center gap-2 text-amber-300 font-semibold text-sm">
+                <div className="rounded-xl bg-paper border border-line p-4 space-y-1.5">
+                  <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300 font-semibold text-sm">
                     <LineChart className="w-4 h-4" />
                     <span>In-App Lab Notebook &amp; Curve Fitter</span>
                   </div>
-                  <p className="text-sm text-neutral-300 leading-relaxed">
+                  <p className="text-sm text-ink leading-relaxed">
                     Select any two recorded telemetry channels for X and Y axes and compute Ordinary Least-Squares
                     Linear (<code className="font-mono">y = mx + b</code>) or Exponential (
                     <code className="font-mono">y = A·e^(Bx)</code>) regressions with Pearson{' '}
@@ -519,12 +418,12 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
                   </p>
                 </div>
 
-                <div className="rounded-xl bg-neutral-950/70 border border-neutral-800 p-4 space-y-1.5">
-                  <div className="flex items-center gap-2 text-indigo-300 font-semibold text-sm">
+                <div className="rounded-xl bg-paper border border-line p-4 space-y-1.5">
+                  <div className="flex items-center gap-2 text-accent font-semibold text-sm">
                     <Download className="w-4 h-4" />
                     <span>RFC-4180 CSV Telemetry Export</span>
                   </div>
-                  <p className="text-sm text-neutral-300 leading-relaxed">
+                  <p className="text-sm text-ink leading-relaxed">
                     Click <strong>Record</strong> to sample up to 10,000 points at 50 Hz in an O(1) circular ring
                     buffer, then click <strong>Export CSV</strong> to download timestamped data with active parameter
                     headers.
@@ -536,11 +435,11 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
             {/* Section 4: Complete 17-Sandbox Reference Manual */}
             <div id="manual-modules" className="space-y-4">
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <h2 className="text-lg font-semibold text-neutral-100 flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-indigo-400" />
+                <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
+                  <Layers className="w-5 h-5 text-accent" />
                   <span>4. Reference Guide to All {allSimulations.length} Modules</span>
                 </h2>
-                <span className="text-xs text-neutral-400">
+                <span className="text-xs text-muted">
                   Faculty-reviewed equations, boundary conditions, and empirical protocols
                 </span>
               </div>
@@ -552,55 +451,55 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
                     <div
                       key={sim.id}
                       id={`guide-${sim.id}`}
-                      className="rounded-2xl bg-neutral-900/45 border border-neutral-800 p-5 space-y-3"
+                      className="rounded-2xl bg-card border border-line p-5 space-y-3"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-800/80 pb-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line pb-3">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-xs font-mono font-bold text-indigo-400">
+                            <span className="text-xs font-mono font-bold text-accent">
                               MODULE {String(idx + 1).padStart(2, '0')}
                             </span>
-                            <h3 className="text-base font-semibold text-neutral-100">{sim.title}</h3>
-                            <span className="text-xs font-mono px-2 py-0.5 rounded bg-neutral-800 text-neutral-300">
+                            <h3 className="text-base font-semibold text-ink">{sim.title}</h3>
+                            <span className="text-xs font-mono px-2 py-0.5 rounded bg-sunken text-ink">
                               Aligned with {sim.curriculum}
                             </span>
                           </div>
-                          <div className="text-xs font-mono text-indigo-300">
+                          <div className="text-xs font-mono text-accent">
                             Governing Equation: {sim.formattedODE}
                           </div>
                         </div>
 
                         <button
                           onClick={() => handleLaunch(sim.id)}
-                          className="self-start sm:self-center shrink-0 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
+                          className="self-start sm:self-center shrink-0 px-3.5 py-1.5 rounded-xl bg-accent hover:opacity-90 text-on-accent text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
                         >
                           <span>Launch Module</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </button>
                       </div>
 
-                      <p className="text-sm text-neutral-300 leading-relaxed">{sim.description}</p>
+                      <p className="text-sm text-ink leading-relaxed">{sim.description}</p>
 
                       {guide && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
                           <div className="space-y-2">
-                            <h4 className="text-xs font-mono uppercase tracking-wider text-neutral-400">
+                            <h4 className="text-xs font-mono uppercase tracking-wider text-muted">
                               Physical Phenomena &amp; Notes
                             </h4>
                             <ul className="space-y-2">
                               {guide.whatToExplore.map((item, k) => (
-                                <li key={k} className="text-sm text-neutral-300 leading-relaxed">
-                                  <strong className="text-neutral-100">{item.title}:</strong> {item.detail}
+                                <li key={k} className="text-sm text-ink leading-relaxed">
+                                  <strong className="text-ink">{item.title}:</strong> {item.detail}
                                 </li>
                               ))}
                             </ul>
                           </div>
 
-                          <div className="rounded-xl bg-neutral-950/70 border border-neutral-800/80 p-3.5 space-y-2">
-                            <h4 className="text-xs font-mono uppercase tracking-wider text-indigo-300">
+                          <div className="rounded-xl bg-paper border border-line p-3.5 space-y-2">
+                            <h4 className="text-xs font-mono uppercase tracking-wider text-accent">
                               Empirical Measurement Protocol
                             </h4>
-                            <ol className="text-sm text-neutral-300 space-y-1.5 list-decimal list-inside leading-relaxed">
+                            <ol className="text-sm text-ink space-y-1.5 list-decimal list-inside leading-relaxed">
                               {guide.labProtocol.map((step, k) => (
                                 <li key={k}>{step}</li>
                               ))}
@@ -615,18 +514,18 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
             </div>
 
             {/* Section 5: Optional AI Tutor & Mandatory Disclaimer */}
-            <div id="manual-ai" className="rounded-2xl bg-neutral-900/60 border border-neutral-800 p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-neutral-100 flex items-center gap-2">
-                <ShieldAlert className="w-5 h-5 text-amber-400" />
+            <div id="manual-ai" className="rounded-2xl bg-card border border-line p-6 space-y-4">
+              <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
+                <ShieldAlert className="w-5 h-5 text-amber-700 dark:text-amber-300" />
                 <span>5. Optional Socratic AI Tutor (Bring Your Own Key) &amp; Disclaimer</span>
               </h2>
 
-              <div className="space-y-3 text-sm text-neutral-300 leading-relaxed">
+              <div className="space-y-3 text-sm text-ink leading-relaxed">
                 <p>
                   <strong>AI is optional.</strong> All simulations, measurement instruments, the Lab Notebook curve
                   fitter, and CSV export work fully without any AI. If you choose to enable the Socratic AI Tutor or
                   Dynamic Playlist Generator, it connects directly from your browser to Google&apos;s Gemini API using
-                  your own account and API key (<code className="font-mono text-indigo-300">gemini-3.8-flash</code>).
+                  your own account and API key (<code className="font-mono text-accent">gemini-3.8-flash</code>).
                 </p>
                 <p>
                   Your API key is stored only in your browser&apos;s <code className="font-mono">localStorage</code>.
@@ -642,7 +541,7 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
                   you to specific telemetry variables to measure and verify yourself. AI models can still make mistakes;
                   always verify results independently against empirical telemetry and analytical equations.
                 </p>
-                <p className="text-xs text-neutral-400 pt-2 border-t border-neutral-800">
+                <p className="text-xs text-muted pt-2 border-t border-line">
                   Agentuto is an independent open-source project released under the MIT License. It is not affiliated
                   with or endorsed by MIT, the College Board (AP), the International Baccalaureate (IB), Google, or
                   Anthropic; course labels describe topic alignment only.
@@ -651,15 +550,7 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
             </div>
           </section>
         )}
-        {/* The credits, licence and community links live on the About page. */}
-        <footer className="mt-12 pt-6 border-t border-neutral-800 text-sm text-neutral-400 flex flex-wrap items-center justify-between gap-3">
-          <span>Open source under the MIT licence. Not affiliated with any institution.</span>
-          <span className="flex gap-5">
-            <a href="#/" className="hover:text-neutral-200 underline underline-offset-4">Courses</a>
-            <a href="#/about" className="hover:text-neutral-200 underline underline-offset-4">About</a>
-          </span>
-        </footer>
-      </div>
-    </div>
+      </main>
+    </SiteLayout>
   );
 });
