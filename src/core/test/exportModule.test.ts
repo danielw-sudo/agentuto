@@ -28,8 +28,8 @@ export async function runExportModuleVerification(): Promise<void> {
   };
 
   // The example, as a contributor would have finished it: an honest curriculum line that names one course.
-  const shared: SimulationRegistration = { ...(example as SimulationRegistration), curriculum: 'MIT 8.01 Classical Mechanics' };
-  const checks = await checkModule(shared, { folder: 'free-fall', taken: () => false });
+  const shared: SimulationRegistration = { ...(example as SimulationRegistration), id: 'dropped-ball', curriculum: 'MIT 8.01 Classical Mechanics' };
+  const checks = await checkModule(shared, { folder: 'dropped-ball', taken: () => false });
   const base: ExportInput = {
     manifest: shared,
     files: moduleFiles,
@@ -47,17 +47,17 @@ export async function runExportModuleVerification(): Promise<void> {
   if (!plan.ok) throw new Error(`a valid module was refused: ${plan.reasons.join('; ')}`);
   const written = new Map(plan.writes.map((w) => [w.path, w.text]));
   for (const name of Object.keys(moduleFiles)) {
-    const text = written.get(`src/simulations/physics/free-fall/${name}`);
+    const text = written.get(`src/simulations/physics/dropped-ball/${name}`);
     if (!text) throw new Error(`${name} was not copied to the project`);
     if (/['"]\.\.\/\.\.\/src\//.test(text)) throw new Error(`${name} still imports from ../../src/, which does not exist inside the project`);
   }
-  if (!written.get('src/simulations/physics/free-fall/FreeFallEngine.ts')!.includes("from '../../../core/types/simulation'")) {
+  if (!written.get('src/simulations/physics/dropped-ball/FreeFallEngine.ts')!.includes("from '../../../core/types/simulation'")) {
     throw new Error("the engine's import of the core types was not rewritten to ../../../core/types/simulation");
   }
 
   const newIndex = written.get('src/simulations/index.ts')!;
-  const importLine = "import freeFallManifest from './physics/free-fall/module';";
-  const entryLine = "  'free-fall': freeFallManifest,";
+  const importLine = "import droppedBallManifest from './physics/dropped-ball/module';";
+  const entryLine = "  'dropped-ball': droppedBallManifest,";
   if (newIndex.split(importLine).length !== 2 || newIndex.split(entryLine).length !== 2) {
     throw new Error('the registry import and entry must each appear exactly once');
   }
@@ -73,7 +73,7 @@ export async function runExportModuleVerification(): Promise<void> {
   }
 
   const newCourses = written.get('src/courses/courses.ts')!;
-  const moduleLine = "      { sandboxId: 'free-fall', measure: 'how long a dropped ball takes to land, and the speed it lands at.' },";
+  const moduleLine = "      { sandboxId: 'dropped-ball', measure: 'how long a dropped ball takes to land, and the speed it lands at.' },";
   if (newCourses.split(moduleLine).length !== 2) throw new Error('the course line must appear exactly once');
   const at = newCourses.indexOf(moduleLine);
   if (!(newCourses.indexOf("id: '8.01'") < at && at < newCourses.indexOf("id: '8.02'"))) {
@@ -103,6 +103,7 @@ export async function runExportModuleVerification(): Promise<void> {
   refuses('no benchmark', { ...base, manifest: without('benchmark') }, 'benchmark');
   refuses('no guide', { ...base, manifest: without('guide') }, 'guide');
   refuses('a module the checker fails', { ...base, checks: [{ name: 'Benchmark', status: 'fail', detail: 'x' }] }, 'checker reports 1 problem');
+  refuses('the shipped example itself', { ...base, manifest: { ...shared, id: 'free-fall' } }, 'shipped example');
   refuses('an id the project already has', { ...base, manifest: { ...shared, id: 'lorentz-force' } }, 'already an instrument');
   refuses('a course that does not exist', { ...base, courseCode: '9.99' }, 'is not a course');
   refuses('a curriculum that does not name the course', { ...base, manifest: { ...shared, curriculum: 'Example private module' } }, 'does not name 8.01');
@@ -111,12 +112,12 @@ export async function runExportModuleVerification(): Promise<void> {
   refuses('a vague measure line', { ...base, measure: 'stuff' }, '--measure');
   refuses('no module.ts', { ...base, files: { 'FreeFallEngine.ts': moduleFiles['FreeFallEngine.ts'] } }, 'no module.ts');
   refuses('a registry laid out differently', { ...base, indexTs: 'export const nothing = 1;' }, 'not laid out');
-  refuses('an instrument already in the registry', { ...base, indexTs: `// './physics/free-fall/'\n${indexTs}` }, 'already mentions');
+  refuses('an instrument already in the registry', { ...base, indexTs: `// './physics/dropped-ball/'\n${indexTs}` }, 'already mentions');
   refuses('a courses file laid out differently', { ...base, coursesTs: 'export const COURSES = [];' }, 'not laid out');
   refuses('a manifest still marked local', { ...base, manifest: { ...shared, local: true } }, 'marked local');
 
   // 4. The helpers
-  if (camelManifestName('free-fall') !== 'freeFallManifest' || camelManifestName('kepler-orbit-2') !== 'keplerOrbit2Manifest') {
+  if (camelManifestName('dropped-ball') !== 'droppedBallManifest' || camelManifestName('kepler-orbit-2') !== 'keplerOrbit2Manifest') {
     throw new Error('manifest names are not camel-cased from the id');
   }
   if (rewriteImports("import a from '../../src/core/x';\nimport b from \"../../src/y\";\nimport c from './z';") !== "import a from '../../../core/x';\nimport b from \"../../../y\";\nimport c from './z';") {
@@ -127,6 +128,6 @@ export async function runExportModuleVerification(): Promise<void> {
   }
 
   console.log(
-    `✓ Share path verified: a finished module becomes exactly ${plan.writes.length} writes (its ${Object.keys(moduleFiles).length} files with imports pointed at the project, two added lines in the registry, one in course 8.01), and 14 kinds of module the project would reject are each refused with the reason`
+    `✓ Share path verified: a finished module becomes exactly ${plan.writes.length} writes (its ${Object.keys(moduleFiles).length} files with imports pointed at the project, two added lines in the registry, one in course 8.01), and 15 kinds of module the project would reject are each refused with the reason`
   );
 }

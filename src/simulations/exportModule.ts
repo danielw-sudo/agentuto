@@ -36,6 +36,9 @@ export interface FileWrite {
 
 export type ExportPlan = { ok: true; writes: FileWrite[]; notes: string[] } | { ok: false; reasons: string[] };
 
+/** Ids that belong to the shipped teaching example and its tests; an instrument of your own needs a name of its own. */
+export const RESERVED_IDS = ['free-fall'];
+
 export function camelManifestName(id: string): string {
   const camel = id
     .split('-')
@@ -76,6 +79,9 @@ export function planExport(input: ExportInput): ExportPlan {
   }
   if ((manifest as { local?: boolean }).local) {
     reasons.push('the manifest is marked local; export the file you wrote, not a loaded copy');
+  }
+  if (RESERVED_IDS.includes(id)) {
+    reasons.push(`"${id}" is the id of the shipped example, which the tests use; give your instrument an id of its own (change the folder name and the id)`);
   }
   if (input.upstreamIds.includes(id)) {
     reasons.push(`"${id}" is already an instrument in the project`);
