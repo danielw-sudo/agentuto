@@ -19,6 +19,7 @@ import { SIMULATION_CATALOG, SimulationId, SimulationRegistration } from '../../
 import { AgentMark } from './AgentMark';
 import { SANDBOX_LAB_GUIDES } from '../../simulations/sandboxGuides';
 import { COURSE_EQUIVALENCE_MAP } from '../../knowledge/courseEquivalence';
+import { COURSES } from '../../courses/courses';
 
 export interface LabIndexViewProps {
   isOpen: boolean;
@@ -31,14 +32,15 @@ export interface LabIndexViewProps {
   webglAvailable?: boolean;
 }
 
+// Derived from the course data (Art. 5.2: no hand-kept list beside the manifest). The old chips matched
+// substrings of each sandbox's curriculum text, so "8.03" also caught every "18.03" sandbox.
 const COURSE_FILTERS = [
-  { id: 'ALL', label: 'All Modules', match: () => true },
-  { id: '8.01', label: 'Aligned with 8.01 (Mechanics)', match: (c: string) => c.includes('8.01') },
-  { id: '8.02', label: 'Aligned with 8.02 (E&M)', match: (c: string) => c.includes('8.02') },
-  { id: '8.03', label: 'Aligned with 8.03 (Waves & Optics)', match: (c: string) => c.includes('8.03') },
-  { id: '8.04', label: 'Aligned with 8.04 (Quantum)', match: (c: string) => c.includes('8.04') && !c.includes('8.044') },
-  { id: '8.044', label: 'Aligned with 8.044 (Thermodynamics)', match: (c: string) => c.includes('8.044') },
-  { id: '18.03', label: 'Aligned with 18.03 (Diff. Eq.)', match: (c: string) => c.includes('18.03') },
+  { id: 'ALL', label: 'All Modules', includes: (_sandboxId: string) => true },
+  ...COURSES.map((course) => ({
+    id: course.id,
+    label: `Aligned with ${course.id} (${course.shortTitle})`,
+    includes: (sandboxId: string) => course.modules.some((m) => m.sandboxId === sandboxId),
+  })),
 ];
 
 export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
@@ -61,7 +63,7 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
     const q = searchQuery.trim().toLowerCase();
 
     return allSimulations.filter((sim) => {
-      if (!activeFilterObj.match(sim.curriculum)) return false;
+      if (!activeFilterObj.includes(sim.id)) return false;
       if (!q) return true;
       return (
         sim.title.toLowerCase().includes(q) ||

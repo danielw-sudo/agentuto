@@ -84,11 +84,11 @@ each sandbox's `*Config.ts`.
 
 Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22:
 
-- `npm test` — 40 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
-  6 for the Inquiry Log core, 7 for the Inquiry Log panel and 1 for page addresses.
+- `npm test` — 41 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
+  6 for the Inquiry Log core, 7 for the Inquiry Log panel, 1 for page addresses and 1 for courses.
 - `npm run build` — TypeScript and production build, zero errors.
-- `npm run check:bundle` — payload budget, as the script prints it: first load 159.9 kB gzip (budget
-  170.9), largest chunk 141.6 kB (budget 180.7), everything 339.0 kB (budget 356.4). Sandboxes are fetched
+- `npm run check:bundle` — payload budget, as the script prints it: first load 160.9 kB gzip (budget
+  170.9), largest chunk 142.6 kB (budget 180.7), everything 340.2 kB (budget 356.4). Sandboxes are fetched
   when opened, so the catalogue does not wait for any of them.
 
 ## Docs
