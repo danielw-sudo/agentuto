@@ -185,7 +185,7 @@ function expectRejection(fn: () => void, expectedField: string, label: string): 
   throw new Error(`${label}: the journal accepted an entry it should have refused`);
 }
 
-export function runJournalVerification(): void {
+export async function runJournalVerification(): Promise<void> {
   // J1 — The manifest port works for every sandbox: parameter ranges from the descriptors, and the
   // declared channel units must equal what the engine really emits. A declaration nobody checks drifts
   // the first time a channel is renamed, which is exactly the failure this line is here to stop.
@@ -229,7 +229,7 @@ export function runJournalVerification(): void {
     }
 
     // The declaration and the engine must agree, in both directions.
-    const emitted = engineChannelsFromSandbox(sandboxId);
+    const emitted = await engineChannelsFromSandbox(sandboxId);
     const missing = emitted.filter((channel) => !declaredKeys.includes(channel));
     const extra = declaredKeys.filter((channel) => !emitted.includes(channel));
     if (missing.length > 0 || extra.length > 0) {

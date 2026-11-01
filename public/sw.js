@@ -1,5 +1,6 @@
-// Bumped from v1 to purge the stale cache-first index.html held by earlier installs.
-const CACHE_NAME = 'agentuto-v2';
+// Bumped from v1 to purge the stale cache-first index.html held by earlier installs; v3 because
+// install now also fetches every built asset (sandboxes are loaded on demand, see precache.json).
+const CACHE_NAME = 'agentuto-v3';
 
 // Everything below is scope-relative so the same worker works at "/" (dev, custom domain)
 // and at a project sub-path such as "/agentuto/" on GitHub Pages.
@@ -20,7 +21,14 @@ const ASSETS_PATH = new URL('assets/', SCOPE).pathname;
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      return cache.addAll(ASSETS_TO_CACHE).then(() =>
+        // Every sandbox, so the installed copy works offline for all of them. A failure here must not
+        // stop the worker installing: the assets are then cached as they are used, as before.
+        fetch(within('precache.json'), { cache: 'no-cache' })
+          .then((response) => response.json())
+          .then((files) => cache.addAll(files.map((file) => within(file))))
+          .catch(() => undefined)
+      );
     }).then(() => self.skipWaiting())
   );
 });

@@ -77,8 +77,11 @@ GitHub and agents look for them there. Link audit across docs, skills and CI.
 ### R2 — Platform
 Three PRs, one at a time, on a clean `main`.
 - **R2a Routing and lazy loading.** Hash routes (Pages has no server fallback), one URL per course and
-  sandbox, sandboxes loaded on demand. Outcome: bundle headroom returns without raising the budget.
-  Check: `check:bundle` shows real headroom; every sandbox still loads.
+  sandbox, sandboxes loaded on demand. Outcome: bundle headroom returns. Check: `check:bundle` shows real
+  headroom; every sandbox still loads. *Built:* the largest chunk fell from 185.0 to 141.6 and a first
+  visit from ~320 to 159.9 (script units). The total budget had to rise (322.3 to 356.4) because
+  separately compressed chunks cost ~17 kB more; the new first-load budget is the number that now guards
+  the visitor. Courses get their own URLs in R4.
 - **R2b `local/` packs.** The registry loads whatever is in the gitignored `local/` folder, in the same
   format as upstream modules, labelled "local, unreviewed". The Pages build never reads it.
   Check: a test fails if anything under `local/` is tracked; a sample private module appears locally and not

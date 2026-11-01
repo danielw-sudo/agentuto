@@ -27,8 +27,9 @@ import { chooseInitialSandbox, sandboxNeedsWebGL } from '../graphics/sandboxChoi
 import { buildSuggestedParametersSchema } from '../../ai/playlistGenerator';
 import { runJournalVerification } from './journal.test';
 import { runInquiryLogUiVerification } from './inquiryLogUi.test';
+import { runRoutesVerification } from './routes.test';
 
-export function runCoreVerification(): boolean {
+export async function runCoreVerification(): Promise<boolean> {
   console.log('🧪 Running Core Engine Verification Suite...\n');
 
   // Test 1: Vector Math
@@ -1253,11 +1254,14 @@ export function runCoreVerification(): boolean {
 
   // Test 25: Inquiry Log core (Kaizen batch 2) — prediction, parameters, measurement, fit,
   // explanation, persistence, JSON/CSV export, streak and heatmap series. Zero UI.
-  runJournalVerification();
+  await runJournalVerification();
 
   // Test 26: Inquiry Log UI glue (Kaizen batch 3a) — form → entry mapping, refusal anchors, unit
   // display derived from the manifest, export headers, storage durability, export filenames.
   runInquiryLogUiVerification();
+
+  // Test 27: addresses (roadmap R2a) — every page has a URL and a bad URL opens the catalogue.
+  runRoutesVerification();
 
   console.log('\n🎉 ALL CORE ENGINE CONTRACTS VERIFIED SUCCESSFULLY!');
   return true;
