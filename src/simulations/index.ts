@@ -1,4 +1,5 @@
 import { SimulationEngine, ViewportRenderer, ParameterDescriptor, SimulationState } from '../core/types/simulation';
+import type { SandboxGuideEntry } from './sandboxGuides';
 import { LORENTZ_METADATA, LORENTZ_DEFAULT_PARAMS, LORENTZ_PARAM_DESCRIPTORS } from './physics/lorentz-force/LorentzConfig';
 import { OSCILLATOR_METADATA, OSCILLATOR_DEFAULT_PARAMS, OSCILLATOR_PARAM_DESCRIPTORS } from './physics/harmonic-oscillator/OscillatorConfig';
 import { LORENZ_METADATA, LORENZ_DEFAULT_PARAMS, LORENZ_PARAM_DESCRIPTORS } from './physics/lorenz-attractor/LorenzConfig';
@@ -91,6 +92,11 @@ export interface SimulationRegistration<TParams = any, TState extends Simulation
   local?: boolean;
   /** Optional worked result for `npm run check:module`; see {@link ModuleBenchmark}. */
   benchmark?: ModuleBenchmark;
+  /**
+   * The three-step lab protocol, what to explore and the tutor's quick prompts. Optional for a private module;
+   * required to share one. Built-in instruments still keep theirs in `sandboxGuides.ts`; use `guideOf()`.
+   */
+  guide?: SandboxGuideEntry;
 }
 
 export const SIMULATION_CATALOG: Record<string, SimulationRegistration> = {

@@ -4,6 +4,31 @@ import { GlassPanel } from './GlassPanel';
 import { SIMULATION_CATALOG } from '../../simulations';
 import { TelemetrySparkline } from './TelemetrySparkline';
 
+/**
+ * Instruments with a card of their own below. Anything else, a private module or one just shared from `local/`,
+ * gets the generic card, which lists whatever its engine reports with the units its manifest declares.
+ * (Lorentz's card is the default at the end of this component, so it counts as hand-built.)
+ */
+const HAND_BUILT_CARDS = new Set<string>([
+  'lorentz-force',
+  'carnot-cycle',
+  'conservation-momentum',
+  'doppler-shift',
+  'faraday-induction',
+  'gauss-flux',
+  'harmonic-oscillator',
+  'kepler-orbits',
+  'lcr-circuit',
+  'lorenz-attractor',
+  'maxwell-boltzmann',
+  'photoelectric-effect',
+  'projectile-drag',
+  'quantum-tunneling',
+  'rc-rl-circuits',
+  'standing-waves',
+  'wave-optics',
+]);
+
 export interface LiveTelemetryCardProps {
   sandboxId: string;
   state: any;
@@ -57,9 +82,9 @@ export const LiveTelemetryCard: React.FC<LiveTelemetryCardProps> = React.memo(({
 
   if (!state) return null;
 
-  // A private module has no hand-built card. Show every number its engine reports, with the unit it declared.
+  // No hand-built card for this instrument: show every number its engine reports, with the unit it declared.
   const registration = SIMULATION_CATALOG[sandboxId];
-  if (registration?.local) {
+  if (registration && (registration.local || !HAND_BUILT_CARDS.has(sandboxId))) {
     const channels = Object.entries(state as Record<string, unknown>).filter(
       (entry): entry is [string, number] => typeof entry[1] === 'number' && Number.isFinite(entry[1]),
     );

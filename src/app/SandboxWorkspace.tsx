@@ -22,7 +22,7 @@ import { useAITutor } from '../ai/hooks/useAITutor';
 import { SimulationTelemetryContext } from '../ai/types';
 
 import { SIMULATION_CATALOG, SimulationId, SimulationRuntime } from '../simulations';
-import { SANDBOX_LAB_GUIDES } from '../simulations/sandboxGuides';
+import { guideOf } from '../simulations/sandboxGuides';
 import { TelemetryRecorder } from '../core/telemetry/TelemetryRecorder';
 import { formatTelemetryToCSV, triggerCSVDownload } from '../core/telemetry/csvExporter';
 import { useSimulationEngine } from '../core/hooks/useSimulationEngine';
@@ -53,7 +53,7 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
   const [isRightCollapsed, setIsRightCollapsed] = useState<boolean>(false);
   const pendingPresetRef = useRef<Record<string, number> | null>(null);
   const simRegistration = SIMULATION_CATALOG[selectedSimId];
-  const labGuide = SANDBOX_LAB_GUIDES[selectedSimId];
+  const labGuide = guideOf(SIMULATION_CATALOG[selectedSimId]);
 
   // Re-instantiate engine, renderer, and recorder when simulation changes
   const engine = useMemo(() => runtime.createEngine(), [selectedSimId, runtime]);

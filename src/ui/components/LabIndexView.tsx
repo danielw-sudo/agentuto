@@ -12,7 +12,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { SIMULATION_CATALOG, SimulationId, SimulationRegistration } from '../../simulations';
-import { SANDBOX_LAB_GUIDES } from '../../simulations/sandboxGuides';
+import { guideOf } from '../../simulations/sandboxGuides';
 import { COURSES } from '../../courses/courses';
 import { LocalBadge } from '../site/LocalBadge';
 import { SiteLayout } from '../site/SiteLayout';
@@ -446,7 +446,7 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
 
               <div className="space-y-4">
                 {allSimulations.map((sim, idx) => {
-                  const guide = SANDBOX_LAB_GUIDES[sim.id];
+                  const guide = guideOf(sim);
                   return (
                     <div
                       key={sim.id}

@@ -7,6 +7,14 @@ export interface SandboxGuideEntry {
   quickPrompts: string[];
 }
 
+/**
+ * The guide for an instrument: the one in its own manifest if it has one, else the built-in table. A module
+ * proposed from `local/` brings its guide in its manifest, so nothing in this file has to change for it.
+ */
+export function guideOf(registration: { id: string; guide?: SandboxGuideEntry }): SandboxGuideEntry | undefined {
+  return registration.guide ?? SANDBOX_LAB_GUIDES[registration.id];
+}
+
 export const SANDBOX_LAB_GUIDES: Record<string, SandboxGuideEntry> = {
   'lorentz-force': {
     labProtocol: [
