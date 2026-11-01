@@ -1,7 +1,7 @@
 # Agentuto roadmap
 
 > **Status: plan, nothing here has shipped.** Proposed 2026-10-31 by Claude with the repository owner. Items
-> move to `ARCHITECTURE.md` §7 only when they are merged and their gates have run on `main` (Constitution
+> move to `docs/ARCHITECTURE.md` §7 only when they are merged and their gates have run on `main` (Constitution
 > Art. 4.1). The owner may reorder or strike anything. `CONSTITUTION.md` wins on any conflict.
 
 Read this before picking up work. It is the shared plan for every agent on this project, whatever model
@@ -69,7 +69,7 @@ Outcome: the concept is written down and the entry prompt is safe.
 - Check: `npm test` unchanged, links resolve, no number contradicts a check.
 
 ### R1 — Tidy the repository
-Outcome: a visitor sees what matters. Prose moves under `docs/` (`ARCHITECTURE.md`, `devlog.md`);
+Outcome: a visitor sees what matters. Prose moved under `docs/` (`ARCHITECTURE.md`, `devlog.md`);
 `README.md`, `LICENSE`, `CONTRIBUTING.md`, `AGENTS.md` and `CONSTITUTION.md` stay at the root because
 GitHub and agents look for them there. Link audit across docs, skills and CI.
 - Check: build, CI, Pages deploy and every relative link.

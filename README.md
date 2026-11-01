@@ -65,7 +65,7 @@ Five of these are Three.js scenes and need WebGL; the other twelve draw to a 2D 
 machine with no GPU at all. When WebGL is unavailable the app opens on a 2D sandbox, marks the 3D ones
 in the catalogue, and says what is missing instead of showing an empty viewport.
 
-Governing equations, schemas and benchmark numbers live in [`ARCHITECTURE.md`](ARCHITECTURE.md) §8 and in
+Governing equations, schemas and benchmark numbers live in [`ARCHITECTURE.md`](docs/ARCHITECTURE.md) §8 and in
 each sandbox's `*Config.ts`.
 
 ## How it is built
@@ -94,10 +94,10 @@ Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22
 
 - [User guide](docs/USER_GUIDE.md) — running it, driving each sandbox, the instruments and the notebook.
 - [Contributor guide](CONTRIBUTING.md) — the three-file sandbox pattern and the pull-request checklist.
-- [Architecture](ARCHITECTURE.md) — interfaces, loops, schemas, benchmarks, bundle budget.
+- [Architecture](docs/ARCHITECTURE.md) — interfaces, loops, schemas, benchmarks, bundle budget.
 - [Agents](AGENTS.md) · [Constitution](CONSTITUTION.md) — how the agents working on this repo are
   organised, and the rules that outrank them.
-- [Devlog](devlog.md) — dated record of what shipped.
+- [Devlog](docs/devlog.md) — dated record of what shipped.
 
 ## Contributors
 

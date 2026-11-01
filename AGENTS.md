@@ -63,7 +63,7 @@ Pedagogical Rules:
 Users can ask for customized learning trajectories tailored to a topic they find difficult (e.g., *"I keep mixing up underdamped and critically damped systems"*).
 
 ### 3.1 Mechanism
-The agent queries the Knowledge Graph for related concepts (via `prerequisite` and `analogous_to` edges) and generates an executable JSON playlist conforming to the `responseSchema` defined in `src/ai/playlistGenerator.ts`. The graph is currently in-memory (`src/knowledge/KnowledgeGraphClient.ts`, seeded from `seedData.ts`); SQLite is planned (see `ARCHITECTURE.md` §5).
+The agent queries the Knowledge Graph for related concepts (via `prerequisite` and `analogous_to` edges) and generates an executable JSON playlist conforming to the `responseSchema` defined in `src/ai/playlistGenerator.ts`. The graph is currently in-memory (`src/knowledge/KnowledgeGraphClient.ts`, seeded from `seedData.ts`); SQLite is planned (see `docs/ARCHITECTURE.md` §5).
 
 ### 3.3 Model
 Both the tutor and playlist agent use `DEFAULT_MODEL` from `src/ai/geminiClient.ts` (currently `gemini-3.8-flash`). Verify against https://ai.google.dev/gemini-api/docs/deprecations before changing it.

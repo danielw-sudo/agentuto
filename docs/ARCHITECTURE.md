@@ -21,7 +21,7 @@ Many digital science education tools follow a **prescriptive, step-by-step tutor
 * **Content:** Courses are described by their source and nature: topic alignment with AP/IB Physics syllabi and MIT OpenCourseWare physics and mathematics courses (8.01, 8.02, 8.03, 8.04, 8.044, 18.03). The project does not define, identify or target a particular user; labels describe topic alignment only, and Agentuto is not affiliated with or endorsed by these organizations.
 * **Usability goal:** Running and using Agentuto should require no programming knowledge (see `docs/USER_GUIDE.md` §1.1).
 * **AI is optional:** Every simulation, instrument and export works without AI. Optional AI features use the user's own provider account and key under that provider's terms (see README "AI Features & Disclaimer").
-* **Contributors:** New sandboxes follow the modular 3-file pattern (`Engine.ts`, `Renderer.ts`, `Config.ts`); see `CONTRIBUTING.md`.
+* **Contributors:** New sandboxes follow the modular 3-file pattern (`Engine.ts`, `Renderer.ts`, `Config.ts`); see [`CONTRIBUTING.md`](../CONTRIBUTING.md).
 
 ---
 
@@ -286,7 +286,7 @@ Gzip is measured by that script (Node `zlib`), which is why its numbers differ s
 
 ```text
 agentuto/
-├── ARCHITECTURE.md                  # Unified Master Specification
+├── docs/ARCHITECTURE.md             # Unified Master Specification
 ├── AGENTS.md                        # Antigravity & Tutor Agent Rules
 ├── .gitignore
 ├── index.html
