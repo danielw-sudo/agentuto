@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { Activity, ChevronLeft, Eye, EyeOff, Sliders, Sparkles } from 'lucide-react';
+import { Activity, ChevronLeft, Eye, EyeOff, MoreHorizontal, Sliders, Sparkles } from 'lucide-react';
 import { ViewportContainer } from './layout/ViewportContainer';
 import { DockLayout } from './layout/DockLayout';
 import { SiteSearch } from '../ui/site/SiteSearch';
@@ -273,6 +273,14 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
     );
   };
 
+  useEffect(() => {
+    const previous = document.title;
+    document.title = `${simRegistration.title} · Agentuto`;
+    return () => {
+      document.title = previous;
+    };
+  }, [simRegistration.title]);
+
   const totalSandboxCount = Object.keys(SIMULATION_CATALOG).length;
   const parentCourse = coursesOfSandbox(selectedSimId)[0];
   const allCollapsed = isLeftCollapsed && isRightCollapsed;
@@ -296,12 +304,15 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
               className="inline-flex min-h-11 max-w-44 items-center gap-1 truncate text-sm text-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
               <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-              {parentCourse ? parentCourse.title : 'Courses'}
+              <span className="sr-only sm:not-sr-only sm:truncate">{parentCourse ? parentCourse.title : 'Courses'}</span>
             </a>
-            <h1 className="max-w-[18rem] truncate font-display text-lg font-medium tracking-tight" title={simRegistration.title}>
+            <h1
+              className="order-last w-full truncate font-display text-lg font-medium tracking-tight sm:order-none sm:w-auto sm:max-w-[18rem]"
+              title={simRegistration.title}
+            >
               {simRegistration.title}
             </h1>
-            <span className="rounded-md border border-line px-2 py-0.5 font-mono text-[13px] text-muted">
+            <span className="hidden rounded-md border border-line px-2 py-0.5 font-mono text-[13px] text-muted sm:inline">
               {simRegistration.mode}
             </span>
             {simRegistration.local && <LocalBadge />}
@@ -312,15 +323,43 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
             <div className="hidden w-52 lg:block">
               <SiteSearch />
             </div>
-            <a href="#/instruments" className={headerButton} title={`All ${totalSandboxCount} instruments`}>
-              Instruments
-            </a>
-            <a href="#/guide" className={headerButton}>
-              Guide
-            </a>
-            <button type="button" onClick={() => setIsSchedulerOpen(true)} className={headerButton}>
-              Planner
-            </button>
+            <div className="hidden items-center gap-4 lg:flex">
+              <a href="#/instruments" className={headerButton} title={`All ${totalSandboxCount} instruments`}>
+                Instruments
+              </a>
+              <a href="#/guide" className={headerButton}>
+                Guide
+              </a>
+              <button type="button" onClick={() => setIsSchedulerOpen(true)} className={headerButton}>
+                Planner
+              </button>
+            </div>
+            <details className="relative lg:hidden">
+              <summary
+                aria-label="More: instruments, guide, planner"
+                className={`${headerButton} list-none [&::-webkit-details-marker]:hidden`}
+              >
+                <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+              </summary>
+              <div className="absolute right-0 top-full z-30 mt-2 flex w-48 flex-col gap-1 rounded-xl border border-line bg-card p-2 shadow-xl">
+                <a href="#/instruments" className={`${headerButton} justify-start border-0`}>
+                  Instruments
+                </a>
+                <a href="#/guide" className={`${headerButton} justify-start border-0`}>
+                  Guide
+                </a>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    (event.currentTarget.closest('details') as HTMLDetailsElement).open = false;
+                    setIsSchedulerOpen(true);
+                  }}
+                  className={`${headerButton} justify-start border-0`}
+                >
+                  Planner
+                </button>
+              </div>
+            </details>
             <span className="flex items-center gap-1.5" role="group" aria-label="Panels">
               <button
                 type="button"

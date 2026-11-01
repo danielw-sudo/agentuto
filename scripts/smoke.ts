@@ -132,6 +132,8 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
     }
     const title = await page.evaluate(() => document.querySelector('main h1')?.textContent ?? '');
     if (title && title !== sim.title) problems.push(`the heading says "${title}", expected "${sim.title}"`);
+    const tabTitle = await page.title();
+    if (tabTitle !== `${sim.title} · Agentuto`) problems.push(`the browser tab says "${tabTitle}", expected "${sim.title} · Agentuto"`);
 
     let detail = '';
     if (sim.mode === '3D' && !webgl) {
@@ -207,10 +209,26 @@ async function checkSite(browser: Browser): Promise<void> {
   else pass('about page');
 
   await page.goto(`${BASE}/#/instruments`, { waitUntil: 'load' });
-  await page.waitForSelector('[role="dialog"] article', { timeout: 20000 }).catch(() => undefined);
-  const articles = await page.$$eval('[role="dialog"] article', (items) => items.length);
+  await page.waitForSelector('[data-site-page="instruments"] article', { timeout: 20000 }).catch(() => undefined);
+  const articles = await page.$$eval('[data-site-page="instruments"] article', (items) => items.length);
   if (articles < upstream) await bad('instruments page', `${articles} instruments, expected at least ${upstream}`);
   else pass('instruments page', `${articles} instruments`);
+
+  // The guide's jump links scroll within the page; a bare "#section" would be read as a new address and leave it
+  await page.goto(`${BASE}/#/guide`, { waitUntil: 'load' });
+  const JUMP = '[data-site-page="guide"] nav[aria-label="Manual sections"] > :is(a, button)';
+  await page.waitForSelector(JUMP, { timeout: 20000 }).catch(() => undefined);
+  const jumps = await page.$$eval(JUMP, (items) => items.length);
+  let guideProblem = jumps === 0 ? 'no jump links found' : '';
+  for (let i = 0; i < jumps && !guideProblem; i++) {
+    await page.$$eval(JUMP, (items, index) => (items[index] as HTMLElement).click(), i);
+    await new Promise((r) => setTimeout(r, 300));
+    const hash = await page.evaluate(() => location.hash);
+    const heading = await page.$eval('[data-site-page="guide"] h1', (h) => h.textContent ?? '').catch(() => '');
+    if (hash !== '#/guide' || !/guide/i.test(heading)) guideProblem = `jump link ${i + 1} left the page (address ${hash}, heading "${heading}")`;
+  }
+  if (guideProblem) await bad('user guide', guideProblem);
+  else pass('user guide', `${jumps} jump links stay on the page`);
 
   // Search, with real key presses: "/" focuses, typing finds, Enter opens
   await page.goto(`${BASE}/#/`, { waitUntil: 'load' });

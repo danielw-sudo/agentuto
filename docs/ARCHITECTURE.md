@@ -271,13 +271,13 @@ Art. 8 asks for a stated reason behind every runtime dependency and a bundle-siz
 
 Sandboxes are loaded on demand (§6.4), so the budget has two meanings: what a visitor downloads to see the
 catalogue (**first load**: the files `index.html` asks for) and the ceiling for opening everything.
-Measured after the module checker (2026-10-31), whole `dist/`, in the units the script prints:
+Measured after the UI clean-up (2026-11-01), whole `dist/`, in the units the script prints:
 
 | Measure | Measured | Budget |
 |---|---|---|
-| First load (entry, React, CSS) | 105.1 kB gzip | 107.4 kB |
+| First load (entry, React, CSS) | 103.9 kB gzip | 107.4 kB |
 | Largest single chunk (three.js) | 121.3 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 353.5 kB | 356.4 kB |
+| Total gzip (level 9) | 351.1 kB | 356.4 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
@@ -302,7 +302,7 @@ its owner never opened.
 
 ### 6.6 Site pages and design tokens
 
-The home page (a list of courses), a page per course (`#/course/<code>`) and an About page live in `src/ui/site/`; they read the course and manifest data and lie over the workspace, which is made inert while a page is open, so an experiment keeps running underneath. Only the home page is in the first download: the workspace, the instruments page, a course page and the About page each load on first use. Colour comes from tokens in `src/styles/globals.css` (light by default, dark on a dark OS preference or `data-theme="dark"`), mapped to Tailwind utilities (`bg-paper`, `text-muted`, `border-line`); fonts are system stacks, so nothing is fetched at run time. `npm test` measures every text pair against WCAG AA in both themes. The sandbox screen (`DockLayout`) is a header, the apparatus in the middle and a panel on each side with the transport row underneath; nothing floats over the apparatus. From 1024 px the panels take their own columns, below that they are closed by default and open as drawers. It forces the dark palette for its subtree (`data-theme="dark"`, because the canvases are dark), and the shared panel style reads the tokens. The instruments page, the drawers and the inside of the telemetry cards still carry older colour classes; no text anywhere is below 12 px (the labels that were 9 to 11 px are 12 px).
+The home page (a list of courses), a page per course (`#/course/<code>`) and an About page live in `src/ui/site/`; they read the course and manifest data and lie over the workspace, which is made inert while a page is open, so an experiment keeps running underneath. Only the home page is in the first download: the workspace, the instruments page, a course page and the About page each load on first use. Colour comes from tokens in `src/styles/globals.css` (light by default, dark on a dark OS preference or `data-theme="dark"`), mapped to Tailwind utilities (`bg-paper`, `text-muted`, `border-line`); fonts are system stacks, so nothing is fetched at run time. `npm test` measures every text pair against WCAG AA in both themes. The sandbox screen (`DockLayout`) is a header, the apparatus in the middle and a panel on each side with the transport row underneath; nothing floats over the apparatus. From 1024 px the panels take their own columns, below that they are closed by default and open as drawers. It forces the dark palette for its subtree (`data-theme="dark"`, because the canvases are dark), and the shared panel style reads the tokens. The Instruments page and the User guide are site pages too (same header, search and footer as the course pages, following the OS light or dark setting); the drawers, modals and virtual instruments read the same tokens inside the dark sandbox screen. Only the semantic colours (a state's green, amber or red, a quantity's own colour) are still literal, and on the two site pages each has a darker light-theme value (`text-amber-700 dark:text-amber-300`). No text anywhere is below 12 px. Below 1024 px the sandbox header is one row of icons with the title under it, and Instruments, Guide and Planner sit in a menu; the browser tab names the instrument.
 
 ### 6.7 Private modules
 

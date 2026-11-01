@@ -98,17 +98,17 @@ export const TelemetrySparkline: React.FC<TelemetrySparklineProps> = ({
   const currentVal = data.length > 0 ? data[data.length - 1].toFixed(2) : '--';
 
   return (
-    <div className="flex flex-col gap-1 bg-neutral-900/60 p-2 rounded-xl border border-neutral-800/80 font-mono text-xs">
-      <div className="flex justify-between items-center text-neutral-400">
+    <div className="flex flex-col gap-1 bg-card p-2 rounded-xl border border-line font-mono text-xs">
+      <div className="flex justify-between items-center text-muted">
         <span>{label}</span>
-        <span className="text-neutral-200 font-semibold">
+        <span className="text-ink font-semibold">
           {currentVal}{unit ? ` ${unit}` : ''}
         </span>
       </div>
       <canvas
         ref={canvasRef}
         style={{ width: `${width}px`, height: `${height}px` }}
-        className="block rounded bg-neutral-950/40"
+        className="block rounded bg-paper"
       />
     </div>
   );

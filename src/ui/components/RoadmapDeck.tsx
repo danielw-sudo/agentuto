@@ -530,7 +530,7 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
 
       {/* Cross-Disciplinary Analogy Badge */}
       {analogies.length > 0 && (
-        <div className="bg-indigo-950/40 border border-indigo-500/20 rounded-xl p-2.5 text-xs flex flex-col gap-1">
+        <div className="bg-accent-soft border border-accent rounded-xl p-2.5 text-xs flex flex-col gap-1">
           <div className="flex items-center gap-1.5 text-accent font-medium">
             <GitMerge className="w-3.5 h-3.5" />
             <span>Cross-Discipline Analogy:</span>
@@ -578,7 +578,7 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
         </div>
 
         {activePlaylist ? (
-          <div className="bg-sunken border border-indigo-500/30 rounded-xl p-2.5 flex flex-col gap-2">
+          <div className="bg-sunken border border-accent rounded-xl p-2.5 flex flex-col gap-2">
             <div className="flex justify-between items-start">
               <div>
                 <h4 className="text-xs font-semibold text-accent">{activePlaylist.playlist_title}</h4>
@@ -599,7 +599,7 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
                   onClick={() => handleSelectStep(step)}
                   className={`w-full text-left p-2 rounded-lg text-xs transition-all cursor-pointer ${
                     activeStepIndex === step.step_index
-                      ? 'bg-indigo-600/30 border border-indigo-500/50 text-ink'
+                      ? 'bg-accent-soft border border-accent text-ink'
                       : 'bg-sunken border border-line text-muted hover:text-ink'
                   }`}
                 >
@@ -627,12 +627,12 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
               value={goalInput}
               onChange={(e) => setGoalInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleGeneratePlaylist()}
-              className="w-full bg-sunken border border-line rounded-xl px-2.5 py-1.5 text-xs text-ink placeholder-neutral-500 focus:outline-none focus:border-indigo-500 disabled:opacity-50"
+              className="w-full bg-sunken border border-line rounded-xl px-2.5 py-1.5 text-xs text-ink placeholder:text-muted focus:outline-none focus:border-accent disabled:opacity-50"
             />
             <button
               onClick={handleGeneratePlaylist}
               disabled={!hasApiKey || !goalInput.trim() || isGenerating}
-              className="w-full py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-medium rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+              className="w-full py-1.5 bg-accent hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-on-accent text-xs font-medium rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
             >
               {isGenerating ? (
                 <>

@@ -50,7 +50,7 @@ export const VirtualCaliper: React.FC<VirtualCaliperProps> = ({
         {/* Caliper Bar Header */}
         <div
           onMouseDown={handleMouseDown}
-          className="flex items-center justify-between cursor-move border-b border-neutral-800 pb-1.5"
+          className="flex items-center justify-between cursor-move border-b border-line pb-1.5"
           title="Drag to reposition caliper"
         >
           <div className="flex items-center gap-2 text-sky-300">
@@ -60,14 +60,14 @@ export const VirtualCaliper: React.FC<VirtualCaliperProps> = ({
           <div className="flex items-center gap-1">
             <button
               onClick={() => setJawSpanPx(140)}
-              className="p-1 text-neutral-400 hover:text-neutral-200 rounded cursor-pointer"
+              className="p-1 text-muted hover:text-ink rounded cursor-pointer"
               title="Reset Span"
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={onClose}
-              className="p-1 text-neutral-400 hover:text-rose-300 rounded cursor-pointer"
+              className="p-1 text-muted hover:text-rose-300 rounded cursor-pointer"
               title="Close Caliper"
             >
               <X className="w-3.5 h-3.5" />
@@ -76,13 +76,13 @@ export const VirtualCaliper: React.FC<VirtualCaliperProps> = ({
         </div>
 
         {/* Measurement Display */}
-        <div className="flex items-center justify-between bg-neutral-900/80 px-3 py-1.5 rounded-xl border border-neutral-800 font-mono text-xs">
-          <span className="text-neutral-400">Measured Distance:</span>
+        <div className="flex items-center justify-between bg-card px-3 py-1.5 rounded-xl border border-line font-mono text-xs">
+          <span className="text-muted">Measured Distance:</span>
           <span className="text-sky-300 font-bold text-sm">{measuredMeters} m</span>
         </div>
 
         {/* Caliper Slider Control for Jaw Span */}
-        <div className="flex flex-col gap-1 text-xs text-neutral-400 font-mono">
+        <div className="flex flex-col gap-1 text-xs text-muted font-mono">
           <div className="flex justify-between">
             <span>Jaw Opening:</span>
             <span>{jawSpanPx}px</span>
@@ -94,16 +94,16 @@ export const VirtualCaliper: React.FC<VirtualCaliperProps> = ({
             step={1}
             value={jawSpanPx}
             onChange={(e) => setJawSpanPx(parseInt(e.target.value, 10))}
-            className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-ew-resize accent-sky-400"
+            className="w-full h-1.5 bg-sunken rounded-lg appearance-none cursor-ew-resize accent-sky-400"
           />
         </div>
 
         {/* Physical Caliper Beam & Jaws Visualizer */}
-        <div className="relative h-12 w-full mt-1 bg-neutral-950/60 border border-neutral-800 rounded-lg overflow-hidden flex items-center">
+        <div className="relative h-12 w-full mt-1 bg-paper border border-line rounded-lg overflow-hidden flex items-center">
           {/* Main ruler beam ticks */}
           <div className="absolute inset-x-2 top-1 h-3 flex justify-between opacity-40">
             {Array.from({ length: 15 }).map((_, i) => (
-              <div key={i} className={`w-[1px] bg-neutral-400 ${i % 5 === 0 ? 'h-3' : 'h-1.5'}`} />
+              <div key={i} className={`w-[1px] bg-muted ${i % 5 === 0 ? 'h-3' : 'h-1.5'}`} />
             ))}
           </div>
 
@@ -118,7 +118,7 @@ export const VirtualCaliper: React.FC<VirtualCaliperProps> = ({
             }}
           />
 
-          <span className="absolute bottom-1 inset-x-0 text-center text-xs text-neutral-500 font-mono">
+          <span className="absolute bottom-1 inset-x-0 text-center text-xs text-muted font-mono">
             Align jaws to orbit or oscillation bounds
           </span>
         </div>

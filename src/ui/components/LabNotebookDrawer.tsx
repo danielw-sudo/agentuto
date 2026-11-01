@@ -236,22 +236,22 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <GlassPanel className="w-full max-w-4xl p-6 flex flex-col gap-5 shadow-2xl border border-neutral-700/60 max-h-[92vh] overflow-y-auto">
+      <GlassPanel className="w-full max-w-4xl p-6 flex flex-col gap-5 shadow-2xl border border-line max-h-[92vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
+        <div className="flex items-center justify-between border-b border-line pb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+            <div className="p-2 rounded-xl bg-accent-soft text-accent border border-accent">
               <LineChart className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-neutral-100 flex items-center gap-2">
+              <h2 className="text-base font-semibold text-ink flex items-center gap-2">
                 Empirical Lab Notebook & Curve Fitter
                 <span className="text-xs text-sky-400 font-mono bg-sky-950/60 px-2 py-0.5 rounded border border-sky-500/20">
                   {buffer.length} Samples
                 </span>
               </h2>
-              <p className="text-xs text-neutral-400">
-                Data Regression & Scientific Verification for <strong className="text-neutral-300">{simTitle}</strong>
+              <p className="text-xs text-muted">
+                Data Regression & Scientific Verification for <strong className="text-ink">{simTitle}</strong>
               </p>
             </div>
           </div>
@@ -267,7 +267,7 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/60 rounded-lg cursor-pointer"
+              className="p-1.5 text-muted hover:text-ink hover:bg-sunken rounded-lg cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -276,22 +276,22 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
 
         {buffer.length < 2 ? (
           <div className="py-16 flex flex-col items-center justify-center text-center gap-3">
-            <Table className="w-10 h-10 text-neutral-600" />
-            <h3 className="text-sm font-medium text-neutral-300">No Experimental Data Buffered</h3>
-            <p className="text-xs text-neutral-400 max-w-md">
+            <Table className="w-10 h-10 text-muted" />
+            <h3 className="text-sm font-medium text-ink">No Experimental Data Buffered</h3>
+            <p className="text-xs text-muted max-w-md">
               Start the simulation and click <strong className="text-rose-400">Record</strong> in the bottom telemetry bar to collect high-frequency data points, then return here to fit physical laws and calculate R² goodness-of-fit.
             </p>
           </div>
         ) : (
           <div className="flex flex-col gap-4">
             {/* Control Bar: Axes & Model Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 bg-neutral-900/40 p-3 rounded-xl border border-neutral-800">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 bg-card p-3 rounded-xl border border-line">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-neutral-400">X-Axis Variable</label>
+                <label className="text-xs font-medium text-muted">X-Axis Variable</label>
                 <select
                   value={xKey}
                   onChange={(e) => setXKey(e.target.value)}
-                  className="bg-neutral-900 border border-neutral-700/80 rounded-lg px-2.5 py-1.5 text-xs text-neutral-200 font-mono focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  className="bg-card border border-line rounded-lg px-2.5 py-1.5 text-xs text-ink font-mono focus:outline-none focus:border-accent cursor-pointer"
                 >
                   {availableKeys.map((k) => (
                     <option key={k} value={k}>
@@ -302,11 +302,11 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-neutral-400">Y-Axis Variable</label>
+                <label className="text-xs font-medium text-muted">Y-Axis Variable</label>
                 <select
                   value={yKey}
                   onChange={(e) => setYKey(e.target.value)}
-                  className="bg-neutral-900 border border-neutral-700/80 rounded-lg px-2.5 py-1.5 text-xs text-neutral-200 font-mono focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  className="bg-card border border-line rounded-lg px-2.5 py-1.5 text-xs text-ink font-mono focus:outline-none focus:border-accent cursor-pointer"
                 >
                   {availableKeys.map((k) => (
                     <option key={k} value={k}>
@@ -317,12 +317,12 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-neutral-400">Mathematical Model</label>
-                <div className="flex bg-neutral-900 p-0.5 rounded-lg border border-neutral-700/80">
+                <label className="text-xs font-medium text-muted">Mathematical Model</label>
+                <div className="flex bg-card p-0.5 rounded-lg border border-line">
                   <button
                     onClick={() => setFitType('linear')}
                     className={`flex-1 py-1 text-xs rounded font-medium transition-colors cursor-pointer ${
-                      fitType === 'linear' ? 'bg-indigo-600 text-white' : 'text-neutral-400 hover:text-neutral-200'
+                      fitType === 'linear' ? 'bg-accent text-on-accent' : 'text-muted hover:text-ink'
                     }`}
                   >
                     Linear (y = mx + b)
@@ -330,7 +330,7 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
                   <button
                     onClick={() => setFitType('exponential')}
                     className={`flex-1 py-1 text-xs rounded font-medium transition-colors cursor-pointer ${
-                      fitType === 'exponential' ? 'bg-indigo-600 text-white' : 'text-neutral-400 hover:text-neutral-200'
+                      fitType === 'exponential' ? 'bg-accent text-on-accent' : 'text-muted hover:text-ink'
                     }`}
                   >
                     Exponential (y = Ae^Bx)
@@ -342,10 +342,10 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
             {/* Regression Results Summary Card */}
             {regressionResult && (
               <div className="flex flex-col gap-2">
-                <div className="flex flex-wrap items-center justify-between gap-3 bg-neutral-900/60 p-3.5 rounded-xl border border-neutral-800">
+                <div className="flex flex-wrap items-center justify-between gap-3 bg-card p-3.5 rounded-xl border border-line">
                   <div className="flex items-center gap-4">
                     <div>
-                      <span className="text-xs text-neutral-400 uppercase tracking-wider font-semibold block">
+                      <span className="text-xs text-muted uppercase tracking-wider font-semibold block">
                         Regression Fit Equation
                       </span>
                       <span className="font-mono text-sm text-amber-300 font-semibold">
@@ -353,10 +353,10 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
                       </span>
                     </div>
 
-                    <div className="h-6 w-[1px] bg-neutral-800" />
+                    <div className="h-6 w-[1px] bg-sunken" />
 
                     <div>
-                      <span className="text-xs text-neutral-400 uppercase tracking-wider font-semibold block">
+                      <span className="text-xs text-muted uppercase tracking-wider font-semibold block">
                         Goodness of Fit (R²)
                       </span>
                       <span
@@ -375,7 +375,7 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
 
                   <button
                     onClick={copyEquation}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-800/60 text-neutral-300 hover:text-white hover:bg-neutral-700/60 text-xs font-medium cursor-pointer transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sunken text-ink hover:text-ink hover:bg-sunken text-xs font-medium cursor-pointer transition-colors"
                   >
                     {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                     <span>{copied ? 'Copied' : 'Copy Formula'}</span>
@@ -391,7 +391,7 @@ export const LabNotebookDrawer: React.FC<LabNotebookDrawerProps> = React.memo(({
             )}
 
             {/* Canvas Plot */}
-            <div className="w-full h-80 rounded-xl overflow-hidden border border-neutral-800 relative bg-[#0a0d14]">
+            <div className="w-full h-80 rounded-xl overflow-hidden border border-line relative bg-[#0a0d14]">
               <canvas ref={canvasRef} className="w-full h-full block" />
             </div>
           </div>

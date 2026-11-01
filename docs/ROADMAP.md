@@ -128,6 +128,10 @@ sandboxes, equations and docs; header, footer and home are uncrowded; long legal
 - Search index is built from the manifest at build time; no new runtime dependency without a stated reason.
 - Check: `ui-review` skill in a real browser at phone, tablet and desktop widths; text ≥ 14 px / labels ≥ 12 px.
 
+*Built (UI clean-up, between R3 and R5):* the Instruments page and the User guide became site pages (shared header, search, footer;
+light and dark), every drawer, modal and virtual instrument moved onto the tokens, the sandbox header is one row of icons on
+a phone, and the tab names the instrument. The in-guide jump links no longer change the address.
+
 ### R5 — Sharing path
 Outcome: moving a module from `local/` to a PR is easy and safe. `npm run export:module`; a contributor
 checklist (own work, MIT licence, no third-party material, module check passes); PR and issue templates;

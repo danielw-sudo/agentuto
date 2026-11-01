@@ -26,11 +26,11 @@ export const UnavailableViewport: React.FC<UnavailableViewportProps> = ({
   onSelectSandbox,
 }) => (
   <div className="h-full w-full flex items-center justify-center p-6">
-    <div className="max-w-lg w-full rounded-xl border border-neutral-800 bg-neutral-900/60 p-6 text-center">
+    <div className="max-w-lg w-full rounded-xl border border-line bg-card p-6 text-center">
       <MonitorX className="mx-auto h-8 w-8 text-amber-400" />
-      <h2 className="mt-3 text-base font-semibold text-neutral-100">{sandboxTitle} needs WebGL</h2>
-      <p className="mt-2 text-sm text-neutral-400">{reason}</p>
-      <p className="mt-1 text-sm text-neutral-500">
+      <h2 className="mt-3 text-base font-semibold text-ink">{sandboxTitle} needs WebGL</h2>
+      <p className="mt-2 text-sm text-muted">{reason}</p>
+      <p className="mt-1 text-sm text-muted">
         Twelve of the seventeen sandboxes draw to a 2D canvas and run without a GPU.
       </p>
 
@@ -41,7 +41,7 @@ export const UnavailableViewport: React.FC<UnavailableViewportProps> = ({
               key={alt.id}
               type="button"
               onClick={() => onSelectSandbox(alt.id)}
-              className="rounded-lg border border-neutral-700 px-3 py-1.5 text-xs text-neutral-300 hover:border-indigo-500/60 hover:text-neutral-100"
+              className="rounded-lg border border-line px-3 py-1.5 text-xs text-ink hover:border-accent hover:text-ink"
             >
               {alt.title}
             </button>

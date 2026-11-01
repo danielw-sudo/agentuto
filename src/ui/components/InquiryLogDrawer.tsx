@@ -73,8 +73,8 @@ function formatTimestamp(timestamp: string): string {
 }
 
 const INPUT_CLASS =
-  'w-full bg-neutral-900 border border-neutral-700/80 rounded-lg px-2.5 py-2 text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:border-indigo-500';
-const LABEL_CLASS = 'text-xs font-medium text-neutral-300';
+  'w-full bg-card border border-line rounded-lg px-2.5 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-accent';
+const LABEL_CLASS = 'text-xs font-medium text-ink';
 
 export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
   isOpen,
@@ -195,21 +195,21 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
         onClick={onClose}
         aria-hidden="true"
       />
-      <GlassPanel className="relative h-full w-full sm:max-w-md flex flex-col rounded-none sm:rounded-l-2xl border-l border-neutral-700/60 shadow-2xl select-text">
-        <header className="flex items-start justify-between gap-3 p-4 border-b border-neutral-800">
+      <GlassPanel className="relative h-full w-full sm:max-w-md flex flex-col rounded-none sm:rounded-l-2xl border-l border-line shadow-2xl select-text">
+        <header className="flex items-start justify-between gap-3 p-4 border-b border-line">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300">
+            <div className="p-2 rounded-xl bg-accent-soft border border-accent text-accent">
               <ClipboardList className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-neutral-100 flex items-center gap-2">
+              <h2 className="text-sm font-semibold text-ink flex items-center gap-2">
                 Inquiry Log
-                <span className="text-xs font-mono text-indigo-300 bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-500/20">
+                <span className="text-xs font-mono text-accent bg-accent-soft px-2 py-0.5 rounded border border-accent">
                   {entries.length} {entries.length === 1 ? 'entry' : 'entries'}
                 </span>
               </h2>
-              <p className="text-xs text-neutral-400">
-                Recorded against <strong className="text-neutral-300">{sandboxTitle}</strong>
+              <p className="text-xs text-muted">
+                Recorded against <strong className="text-ink">{sandboxTitle}</strong>
               </p>
             </div>
           </div>
@@ -217,7 +217,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Close the inquiry log"
-            className="p-2.5 rounded-lg text-neutral-400 hover:text-neutral-100 hover:bg-neutral-800/60 transition-colors cursor-pointer"
+            className="p-2.5 rounded-lg text-muted hover:text-ink hover:bg-sunken transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -243,7 +243,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
           {/* Prediction — stated before the measurement, recorded as written, never scored. */}
           <section className="flex flex-col gap-2">
             <label className={LABEL_CLASS} htmlFor="inquiry-prediction">
-              Prediction <span className="text-neutral-500">— what do you expect, before measuring?</span>
+              Prediction <span className="text-muted">— what do you expect, before measuring?</span>
             </label>
             <textarea
               id="inquiry-prediction"
@@ -256,7 +256,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
             {fieldError('prediction')}
             <div className="flex items-center gap-2">
               <div className="flex-1">
-                <label className="text-xs text-neutral-400" htmlFor="inquiry-prediction-value">
+                <label className="text-xs text-muted" htmlFor="inquiry-prediction-value">
                   Expected value (optional)
                 </label>
                 <input
@@ -271,7 +271,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
                 {fieldError('predictionValue')}
               </div>
               <div className="w-24">
-                <label className="text-xs text-neutral-400" htmlFor="inquiry-prediction-unit">
+                <label className="text-xs text-muted" htmlFor="inquiry-prediction-unit">
                   Unit
                 </label>
                 <input
@@ -291,7 +291,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
           <section className="flex flex-col gap-1.5">
             <span className={LABEL_CLASS}>Conditions recorded with this entry</span>
             {parameterIds.length === 0 ? (
-              <p className="text-xs text-neutral-400">No parameters are set yet.</p>
+              <p className="text-xs text-muted">No parameters are set yet.</p>
             ) : (
               <div className="flex flex-wrap gap-1.5">
                 {parameterIds.map((parameterId) => {
@@ -300,7 +300,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
                   return (
                     <span
                       key={parameterId}
-                      className="text-xs font-mono text-neutral-300 bg-neutral-900 border border-neutral-800 rounded-md px-2 py-1"
+                      className="text-xs font-mono text-ink bg-card border border-line rounded-md px-2 py-1"
                     >
                       {parameterId} = {formatValue(parameters[parameterId])}
                       {unit === '' || unit === 'dimensionless' ? '' : ` ${unit}`}
@@ -336,7 +336,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
             </div>
             <div className="flex items-end gap-2">
               <div className="flex-1">
-                <label className="text-xs text-neutral-400" htmlFor="inquiry-measurement-value">
+                <label className="text-xs text-muted" htmlFor="inquiry-measurement-value">
                   Measured value
                 </label>
                 <input
@@ -351,7 +351,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
                 {fieldError('measurementValue')}
               </div>
               <div className="w-28">
-                <label className="text-xs text-neutral-400" htmlFor="inquiry-measurement-unit">
+                <label className="text-xs text-muted" htmlFor="inquiry-measurement-unit">
                   Unit
                 </label>
                 <input
@@ -365,7 +365,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
                 {fieldError('measurementUnit')}
               </div>
             </div>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-muted">
               The unit is optional; if you name one it must be the manifest&apos;s own
               {declaredUnit ? ` (${declaredUnit})` : ''}.
             </p>
@@ -377,7 +377,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
               type="button"
               onClick={() => setFitOpen((open) => !open)}
               aria-expanded={fitOpen}
-              className="flex items-center gap-1.5 text-xs font-medium text-neutral-300 hover:text-neutral-100 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 text-xs font-medium text-ink hover:text-ink transition-colors cursor-pointer"
             >
               {fitOpen ? (
                 <ChevronDown className="w-4 h-4" aria-hidden="true" />
@@ -389,7 +389,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
             {fitOpen && (
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="text-xs text-neutral-400" htmlFor="inquiry-fit-model">
+                  <label className="text-xs text-muted" htmlFor="inquiry-fit-model">
                     Model
                   </label>
                   <select
@@ -405,7 +405,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-neutral-400" htmlFor="inquiry-fit-r2">
+                  <label className="text-xs text-muted" htmlFor="inquiry-fit-r2">
                     R²
                   </label>
                   <input
@@ -419,7 +419,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-neutral-400" htmlFor="inquiry-fit-samples">
+                  <label className="text-xs text-muted" htmlFor="inquiry-fit-samples">
                     Points
                   </label>
                   <input
@@ -440,7 +440,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
           {/* Conclusion — may be written later, so an empty conclusion still saves. */}
           <section className="flex flex-col gap-2">
             <label className={LABEL_CLASS} htmlFor="inquiry-explanation">
-              Conclusion <span className="text-neutral-500">— what did the measurement show?</span>
+              Conclusion <span className="text-muted">— what did the measurement show?</span>
             </label>
             <textarea
               id="inquiry-explanation"
@@ -458,7 +458,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
               type="button"
               onClick={handleSave}
               disabled={!schema}
-              className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors cursor-pointer"
+              className="flex-1 py-2.5 rounded-xl bg-accent hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed text-on-accent text-sm font-semibold transition-colors cursor-pointer"
             >
               Save entry
             </button>
@@ -467,7 +467,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 border-t border-neutral-800 pt-3">
+          <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
             <button
               type="button"
               onClick={() => handleExport('csv')}
@@ -481,7 +481,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
               type="button"
               onClick={() => handleExport('json')}
               disabled={entries.length === 0}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800/70 text-neutral-200 border border-neutral-700/60 hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-sunken text-ink border border-line hover:bg-sunken disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium transition-colors cursor-pointer"
             >
               <Download className="w-4 h-4" aria-hidden="true" />
               Export JSON
@@ -490,7 +490,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
               <button
                 type="button"
                 onClick={() => setConfirmClear(true)}
-                className="ml-auto text-xs text-neutral-400 hover:text-rose-300 transition-colors cursor-pointer"
+                className="ml-auto text-xs text-muted hover:text-rose-300 transition-colors cursor-pointer"
               >
                 Clear log
               </button>
@@ -508,7 +508,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
                 <button
                   type="button"
                   onClick={() => setConfirmClear(false)}
-                  className="text-xs text-neutral-300 hover:text-neutral-100 cursor-pointer"
+                  className="text-xs text-ink hover:text-ink cursor-pointer"
                 >
                   Keep
                 </button>
@@ -517,9 +517,9 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
           </div>
 
           <section className="flex flex-col gap-2">
-            <h3 className="text-xs font-semibold text-neutral-300 uppercase tracking-wider">Recorded entries</h3>
+            <h3 className="text-xs font-semibold text-ink uppercase tracking-wider">Recorded entries</h3>
             {entries.length === 0 ? (
-              <p className="text-xs text-neutral-400 leading-relaxed">
+              <p className="text-xs text-muted leading-relaxed">
                 Nothing recorded yet. State a prediction, take a reading, then save — the entry keeps the
                 conditions you ran under so the experiment can be repeated.
               </p>
@@ -528,12 +528,12 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
                 {entries.map((entry: InquiryEntry) => (
                   <li
                     key={entry.id}
-                    className="bg-neutral-900/70 border border-neutral-800 rounded-xl p-3 flex flex-col gap-1.5"
+                    className="bg-card border border-line rounded-xl p-3 flex flex-col gap-1.5"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="text-xs text-neutral-400 font-mono">{formatTimestamp(entry.createdAt)}</p>
-                        <p className="text-xs text-neutral-300">
+                        <p className="text-xs text-muted font-mono">{formatTimestamp(entry.createdAt)}</p>
+                        <p className="text-xs text-ink">
                           {sandboxTitles[entry.sandboxId] ?? entry.sandboxId}
                         </p>
                       </div>
@@ -541,13 +541,13 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
                         type="button"
                         onClick={() => handleRemove(entry.id)}
                         aria-label={`Delete the entry recorded ${formatTimestamp(entry.createdAt)}`}
-                        className="p-2 rounded-lg text-neutral-500 hover:text-rose-300 hover:bg-neutral-800/70 transition-colors cursor-pointer"
+                        className="p-2 rounded-lg text-muted hover:text-rose-300 hover:bg-sunken transition-colors cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" aria-hidden="true" />
                       </button>
                     </div>
-                    <p className="text-sm text-neutral-200 leading-relaxed">{entry.prediction.text}</p>
-                    <p className="text-sm font-mono text-indigo-200 tabular-nums">
+                    <p className="text-sm text-ink leading-relaxed">{entry.prediction.text}</p>
+                    <p className="text-sm font-mono text-accent tabular-nums">
                       {entry.measurement.channel} = {formatValue(entry.measurement.value)}
                       {displayUnit(entry) === '' ? '' : ` ${displayUnit(entry)}`}
                     </p>
@@ -558,7 +558,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
                       </p>
                     )}
                     {entry.explanation.trim() !== '' && (
-                      <p className="text-xs text-neutral-400 leading-relaxed">{entry.explanation}</p>
+                      <p className="text-xs text-muted leading-relaxed">{entry.explanation}</p>
                     )}
                   </li>
                 ))}
@@ -566,7 +566,7 @@ export const InquiryLogDrawer: React.FC<InquiryLogDrawerProps> = ({
             )}
           </section>
 
-          <p className="text-xs text-neutral-500 leading-relaxed">
+          <p className="text-xs text-muted leading-relaxed">
             Entries stay in this browser only. Nothing about you is recorded, and no value is computed
             from the law under study: your prediction is compared with your own measurement, by you.
           </p>

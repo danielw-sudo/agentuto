@@ -88,10 +88,9 @@ export const App: React.FC = () => {
         isOpen
         webglAvailable={webglAvailable}
         activeTab={route.tab}
-        currentSandboxId={loaded?.id ?? 'lorentz-force'}
+        resumeSandboxId={loaded?.id ?? null}
         onTabChange={(tab) => navigate({ view: 'index', tab })}
         onSelectSandbox={(id) => navigate({ view: 'sandbox', id })}
-        onClose={() => navigate(loaded ? { view: 'sandbox', id: loaded.id } : HOME_ROUTE)}
       />
       )}
       </Suspense>
