@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { SiteSearch } from './SiteSearch';
+import { COMMUNITY } from '../../community';
 import { ThemeToggle } from './ThemeToggle';
 
 /** Shared by every link and button on the site pages, so keyboard focus is always visible. */
@@ -52,14 +53,15 @@ export const SiteLayout: React.FC<SiteLayoutProps> = ({ current, label, children
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-10 gap-y-2 px-6 py-3 sm:px-8">
         <a
           href="#/"
-          className={`flex min-h-11 items-center gap-2.5 text-lg font-semibold tracking-tight text-ink no-underline ${focusRing}`}
+          className={`order-1 flex min-h-11 items-center gap-2.5 text-lg font-semibold tracking-tight text-ink no-underline ${focusRing}`}
         >
           <span className="text-accent">
             <BrandMark />
           </span>
           Agentuto
         </a>
-        <nav aria-label="Main" className="flex flex-wrap gap-x-7 text-[15px]">
+        <ThemeToggle className="order-2 ml-auto sm:order-5 sm:ml-0" />
+        <nav aria-label="Main" className="order-3 flex flex-wrap gap-x-7 text-[15px]">
           {NAV.map((item) => {
             const active = item.page === current;
             return (
@@ -76,7 +78,7 @@ export const SiteLayout: React.FC<SiteLayoutProps> = ({ current, label, children
             );
           })}
         </nav>
-        <div className="w-full sm:ml-auto sm:w-80 lg:w-96">
+        <div className="order-4 w-full sm:ml-auto sm:w-80 lg:w-96">
           <SiteSearch />
         </div>
       </div>
@@ -88,16 +90,22 @@ export const SiteLayout: React.FC<SiteLayoutProps> = ({ current, label, children
       <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-x-8 gap-y-2 px-6 py-6 text-sm text-muted sm:px-8">
         <span>Open source under the MIT licence. Not affiliated with any institution.</span>
         <span className="flex flex-wrap items-center gap-x-6">
-          <ThemeToggle />
-          <a href="#/about" className={`inline-flex min-h-11 items-center hover:underline ${focusRing}`}>About</a>
-          <a
-            href="https://github.com/danielw-sudo/agentuto"
-            target="_blank"
-            rel="noreferrer"
-            className={`inline-flex min-h-11 items-center hover:underline ${focusRing}`}
-          >
-            GitHub
-          </a>
+          {[
+            { label: 'Discuss', href: COMMUNITY.discussions },
+            { label: 'Report a problem', href: COMMUNITY.issues },
+            { label: 'Propose an instrument', href: COMMUNITY.proposeInstrument },
+            { label: 'GitHub', href: COMMUNITY.repo },
+          ].map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              target="_blank"
+              rel="noreferrer"
+              className={`inline-flex min-h-11 items-center hover:underline ${focusRing}`}
+            >
+              {link.label}
+            </a>
+          ))}
         </span>
       </div>
     </footer>

@@ -3,6 +3,8 @@
 
 Thank you for your interest in contributing to **Agentuto**! Whether you are a physics educator, mathematics researcher, or frontend engineer, we welcome new simulation engines, UI improvements, bug fixes, and documentation.
 
+Questions, ideas and "I built this" go in [Discussions](https://github.com/danielw-sudo/agentuto/discussions); problems go in [issues](https://github.com/danielw-sudo/agentuto/issues/new/choose). The same links are in the footer of the app, including a copy running on your own computer. Bigger-picture topics are in [`docs/OPEN_TOPICS.md`](docs/OPEN_TOPICS.md).
+
 ---
 
 ## 1. Core Architectural Principles

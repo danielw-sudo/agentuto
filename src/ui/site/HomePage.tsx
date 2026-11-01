@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useMemo } from 'react';
 import { SIMULATION_CATALOG } from '../../simulations';
 import { COURSES } from '../../courses/courses';
 import { localReport } from '../../simulations/loadLocal';
+import { COMMUNITY } from '../../community';
 import { LocalBadge } from './LocalBadge';
 import { SiteLayout, focusRing } from './SiteLayout';
 
@@ -186,6 +187,23 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
               <p className="mt-5 text-lg text-muted">
                 Run Agentuto on your own computer and add instruments of your own that stay on your machine. If one turns
                 out well, fork the project or send it upstream.
+              </p>
+              <p className="mt-6 flex flex-wrap gap-x-6 gap-y-1 text-[15px]">
+                {[
+                  { label: 'Ask or discuss', href: COMMUNITY.discussions },
+                  { label: 'Report a problem', href: COMMUNITY.issues },
+                  { label: 'Share what you built', href: COMMUNITY.showAndTell },
+                ].map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`inline-flex min-h-11 items-center font-medium text-accent underline underline-offset-4 ${focusRing}`}
+                  >
+                    {link.label} &rarr;
+                  </a>
+                ))}
               </p>
             </div>
             <a

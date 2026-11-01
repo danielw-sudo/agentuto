@@ -133,6 +133,10 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
     }
     const title = await page.evaluate(() => document.querySelector('main h1')?.textContent ?? '');
     if (title && title !== sim.title) problems.push(`the heading says "${title}", expected "${sim.title}"`);
+    // Feedback from inside the instrument opens a bug report already titled with the instrument's id.
+    const feedback = await page.$eval('a[data-community="feedback"]', (el) => (el as HTMLAnchorElement).href).catch(() => '');
+    const wantFeedback = `https://github.com/danielw-sudo/agentuto/issues/new?template=bug_report.md&title=${encodeURIComponent(`[${id}] `)}`;
+    if (feedback !== wantFeedback) problems.push(`the Feedback link is "${feedback}", expected "${wantFeedback}"`);
     const tabTitle = await page.title();
     if (tabTitle !== `${sim.title} · Agentuto`) problems.push(`the browser tab says "${tabTitle}", expected "${sim.title} · Agentuto"`);
 
@@ -208,29 +212,47 @@ async function checkSite(browser: Browser): Promise<void> {
     await page.evaluate(() => localStorage.removeItem('agentuto.inquiry-log.v1'));
   }
 
-  // The theme toggle: with the system set to dark, Light changes the page's own colours, survives a reload, and Auto hands control back
+  // The theme toggle: an icon button at the top right. With the system set to dark, Light changes the page's own
+  // colours, survives a reload, and Auto hands control back.
   {
     const paper = () => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--paper').trim());
-    const pressed = () => page.$$eval('[role="group"][aria-label="Colour theme"] button[aria-pressed="true"]', (b) => b.map((x) => x.textContent).join(','));
+    const choice = () => page.$eval('button[data-theme-toggle]', (b) => b.getAttribute('data-choice') ?? '').catch(() => 'no toggle');
     const choose = async (name: string) => {
-      const buttons = await page.$$('[role="group"][aria-label="Colour theme"] button');
-      for (const b of buttons) if ((await b.evaluate((x) => x.textContent)) === name) await b.click();
+      for (let i = 0; i < 3 && (await choice()) !== name; i += 1) await page.click('button[data-theme-toggle]');
     };
+    const placement = await page.$eval('button[data-theme-toggle]', (b) => {
+      const box = b.getBoundingClientRect();
+      return { right: window.innerWidth - box.right, top: box.top };
+    }).catch(() => null);
     await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'dark' }]);
     const start = await paper();
-    await choose('Light');
+    await choose('light');
     const light = await paper();
     await page.reload({ waitUntil: 'load' });
-    await page.waitForSelector('[role="group"][aria-label="Colour theme"]', { timeout: 20000 }).catch(() => undefined);
+    await page.waitForSelector('button[data-theme-toggle]', { timeout: 20000 }).catch(() => undefined);
     const afterReload = await paper();
-    const stillLight = await pressed();
-    await choose('Auto');
+    const stillLight = await choice();
+    await choose('auto');
     const auto = await paper();
     await page.evaluate(() => localStorage.removeItem('agentuto.theme.v1'));
-    if (start !== '#0d1015' || light !== '#f7f6f2') await bad('theme toggle', `system dark gave ${start}, Light gave ${light}`);
-    else if (afterReload !== '#f7f6f2' || stillLight !== 'Light') await bad('theme toggle', `after a reload: ${afterReload}, pressed "${stillLight}"`);
+    if (!placement || placement.top > 80 || placement.right > 120) await bad('theme toggle', 'not at the top right: ' + JSON.stringify(placement));
+    else if (start !== '#0d1015' || light !== '#f7f6f2') await bad('theme toggle', `system dark gave ${start}, Light gave ${light}`);
+    else if (afterReload !== '#f7f6f2' || stillLight !== 'light') await bad('theme toggle', `after a reload: ${afterReload}, choice "${stillLight}"`);
     else if (auto !== start) await bad('theme toggle', `Auto gave ${auto}, expected ${start}`);
-    else pass('theme toggle', 'Light overrides a dark system, is remembered across a reload, Auto returns to the system choice');
+    else pass('theme toggle', 'top-right icon; Light overrides a dark system, is remembered across a reload, Auto returns to the system choice');
+  }
+
+  // Community links are on every page, point at the project, and open outside the app (this is a plain localhost server)
+  {
+    const wanted = ['https://github.com/danielw-sudo/agentuto/discussions', 'https://github.com/danielw-sudo/agentuto/issues/new/choose', 'https://github.com/danielw-sudo/agentuto/issues/new?template=new_instrument.md'];
+    for (const route of ['#/', '#/about', '#/instruments', '#/guide']) {
+      await page.goto(`${BASE}/${route}`, { waitUntil: 'load' });
+      await page.waitForSelector('footer a', { timeout: 20000 }).catch(() => undefined);
+      const links = await page.$$eval('footer a', (as) => as.map((a) => ({ href: (a as HTMLAnchorElement).href, target: a.getAttribute('target'), rel: a.getAttribute('rel') ?? '' })));
+      const missing = wanted.filter((w) => !links.some((l) => l.href === w && l.target === '_blank' && /noreferrer/.test(l.rel)));
+      if (missing.length > 0) await bad(`community links on ${route}`, 'missing in the footer: ' + missing.join(', '));
+      else pass(`community links on ${route}`, 'discuss, report, propose');
+    }
   }
 
   // Every course opens and lists its instruments

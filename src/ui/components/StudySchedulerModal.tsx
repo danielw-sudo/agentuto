@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, CheckCircle2, Circle, Clock, ExternalLink, Plus, Trash2, X } from 'lucide-react';
 import { SIMULATION_CATALOG, SimulationId } from '../../simulations';
 import { COURSE_EQUIVALENCE_MAP } from '../../knowledge/courseEquivalence';
+import { demoLink } from '../../community';
 
 export interface StudyCheckpoint {
   id: string;
@@ -70,7 +71,7 @@ export function buildGoogleCalendarUrl(checkpoint: StudyCheckpoint): string {
     `Empirical Science Laboratory Session\n\n` +
     `Objective: ${checkpoint.objective}\n` +
     (eq ? `Course Alignment: ${eq.mit} | ${eq.utsg} | ${eq.secondary}\n` : '') +
-    `Simulation Link: https://danielw-sudo.github.io/agentuto/#${checkpoint.sandboxId}\n\n` +
+    `Simulation Link: ${demoLink(checkpoint.sandboxId)}\n\n` +
     `Generated via Agentuto Academic Scheduler`
   );
 
