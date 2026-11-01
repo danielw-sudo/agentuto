@@ -40,7 +40,8 @@
   }
 }
 
-:root[data-theme="dark"] {
+/* Any element can force the dark palette for its subtree; the sandbox screen does, because its canvases are dark. */
+[data-theme="dark"] {
   --paper: #0d1015;
   --card: #151a21;
   --sunken: #10141a;
@@ -75,19 +76,16 @@
 }
 
 @layer utilities {
+  /* Panels read the tokens: a flat card with a hairline border, no blur or glow. The name stays so the
+   * components that use it need no edit. */
   .glass-panel {
-    background-color: rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    background-color: var(--card);
+    border: 1px solid var(--line);
   }
 
   .glass-panel-subtle {
-    background-color: rgba(15, 23, 42, 0.55);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    background-color: var(--card);
+    border: 1px solid var(--line);
   }
 }
 

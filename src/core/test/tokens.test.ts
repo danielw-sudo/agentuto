@@ -45,7 +45,7 @@ export async function runTokensVerification(): Promise<void> {
   const css = readFileSync(new URL('../../styles/globals.css', import.meta.url), 'utf8');
 
   const light = declarations(blockAfter(css, ':root {'));
-  const darkExplicit = declarations(blockAfter(css, ':root[data-theme="dark"]'));
+  const darkExplicit = declarations(blockAfter(css, '[data-theme="dark"] {'));
   const darkPreferred = declarations(blockAfter(blockAfter(css, '@media (prefers-color-scheme: dark)'), ':root:not([data-theme="light"])'));
 
   const required = ['paper', 'card', 'sunken', 'ink', 'muted', 'line', 'accent', 'on-accent', 'accent-soft', 'field-e', 'field-b', 'velocity'];

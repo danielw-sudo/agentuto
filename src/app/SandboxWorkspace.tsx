@@ -1,7 +1,9 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { Atom, BookOpen, Calendar, ExternalLink, Eye, EyeOff, Grid, Layers, Sparkles } from 'lucide-react';
+import { Activity, ChevronLeft, Eye, EyeOff, Sliders, Sparkles } from 'lucide-react';
 import { ViewportContainer } from './layout/ViewportContainer';
-import { OverlayLayout } from './layout/OverlayLayout';
+import { DockLayout } from './layout/DockLayout';
+import { SiteSearch } from '../ui/site/SiteSearch';
+import { coursesOfSandbox } from '../courses/courses';
 import { GlassPanel } from '../ui/components/GlassPanel';
 import { ParameterDeck } from '../ui/components/ParameterDeck';
 import { TelemetryBar } from '../ui/components/TelemetryBar';
@@ -33,7 +35,6 @@ export interface SandboxWorkspaceProps {
   /** True while the catalogue / guide is shown over the workspace. The simulation keeps running behind it. */
   isIndexOpen: boolean;
   onOpenSandbox: (id: SimulationId) => void;
-  onOpenIndex: (tab: 'catalog' | 'guide') => void;
   onCloseIndex: () => void;
 }
 
@@ -43,7 +44,6 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
   webglAvailable,
   isIndexOpen,
   onOpenSandbox,
-  onOpenIndex,
   onCloseIndex,
 }) => {
   const selectedSimId = sandboxId;
@@ -126,9 +126,11 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
     [],
   );
 
-  // Responsive adaptation: collapse right panel initially on mobile/tablet viewports (< 1024px)
+  // Below 1024 px the panels open as drawers over the apparatus, so they start closed and a phone
+  // shows the apparatus first.
   useEffect(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setIsLeftCollapsed(true);
       setIsRightCollapsed(true);
     }
   }, []);
@@ -271,176 +273,129 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
   };
 
   const totalSandboxCount = Object.keys(SIMULATION_CATALOG).length;
+  const parentCourse = coursesOfSandbox(selectedSimId)[0];
+  const allCollapsed = isLeftCollapsed && isRightCollapsed;
+
+  const headerButton =
+    'inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg border border-line px-3 text-sm font-medium text-ink hover:bg-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent cursor-pointer';
+  const toggleButton = (on: boolean) => `${headerButton} ${on ? 'bg-accent-soft' : ''}`;
 
   return (
-    <main className="relative w-screen h-screen overflow-hidden bg-neutral-950 font-sans select-none">
-      {/* 1. Full-Bleed Viewport Canvas (3D WebGL or 2D Canvas) */}
-      <ViewportContainer
-        key={selectedSimId}
-        renderer={renderer}
-        fallback={
-          <UnavailableViewport
-            sandboxTitle={simRegistration.title}
-            reason={
-              rendererFailure.current === 'webgl-unavailable'
-                ? 'This browser could not create a WebGL context, so the 3D view cannot start. Hardware acceleration may be switched off, or the graphics driver may be blocking it.'
-                : `The renderer failed to start: ${rendererFailure.current ?? 'unknown error'}.`
-            }
-            alternatives={Object.values(SIMULATION_CATALOG)
-              .filter((sim) => sim.mode !== '3D' && sim.id !== selectedSimId)
-              .slice(0, 4)
-              .map((sim) => ({ id: sim.id, title: sim.title }))}
-            onSelectSandbox={(id) => onOpenSandbox(id as SimulationId)}
-          />
-        }
-      />
-
-      {/* 2. Glassmorphism Floating Overlay HUD */}
-      <OverlayLayout
+    <main
+      data-theme="dark"
+      className="relative flex h-screen w-screen flex-col overflow-hidden bg-paper font-sans text-ink select-none"
+    >
+      <DockLayout
         isLeftCollapsed={isLeftCollapsed}
         isRightCollapsed={isRightCollapsed}
-        onToggleLeft={() => setIsLeftCollapsed(!isLeftCollapsed)}
-        onToggleRight={() => setIsRightCollapsed(!isRightCollapsed)}
         header={
-          <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-3 pointer-events-none">
-            {/* Title & Curriculum Selector */}
-            <GlassPanel className="px-5 py-3 flex items-center gap-3.5 shadow-2xl">
-              <div className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
-                <Atom className="w-5 h-5 animate-pulse" />
-              </div>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-sm font-semibold tracking-wide text-neutral-100">
-                    {simRegistration.title}
-                  </h1>
-                  <span className="text-xs font-mono px-2 py-0.5 rounded bg-neutral-800 text-neutral-300 border border-neutral-700/60">
-                    Aligned with {simRegistration.curriculum}
-                  </span>
-                  <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-500/30">
-                    {simRegistration.mode}
-                  </span>
-                </div>
-                <p className="text-xs text-neutral-400 mt-0.5">
-                  ODE: <span className="font-mono text-indigo-300 font-medium">{simRegistration.formattedODE}</span>
-                </p>
-              </div>
-            </GlassPanel>
+          <header className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line bg-card px-4 py-2">
+            <a
+              href={parentCourse ? `#/course/${encodeURIComponent(parentCourse.id)}` : '#/'}
+              className="inline-flex min-h-11 max-w-44 items-center gap-1 truncate text-sm text-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+              {parentCourse ? parentCourse.title : 'Courses'}
+            </a>
+            <h1 className="max-w-[18rem] truncate font-display text-lg font-medium tracking-tight" title={simRegistration.title}>
+              {simRegistration.title}
+            </h1>
+            <span className="rounded-md border border-line px-2 py-0.5 font-mono text-[13px] text-muted">
+              {simRegistration.mode}
+            </span>
+            <span className="hidden font-mono text-sm text-muted 2xl:inline">{simRegistration.formattedODE}</span>
 
-            {/* Sandbox Catalog Switcher, Lab Index, User Guide & Platform Brand */}
-            <div className="flex flex-wrap items-center gap-2 pointer-events-auto">
-              <GlassPanel subtle className="px-2.5 py-1.5 flex items-center gap-1.5 shadow-lg">
-                <button
-                  onClick={() => {
-                    onOpenIndex('catalog');
-                  }}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-200 text-xs font-medium transition-colors cursor-pointer"
-                  title="Open Laboratory Module Index"
-                >
-                  <Grid className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>Lab Index ({totalSandboxCount})</span>
-                </button>
-                <button
-                  onClick={() => {
-                    onOpenIndex('guide');
-                  }}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-neutral-800/80 hover:bg-neutral-800 border border-neutral-700/60 text-neutral-200 text-xs font-medium transition-colors cursor-pointer"
-                  title="Open Laboratory User Guide"
-                >
-                  <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>User Guide</span>
-                </button>
-                <button
-                  onClick={() => setIsSchedulerOpen(true)}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 text-indigo-200 text-xs font-medium transition-colors cursor-pointer"
-                  title="Open Study Planner & Google Calendar Checkpoints"
-                >
-                  <Calendar className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>Planner</span>
-                </button>
-                <button
-                  onClick={() => {
-                    const next = !(isLeftCollapsed && isRightCollapsed);
-                    setIsLeftCollapsed(next);
-                    setIsRightCollapsed(next);
-                  }}
-                  className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border text-xs font-medium transition-colors cursor-pointer ${
-                    isLeftCollapsed && isRightCollapsed
-                      ? 'bg-amber-500/20 text-amber-200 border-amber-500/40'
-                      : 'bg-neutral-800/80 hover:bg-neutral-800 border-neutral-700/60 text-neutral-300'
-                  }`}
-                  title="Toggle Full Viewport Zen Mode (H)"
-                >
-                  {isLeftCollapsed && isRightCollapsed ? (
-                    <>
-                      <Eye className="w-3.5 h-3.5 text-amber-400" />
-                      <span className="hidden sm:inline">Show HUD</span>
-                    </>
-                  ) : (
-                    <>
-                      <EyeOff className="w-3.5 h-3.5 text-neutral-400" />
-                      <span className="hidden sm:inline">Zen View</span>
-                    </>
-                  )}
-                </button>
-              </GlassPanel>
+            <span className="flex-1" />
 
-              <GlassPanel subtle className="px-3 py-1.5 flex items-center gap-2 shadow-lg">
-                <Layers className="w-4 h-4 text-indigo-400" />
-                <select
-                  value={selectedSimId}
-                  onChange={(e) => onOpenSandbox(e.target.value as SimulationId)}
-                  aria-label="Select active simulation sandbox"
-                  className="bg-transparent text-xs text-neutral-200 font-medium focus:outline-none cursor-pointer"
-                >
-                  {Object.values(SIMULATION_CATALOG).map((sim) => (
-                    <option key={sim.id} value={sim.id} className="bg-neutral-900 text-neutral-200">
-                      [{sim.mode}] {sim.title}
-                    </option>
-                  ))}
-                </select>
-              </GlassPanel>
-
-              <GlassPanel subtle className="px-3.5 py-2 flex items-center gap-2 shadow-lg">
-                <span className="text-xs font-semibold text-neutral-200">
-                  Agentuto <span className="text-[10px] text-indigo-400 font-mono">v0.1</span>
-                </span>
-                <a
-                  href="https://github.com/danielw-sudo/agentuto"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-neutral-500 hover:text-neutral-300 ml-1 cursor-pointer"
-                  title="Agentuto Open-Source Repository"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </GlassPanel>
+            <div className="hidden w-52 lg:block">
+              <SiteSearch />
             </div>
+            <a href="#/instruments" className={headerButton} title={`All ${totalSandboxCount} instruments`}>
+              Instruments
+            </a>
+            <a href="#/guide" className={headerButton}>
+              Guide
+            </a>
+            <button type="button" onClick={() => setIsSchedulerOpen(true)} className={headerButton}>
+              Planner
+            </button>
+            <span className="flex items-center gap-1.5" role="group" aria-label="Panels">
+              <button
+                type="button"
+                aria-pressed={!isLeftCollapsed}
+                onClick={() => setIsLeftCollapsed(!isLeftCollapsed)}
+                className={toggleButton(!isLeftCollapsed)}
+                title="Parameters and roadmap"
+              >
+                <Sliders className="h-4 w-4" aria-hidden="true" />
+                <span className="sr-only">Controls</span>
+              </button>
+              <button
+                type="button"
+                aria-pressed={!isRightCollapsed}
+                onClick={() => setIsRightCollapsed(!isRightCollapsed)}
+                className={toggleButton(!isRightCollapsed)}
+                title="Telemetry and lab protocol"
+              >
+                <Activity className="h-4 w-4" aria-hidden="true" />
+                <span className="sr-only">Telemetry</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLeftCollapsed(!allCollapsed);
+                  setIsRightCollapsed(!allCollapsed);
+                }}
+                className={headerButton}
+                title="Show only the apparatus (H)"
+              >
+                {allCollapsed ? <Eye className="h-4 w-4" aria-hidden="true" /> : <EyeOff className="h-4 w-4" aria-hidden="true" />}
+                <span className="sr-only">{allCollapsed ? 'Show panels' : 'Focus'}</span>
+              </button>
+            </span>
           </header>
         }
-        leftPanel={
-          <div className="flex flex-col gap-2 pointer-events-auto">
-            {/* Tab Toggle: Controls vs Roadmap */}
-            <div className="flex bg-neutral-900/60 p-1 rounded-xl border border-neutral-800 text-xs w-80 font-medium">
-              <button
-                onClick={() => setActiveLeftTab('controls')}
-                className={`flex-1 py-1 rounded-lg text-center cursor-pointer transition-colors ${
-                  activeLeftTab === 'controls'
-                    ? 'bg-indigo-600 text-white font-semibold'
-                    : 'text-neutral-400 hover:text-neutral-200'
-                }`}
-              >
-                Sliders & Fields
-              </button>
-              <button
-                onClick={() => setActiveLeftTab('roadmap')}
-                className={`flex-1 py-1 rounded-lg text-center cursor-pointer transition-colors ${
-                  activeLeftTab === 'roadmap'
-                    ? 'bg-indigo-600 text-white font-semibold'
-                    : 'text-neutral-400 hover:text-neutral-200'
-                }`}
-              >
-                Curriculum Roadmap
-              </button>
+        viewport={
+          <ViewportContainer
+            key={selectedSimId}
+            renderer={renderer}
+            fallback={
+              <UnavailableViewport
+                sandboxTitle={simRegistration.title}
+                reason={
+                  rendererFailure.current === 'webgl-unavailable'
+                    ? 'This browser could not create a WebGL context, so the 3D view cannot start. Hardware acceleration may be switched off, or the graphics driver may be blocking it.'
+                    : `The renderer failed to start: ${rendererFailure.current ?? 'unknown error'}.`
+                }
+                alternatives={Object.values(SIMULATION_CATALOG)
+                  .filter((sim) => sim.mode !== '3D' && sim.id !== selectedSimId)
+                  .slice(0, 4)
+                  .map((sim) => ({ id: sim.id, title: sim.title }))}
+                onSelectSandbox={(id) => onOpenSandbox(id as SimulationId)}
+              />
+            }
+          />
+        }
+        leftDock={
+          <>
+            <div role="tablist" aria-label="Left panel" className="flex rounded-xl border border-line bg-card p-1 text-sm font-medium">
+              {([
+                ['controls', 'Parameters'],
+                ['roadmap', 'Roadmap'],
+              ] as const).map(([tab, label]) => (
+                <button
+                  key={tab}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeLeftTab === tab}
+                  onClick={() => setActiveLeftTab(tab)}
+                  className={`min-h-10 flex-1 cursor-pointer rounded-lg px-2 text-center focus-visible:outline-2 focus-visible:outline-accent ${
+                    activeLeftTab === tab ? 'bg-accent-soft font-semibold text-ink' : 'text-muted hover:text-ink'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
 
             {activeLeftTab === 'controls' ? (
@@ -464,46 +419,43 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
                 onApplyPreset={handleApplyPreset}
               />
             )}
-          </div>
+          </>
         }
-        rightPanel={
-          <div className="flex flex-col gap-3 pointer-events-auto">
+        rightDock={
+          <>
             <LiveTelemetryCard sandboxId={selectedSimId} state={liveState} />
 
-            {/* Per-Sandbox Empirical Lab Protocol Callout */}
-            <GlassPanel subtle className="w-64 p-3.5 text-xs text-neutral-400 flex flex-col gap-2 shadow-lg">
+            {/* Per-sandbox lab protocol: three steps from the instrument guide */}
+            <GlassPanel subtle className="flex w-full flex-col gap-2 p-3.5 text-sm text-muted">
               <div className="flex items-center justify-between">
-                <span className="text-neutral-200 font-medium flex items-center gap-1.5 text-xs">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> Empirical Lab Protocol
-                </span>
-                <button
-                  onClick={() => {
-                    onOpenIndex('guide');
-                  }}
-                  className="text-xs font-mono text-indigo-300 hover:text-indigo-200 underline underline-offset-2 cursor-pointer"
-                >
-                  Manual →
-                </button>
+                <h2 className="flex items-center gap-1.5 text-sm font-medium text-ink">
+                  <Sparkles className="h-3.5 w-3.5 text-accent" aria-hidden="true" /> Lab protocol
+                </h2>
+                <a href="#/guide" className="inline-flex min-h-11 items-center text-sm text-accent underline underline-offset-2">
+                  Guide
+                </a>
               </div>
               {labGuide ? (
-                <ol className="text-xs leading-relaxed text-neutral-300 space-y-1 list-decimal list-inside">
+                <ol className="list-inside list-decimal space-y-1.5 leading-relaxed">
                   {labGuide.labProtocol.map((step, idx) => (
-                    <li key={idx} className="text-neutral-400">
-                      <span className="text-neutral-300">{step}</span>
+                    <li key={idx}>
+                      <span className="text-ink">{step}</span>
                     </li>
                   ))}
                 </ol>
               ) : (
-                <p className="text-xs leading-relaxed text-neutral-400">
-                  1. Vary parameters to observe physical and phase responses.<br />
-                  2. Click <strong className="text-rose-400">Record</strong> to buffer 50 Hz telemetry.<br />
-                  3. Open <strong className="text-indigo-300">Lab Fit</strong> or <strong className="text-sky-300">Export CSV</strong>.
+                <p className="leading-relaxed">
+                  1. Vary parameters to observe physical and phase responses.
+                  <br />
+                  2. Click <strong className="text-ink">Record</strong> to buffer 50 Hz telemetry.
+                  <br />
+                  3. Open <strong className="text-ink">Lab Fit</strong> or <strong className="text-ink">Export CSV</strong>.
                 </p>
               )}
             </GlassPanel>
-          </div>
+          </>
         }
-        bottomBar={
+        transport={
           <TelemetryBar
             isRunning={isRunning}
             simTime={simTime}

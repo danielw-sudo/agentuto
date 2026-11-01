@@ -22,11 +22,11 @@ export const ParameterDeck: React.FC<ParameterDeckProps> = React.memo(({
   const [collapsed, setCollapsed] = useState<boolean>(false);
 
   return (
-    <GlassPanel className="w-72 sm:w-80 p-3.5 sm:p-4 flex flex-col gap-3 shadow-2xl">
+    <GlassPanel className="w-full p-3.5 sm:p-4 flex flex-col gap-3">
       {/* Header */}
-      <div className="flex justify-between items-center border-b border-neutral-800 pb-2.5">
-        <div className="flex items-center gap-2 text-neutral-200">
-          <Sliders className="w-4 h-4 text-indigo-400" />
+      <div className="flex justify-between items-center border-b border-line pb-2.5">
+        <div className="flex items-center gap-2 text-ink">
+          <Sliders className="w-4 h-4 text-accent" />
           <h2 className="text-xs font-semibold tracking-wide uppercase">{title}</h2>
         </div>
         <div className="flex items-center gap-1">
@@ -34,14 +34,14 @@ export const ParameterDeck: React.FC<ParameterDeckProps> = React.memo(({
             <button
               onClick={onReset}
               title="Reset parameters to defaults"
-              className="p-1 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50 rounded transition-colors cursor-pointer"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted hover:text-ink hover:bg-sunken rounded transition-colors cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50 rounded transition-colors cursor-pointer"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center text-muted hover:text-ink hover:bg-sunken rounded transition-colors cursor-pointer"
             title={collapsed ? 'Expand Parameters' : 'Collapse Parameters'}
           >
             {collapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
@@ -51,7 +51,7 @@ export const ParameterDeck: React.FC<ParameterDeckProps> = React.memo(({
 
       {/* Sliders Container */}
       {!collapsed && (
-        <div className="flex flex-col gap-2 max-h-[55vh] overflow-y-auto pr-1">
+        <div className="flex flex-col gap-2 pr-1">
           {descriptors.map((desc) => (
             <SliderControl
               key={desc.id}

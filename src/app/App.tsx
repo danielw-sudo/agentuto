@@ -61,7 +61,10 @@ export const App: React.FC = () => {
   const course = route.view === 'course' ? courseById(route.id) : undefined;
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-paper font-sans">
+    <div
+      data-theme={route.view === 'sandbox' ? 'dark' : undefined}
+      className="relative w-screen h-screen overflow-hidden bg-paper font-sans"
+    >
       <Suspense fallback={null}>
       {loaded && (
         <div className="absolute inset-0" inert={pageOpen}>
@@ -71,7 +74,6 @@ export const App: React.FC = () => {
             webglAvailable={webglAvailable}
             isIndexOpen={pageOpen}
             onOpenSandbox={(id) => navigate({ view: 'sandbox', id })}
-            onOpenIndex={(tab) => navigate({ view: 'index', tab })}
             onCloseIndex={() => navigate({ view: 'sandbox', id: loaded.id })}
           />
         </div>
