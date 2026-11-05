@@ -143,6 +143,16 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
       const marker = await page.$eval('[data-settled]', (el) => el.getAttribute('data-settled')).catch(() => null);
       if (marker !== 'true' && marker !== 'false') problems.push('the tunnelling card has no settled marker for T');
     }
+    // The reset button restarts the run and leaves the parameters alone (its click event once replaced them).
+    const clickedReset = await page.evaluate(() => {
+      const button = [...document.querySelectorAll('button')].find((b) => /^Reset Simulation/.test(b.title || b.getAttribute('aria-label') || ''));
+      button?.click();
+      return button !== undefined;
+    });
+    if (!clickedReset) problems.push('there is no reset button');
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    const broken = await page.evaluate(() => document.body.innerText.match(/\bNaN\b|\bundefined\b/)?.[0] ?? '');
+    if (broken) problems.push(`after pressing reset the page shows ${broken}`);
     // Feedback from inside the instrument opens a bug report already titled with the instrument's id.
     const feedback = await page.$eval('a[data-community="feedback"]', (el) => (el as HTMLAnchorElement).href).catch(() => '');
     const wantFeedback = `https://github.com/danielw-sudo/agentuto/issues/new?template=bug_report.md&title=${encodeURIComponent(`[${id}] `)}`;
