@@ -1,9 +1,9 @@
 import { SimulationEngine, SimulationState, TelemetryPoint } from '../../../core/types/simulation';
 
 export interface GasParams extends Record<string, number> {
-  temperature: number; // T in Kelvin (100K - 800K)
+  temperature: number; // T in reduced units, k_B = 1 (100 - 800)
   particleCount: number; // N (50 - 300)
-  pistonX: number; // Lx chamber width in meters (3.0 - 9.0)
+  pistonX: number; // Lx chamber width in reduced units (3.0 - 9.0)
   particleMass: number; // m in mass units (0.5 - 4.0)
 }
 

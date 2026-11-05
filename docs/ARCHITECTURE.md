@@ -243,9 +243,9 @@ Measured after the UI clean-up (2026-11-01), whole `dist/`, in the units the scr
 
 | Measure | Measured | Budget |
 |---|---|---|
-| First load (entry, React, CSS) | 106.2 kB gzip | 107.4 kB |
+| First load (entry, React, CSS) | 106.3 kB gzip | 107.4 kB |
 | Largest single chunk (three.js) | 121.3 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 357.6 kB | 366.2 kB |
+| Total gzip (level 9) | 357.9 kB | 366.2 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
@@ -284,7 +284,7 @@ Every outward link comes from `src/community.ts`: Discussions (and new discussio
 
 ### 6.6c Scaled and reduced units
 
-Three instruments run in scaled units, and the app says so (owner decision 2026-11-04, ROADMAP §4 item 6). Faraday uses an effective permeability of 1×10⁻³ T·m/A in place of 4π×10⁻⁷, so its electrical channels are labelled `scaled V`, `scaled A`, `scaled Wb`, `scaled N` and `scaled W` while its mechanical ones keep their SI units. The tunnelling instrument (ħ = m = 1) and the gas (k_B = 1) label every slider and channel `reduced`. Each manifest carries a one-sentence `unitsNote` that the telemetry card shows beneath itself (`data-units-note`), and the user guide repeats it. `src/core/test/units.test.ts` holds the labels to the conventions (a scaled number never carries a plain SI unit, and no other instrument uses the words); the closed-form cases hold the engines to the conventions; the smoke test checks the note on all three screens. Real constants were considered and not chosen: they would change how fast things happen and what the sliders mean.
+Three instruments run in scaled units, and the app says so (owner decision 2026-11-04, ROADMAP §4 item 6). Faraday uses an effective permeability of 1×10⁻³ T·m/A in place of 4π×10⁻⁷, so its electrical channels are labelled `scaled V`, `scaled A`, `scaled Wb`, `scaled N` and `scaled W` while its mechanical ones keep their SI units. The tunnelling instrument (ħ = m = 1) and the gas (k_B = 1) label every slider and channel `reduced`. Each manifest carries a one-sentence `unitsNote` that the telemetry card shows beneath itself (`data-units-note`), and the user guide repeats it. `src/core/test/units.test.ts` holds the labels to the conventions (a scaled number never carries a plain SI unit, and no other instrument uses the words); the closed-form cases hold the engines to the conventions; the smoke test checks the note on all three screens. The same test reads the on-canvas text and guides of the two reduced instruments, and checks the exported CSV of every instrument: its units line comes from the manifest (time is in seconds unless the manifest says otherwise), and a further line repeats the note. Real constants were considered and not chosen: they would change how fast things happen and what the sliders mean.
 
 ### 6.6d Tunnelling read-out
 

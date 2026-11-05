@@ -11,7 +11,7 @@ export const GAS_METADATA = {
   description:
     'Simulate microscopic elastic collisions of N gas particles. Observe emergent Maxwell-Boltzmann speed distributions, wall impulse pressure, and the Ideal Gas Law.',
   unitsNote:
-    'Reduced units: k_B = 1, so temperature is an energy per particle and pressure is a force per unit length (two dimensions). The measured wall pressure runs a little above N k T / A because the particles have size.',
+    'Reduced units: k_B = 1, so temperature is an energy per particle and pressure is a force per unit length (two dimensions). The measured wall pressure runs above N k T / A because the particles have size: about 7 % at the defaults, up to about 29 % at N = 250 and L_x = 3.',
 };
 
 export const GAS_DEFAULT_PARAMS: GasParams = {

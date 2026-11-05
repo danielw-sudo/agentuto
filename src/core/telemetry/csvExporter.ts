@@ -4,6 +4,10 @@ export interface CSVExportOptions {
   experimentTitle: string;
   parameters: Record<string, number | string>;
   notes?: string;
+  /** Unit of each channel, from the instrument's manifest; time is in seconds unless it says otherwise. Without it the file makes no claim about units. */
+  units?: Record<string, string>;
+  /** The instrument's one-sentence note, if it runs in scaled or reduced units. */
+  unitsNote?: string;
 }
 
 /**
@@ -30,8 +34,16 @@ export function formatTelemetryToCSV(
     .join(', ');
   lines.push(`# Active Parameters: ${paramEntries}`);
 
-  // Scientific Units Specification Header for AP/IB Lab Notebooks
-  lines.push(`# Units: t(seconds), x/y/z(meters), v/vx/vy/vz(m/s), kinetic_energy/potential_energy/total_energy(Joules or microJoules), B_z(Tesla), E_y(V/m)`);
+  // Units of the columns in this file, from the instrument's manifest
+  const { units } = options;
+  if (units) {
+    const named: Record<string, string> = { t: 's', ...units };
+    const declared = Object.keys(data[0]).filter((col) => named[col] !== undefined);
+    lines.push(`# Units: ${declared.map((col) => `${col}(${named[col]})`).join(', ')}`);
+  }
+  if (options.unitsNote) {
+    lines.push(`# Units note: ${options.unitsNote}`);
+  }
 
   if (options.notes) {
     lines.push(`# Notes: ${options.notes}`);

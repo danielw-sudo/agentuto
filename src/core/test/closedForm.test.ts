@@ -174,6 +174,30 @@ const CASES: Record<string, Case> = {
     r.near('mean speed of the particles', mean, Math.sqrt((Math.PI * T) / (2 * mass)), 0.15);
     const rms = Math.sqrt(speeds.reduce((a: number, b: number) => a + b * b, 0) / speeds.length);
     r.near('rms speed of the particles', rms, Math.sqrt((2 * T) / mass), 1e-9);
+
+    // What the guide tells a learner to expect of P·A / N k T. The disks have size, so it is above 1 by an amount that
+    // grows as the box fills: these are measured values, with room for the sampling spread.
+    for (const [n, width, low, high] of [[40, 6, 1.01, 1.07], [120, 6, 1.04, 1.11], [250, 3, 1.24, 1.34]] as const) {
+      const gas: any = (await SIMULATION_CATALOG['maxwell-boltzmann'].load()).createEngine();
+      gas.init({ temperature: 300, particleCount: n, particleMass: 1, pistonX: width });
+      for (let i = 0; i < 400; i += 1) gas.step(DT);
+      let sum = 0;
+      let count = 0;
+      let last = NaN;
+      let ideal = 0;
+      for (let i = 0; i < 4000; i += 1) {
+        gas.step(DT);
+        const now = gas.getState();
+        if (now.empiricalPressure !== last) {
+          last = now.empiricalPressure;
+          ideal = now.idealPressure;
+          sum += last;
+          count += 1;
+        }
+      }
+      const ratio = sum / count / ideal;
+      if (!(ratio > low && ratio < high)) r.fail(`P·A / N k T at N=${n}, L_x=${width} is ${ratio.toFixed(3)}, and the guide says ${low} to ${high}`);
+    }
   },
 
   // Reduced units, as the engine states them: ħ = m = 1, so k = √(2E). A packet is a Gaussian spread of
@@ -252,6 +276,26 @@ const CASES: Record<string, Case> = {
       }
       if (worst > 0.12) r.fail(`E=${E}, d=${d}, σ=${sigma}: T was reported settled while ${(worst * 100).toFixed(0)} % away from the packet value (${readings} settled steps)`);
     }
+
+    // The lab protocol, as a learner would run it: E = 3, V0 = 9, σ = 1.2, d from 0.5 to 1.5. Every width settles, ln T
+    // falls near the slope the guide states (−6.1, short of −2κ = −6.9), and the norm holds to the six places shown.
+    const widths: number[] = [];
+    const logs: number[] = [];
+    for (let i = 0; i <= 10; i += 1) {
+      const d = 0.5 + i * 0.1;
+      const got = await settledReading({ particleEnergy: 3, barrierHeight: 9, barrierWidth: d, packetSigma: 1.2 });
+      if (!got) {
+        r.fail(`the lab protocol's d=${d.toFixed(1)} never settles`);
+        continue;
+      }
+      widths.push(d);
+      logs.push(Math.log(got.s.transmission_T));
+      r.near(`norm at d=${d.toFixed(1)}`, got.s.norm, 1, 5e-7);
+    }
+    const meanD = widths.reduce((a, b) => a + b, 0) / widths.length;
+    const meanLog = logs.reduce((a, b) => a + b, 0) / logs.length;
+    const slope = widths.reduce((a, d, i) => a + (d - meanD) * (logs[i] - meanLog), 0) / widths.reduce((a, d) => a + (d - meanD) ** 2, 0);
+    r.near('the lab protocol\'s slope of ln T against d', slope, -6.1, 0.03);
 
     // A reading belongs to one barrier: moving a barrier slider starts the run again, so an old T is never marked as
     // the new barrier's, and the new run settles on the new barrier's value. Setting a value it already has changes nothing.
