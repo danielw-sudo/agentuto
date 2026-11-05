@@ -129,8 +129,7 @@ export function numericField(text: string): number {
 /**
  * The subset of a live parameter set the journal may record.
  *
- * Three sandboxes carry engine initial conditions that have no slider at all (`lorentz-force`
- * `initialSpeedY`, `faraday-induction` `coilRadius`/`initialZ`, `quantum-tunneling`
+ * One sandbox carries engine initial conditions that have no slider at all (`quantum-tunneling`
  * `barrierPosition`/`initialX`). They are not conditions the learner set, and the journal refuses any
  * parameter its schema does not declare — so the snapshot is restricted to the declared parameters
  * rather than a save failing over a value nobody on screen could have changed.

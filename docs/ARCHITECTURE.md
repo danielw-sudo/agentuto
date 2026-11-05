@@ -2,7 +2,7 @@
 **Version:** 0.10.0-waves-extension  
 **Scope:** Open-source, local-first interactive science sandbox covering AP/IB through undergraduate-level STEM topics  
 **Primary Tech Stack:** Vite + React + TypeScript + Tailwind CSS + Three.js / Canvas2D  
-**Knowledge Graph:** In-memory (`src/knowledge/`); SQLite (WASM / OPFS / Cloudflare D1) is planned, see §5  
+**Knowledge Graph:** In-memory (`src/knowledge/`), frozen (see §5)  
 **Optional AI Tutor:** Google Gemini API, bring-your-own-key (off unless the user adds a key); Antigravity IDE bridge for development  
 
 ---
@@ -215,40 +215,9 @@ to memory and the panel says the entries last only until the tab closes.
 
 Agentuto's concept graph is aligned with topics from **MIT OpenCourseWare 18.03 (Differential Equations)** and **8.02 (Electricity & Magnetism)**, connecting AP/IB-level concepts with the underlying mathematics. Labels describe topic alignment only; Agentuto is not affiliated with or endorsed by MIT.
 
-### SQLite Knowledge Graph Schema (Client-Side WASM / D1)
-> **Status:** planned. The shipped graph is in-memory (`src/knowledge/KnowledgeGraphClient.ts` seeded from `seedData.ts`); the schema below is the target design.
+### Frozen: the knowledge graph, tutor and playlist
 
-```sql
-CREATE TABLE IF NOT EXISTS concepts (
-    id TEXT PRIMARY KEY,
-    title TEXT NOT NULL,
-    discipline TEXT NOT NULL,
-    level TEXT NOT NULL,
-    summary_markdown TEXT NOT NULL,
-    governing_ode TEXT
-);
-
-CREATE TABLE IF NOT EXISTS concept_relations (
-    source_concept_id TEXT NOT NULL,
-    target_concept_id TEXT NOT NULL,
-    relation_type TEXT NOT NULL, -- 'prerequisite' | 'generalization' | 'analogous_to'
-    explanation TEXT,
-    PRIMARY KEY (source_concept_id, target_concept_id, relation_type)
-);
-
-CREATE TABLE IF NOT EXISTS sandboxes (
-    id TEXT PRIMARY KEY,
-    concept_id TEXT NOT NULL,
-    title TEXT NOT NULL,
-    engine_type TEXT NOT NULL, -- '2D_CANVAS' | '3D_THREE'
-    engine_module_path TEXT NOT NULL,
-    default_parameters JSON NOT NULL,
-    telemetry_schema JSON NOT NULL,
-    FOREIGN KEY (concept_id) REFERENCES concepts(id)
-);
-```
-
----
+By the owner's decision (2026-11-04) the concept graph (in-memory, `src/knowledge/`), the optional Socratic tutor and the playlist generator keep working and nothing new is added to them. A database-backed graph (SQLite, WASM, D1) and a native Tauri build are no longer planned.
 
 ## 6. Zero-Friction Deployment & Gemini AI Integration
 
@@ -257,7 +226,6 @@ CREATE TABLE IF NOT EXISTS sandboxes (
 * **GitHub Pages (configured):** `.github/workflows/pages.yml` builds `dist/` and publishes it once Repository → Settings → Pages → Source is set to **GitHub Actions**. The build runs with `VITE_BASE=/agentuto/` because a project page lives at a sub-path; every absolute URL in the shell (`index.html`, service-worker scope, manifest `start_url`) is base-aware so the same source also works at a domain root.
 * **PWA:** The service worker and manifest let an installed build run offline. The worker derives its cache list from its own scope, so it works at `/` and at `/agentuto/`.
 * **Other static hosts (configured, not deployed):** `vercel.json` and `public/_headers` support Vercel or Cloudflare Pages; all computation runs client-side.
-* **Optional Tauri Binary (planned):** Native desktop installer (`.exe` / `.dmg`).
 
 ### 6.2 Dual-Bridge Google Gemini Agent (optional)
 * **In-App Socratic Tutor:** Off unless the user adds their own key (stored only in `localStorage`). When used, the WebUI sends active parameters and telemetry extrema to the provider in the system prompt, guiding the learner Socratically. Use is governed by the provider's terms (see README "AI Features & Disclaimer").
@@ -353,7 +321,7 @@ agentuto/
 └── src/
     ├── app/                         # App shell, routing, HUD layout
     ├── core/                        # Headless math, integrators (RK4), telemetry recorder, CSV exporter, inquiry log
-    ├── knowledge/                   # SQLite WASM client & MIT 18.03/8.02 seed graph
+    ├── knowledge/                   # in-memory concept graph & MIT 18.03/8.02 seed graph
     ├── ai/                          # Gemini client, Socratic prompts, playlist schema
     ├── simulations/                 # 3-file sandboxes (Engine, Renderer, Config)
     ├── ui/                          # Glassmorphic panels, sliders, sparklines, time scrubbers

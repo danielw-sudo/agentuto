@@ -69,21 +69,23 @@ const CASES: Record<string, Case> = {
   // q/m = 3 (µC per mg is 1 in SI), B = 3 T, so ω = 9 rad/s; E×B drift = E/B = 2 m/s along +x.
   // Velocity relative to the drift rotates at ω: v = v_d + (v0 − v_d)(cos ωt, −sin ωt).
   async 'lorentz-force'(r) {
-    const q = 1.5e-6, m = 0.5e-6, B = 3, E = 6, v0 = 8;
+    const q = 1.5e-6, m = 0.5e-6, B = 3, E = 6, v0 = 8, v0y = 3;
     const w = (q / m) * B;
     const drift = E / B;
     const t = 2;
-    const { t: s } = await run('lorentz-force', { charge: 1.5, mass: 0.5, magneticFieldZ: B, electricFieldY: E, initialSpeedX: v0 }, t);
+    const { t: s } = await run('lorentz-force', { charge: 1.5, mass: 0.5, magneticFieldZ: B, electricFieldY: E, initialSpeedX: v0, initialSpeedY: v0y }, t);
+    // Relative to the drift the velocity rotates: u(t) = (u0x cos wt + u0y sin wt, −u0x sin wt + u0y cos wt).
     const u0 = v0 - drift;
-    r.near('vx', s.vx, drift + u0 * Math.cos(w * t), 1e-6, 1e-8);
-    r.near('vy', s.vy, -u0 * Math.sin(w * t), 1e-6, 1e-8);
-    r.near('x', s.x, drift * t + (u0 / w) * Math.sin(w * t), 1e-6, 1e-8);
-    r.near('y', s.y, (u0 / w) * (Math.cos(w * t) - 1), 1e-5, 1e-8); // RK4 at 200 Hz over 18 rad of phase
+    const c = Math.cos(w * t), sn = Math.sin(w * t);
+    r.near('vx', s.vx, drift + u0 * c + v0y * sn, 1e-5, 1e-8);
+    r.near('vy', s.vy, -u0 * sn + v0y * c, 1e-5, 1e-8);
+    r.near('x', s.x, drift * t + (u0 * sn + v0y * (1 - c)) / w, 1e-6, 1e-8);
+    r.near('y', s.y, (u0 * (c - 1) + v0y * sn) / w, 1e-5, 1e-8); // RK4 at 200 Hz over 18 rad of phase
     // Kinetic energy is ½ m v² with m in kilograms; the channel is read in whatever unit the manifest declares for it.
     const unit = SIMULATION_CATALOG['lorentz-force'].telemetryUnits.kinetic_energy;
     const perJoule: Record<string, number> = { J: 1, 'mJ': 1e3, 'µJ': 1e6 };
     if (!(unit in perJoule)) r.fail('kinetic_energy is declared in ' + unit + ', which this check cannot convert');
-    const speed2 = (drift + u0 * Math.cos(w * t)) ** 2 + (u0 * Math.sin(w * t)) ** 2;
+    const speed2 = (drift + u0 * c + v0y * sn) ** 2 + (-u0 * sn + v0y * c) ** 2;
     r.near('kinetic_energy (' + unit + ')', s.kinetic_energy, 0.5 * m * speed2 * (perJoule[unit] ?? 1), 1e-5);
   },
 
@@ -141,9 +143,8 @@ const CASES: Record<string, Case> = {
   // parameter set (it is a parameter, not a formula).
   async 'faraday-induction'(r) {
     const m = 11, N = 150, Rc = 4;
-    const ov = { magnetMoment: m, turns: N, coilResistance: Rc };
-    const registration = SIMULATION_CATALOG['faraday-induction'];
-    const R = (registration.defaultParams as any).coilRadius as number;
+    const R = 0.9; // the coil-radius slider, not the default
+    const ov = { magnetMoment: m, turns: N, coilResistance: Rc, coilRadius: R };
     for (const seconds of [0.5, 1.3, 2.7]) {
       const { t: s } = await run('faraday-induction', ov, seconds);
       const flux = (N * MU_EFFECTIVE * m * R * R) / (2 * Math.pow(R * R + s.z * s.z, 1.5));

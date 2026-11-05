@@ -88,8 +88,8 @@ each sandbox's `*Config.ts`.
   step with delta-time clamping.
 - **Procedural graphics.** Meshes and fields are generated from primitives; no 3D asset downloads.
 - **Telemetry.** Ring buffer → sparklines → RFC-4180 CSV, with units carried from the config.
-- **Knowledge graph and playlists.** Concept graph with prerequisite and analogy edges (in-memory today;
-  SQLite is planned) feeding a structured JSON study roadmap.
+- **Knowledge graph and playlists.** Concept graph with prerequisite and analogy edges (in-memory; frozen: it keeps
+  working and nothing new is added) feeding a structured JSON study roadmap.
 - **Optional AI.** Client-side Gemini REST calls with your key in `localStorage`; nothing routes through a
   server of ours.
 
