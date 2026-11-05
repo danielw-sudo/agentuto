@@ -24,6 +24,11 @@ export interface QuantumState extends SimulationState {
   barrierHeight: number;
   barrierWidth: number;
   waveNumber: number;     // k0 = sqrt(2*m*E)
+  /**
+   * True once T can be read: the packet has reached the barrier and left it, and neither the reflected nor the
+   * transmitted part has reached the edge of the box (where it would bounce back and corrupt T and R).
+   */
+  settled: boolean;
 }
 
 // In normalized atomic units: hbar = 1, m = 1
@@ -38,9 +43,9 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
   };
 
   private time: number = 0;
-  private readonly numGridPoints: number = 240;
-  private readonly xMin: number = -10.0;
-  private readonly xMax: number = 10.0;
+  private readonly numGridPoints: number = 360;
+  private readonly xMin: number = -15.0;
+  private readonly xMax: number = 15.0;
   private dx: number = 0;
 
   private gridX: number[] = [];
@@ -117,14 +122,17 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
     const halfW = barrierWidth * 0.5;
     const x0 = barrierPosition;
 
+    // Each grid value is the potential averaged over its cell, so a cell the barrier edge cuts through carries that
+    // fraction of V0. The barrier then has the width the learner set, not that width rounded to whole cells (a
+    // top-hat sampled at points moves in steps of two cells, 0.167, and would draw two neighbouring widths alike).
+    const left = x0 - halfW;
+    const right = x0 + halfW;
+    const half = this.dx / 2;
     this.potential = new Array(this.numGridPoints);
     for (let i = 0; i < this.numGridPoints; i++) {
       const x = this.gridX[i];
-      if (x >= x0 - halfW && x <= x0 + halfW) {
-        this.potential[i] = barrierHeight;
-      } else {
-        this.potential[i] = 0;
-      }
+      const overlap = Math.max(0, Math.min(x + half, right) - Math.max(x - half, left));
+      this.potential[i] = barrierHeight * Math.min(1, overlap / this.dx);
     }
   }
 
@@ -296,6 +304,17 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
 
     const k0 = Math.sqrt(2 * Math.max(0.1, this.params.particleEnergy));
 
+    // Settled: the packet's centre has had time to reach the barrier and its leading and trailing edges to clear it,
+    // and almost no probability is inside the barrier or in the outer strips of the box.
+    const arrival = (barrierPosition - this.params.initialX) / k0;
+    const cleared = this.time > arrival + (barrierWidth + 4 * this.params.packetSigma) / k0;
+    const edge = 1.0;
+    let nearWall = 0;
+    for (let i = 0; i < n; i++) {
+      if (Math.abs(this.gridX[i]) > this.xMax - edge) nearWall += prob[i] * this.dx;
+    }
+    const settled = cleared && inside < 3e-3 && nearWall < 3e-3;
+
     return {
       time: this.time,
       gridX: [...this.gridX],
@@ -311,6 +330,7 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
       barrierHeight: this.params.barrierHeight,
       barrierWidth: this.params.barrierWidth,
       waveNumber: k0,
+      settled,
     };
   }
 

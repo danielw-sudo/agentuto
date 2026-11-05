@@ -179,42 +179,93 @@ const CASES: Record<string, Case> = {
   // Reduced units, as the engine states them: ħ = m = 1, so k = √(2E). A packet is a Gaussian spread of
   // wave numbers, |φ(k)|² centred on k0 with standard deviation 1/(2σ); each k is transmitted by the textbook
   // rectangular-barrier coefficient T(k) = 1 / (1 + V0² sinh²(κd) / (4E(V0−E))), κ = √(2(V0−E)), and the
-  // packet's transmission is their weighted sum (waves above the barrier use sin in place of sinh). The grid
-  // is 240 points across 20 length units, so the barrier is drawn as an even number of 0.0837-unit cells (no grid point
-  // at x = 0, so its width is rounded to steps of 0.167, and T changes by e^{−2κ·Δd}), and the packet is only roughly Gaussian near the barrier, so this is held to 8 % of T.
+  // packet's transmission is their weighted sum (waves above the barrier use sin in place of sinh). T is read when the
+  // engine says it is settled (the packet has cleared the barrier and nothing has reached the edge of the box). The
+  // barrier is averaged over grid cells, so its area is exactly V0·d and its width is the one set. What is left, about
+  // 5 % at worst here, is the packet being only roughly Gaussian and the scheme's dispersion; so this is held to 6 %.
   async 'quantum-tunneling'(r) {
-    const dx = 20 / 239;
-    const cells = (width: number): number => {
-      let n = 0;
-      for (let i = 0; i < 240; i += 1) if (Math.abs(-10 + i * dx) <= width / 2) n += 1;
-      return n * dx;
+    const transmission = (k: number, V0: number, d: number): number => {
+      const energy = (k * k) / 2;
+      if (Math.abs(energy - V0) < 1e-9) return 1 / (1 + (V0 * d * d) / 2);
+      if (energy < V0) {
+        const kappa = Math.sqrt(2 * (V0 - energy));
+        return 1 / (1 + (V0 * V0 * Math.sinh(kappa * d) ** 2) / (4 * energy * (V0 - energy)));
+      }
+      const q = Math.sqrt(2 * (energy - V0));
+      return 1 / (1 + (V0 * V0 * Math.sin(q * d) ** 2) / (4 * energy * (energy - V0)));
     };
-    for (const [E, V0, dSet, sigma] of [[5, 8, 1, 0.9], [3, 9, 0.8, 1.2]] as const) {
-      const d = cells(dSet);
-      const { t: s } = await run('quantum-tunneling', { particleEnergy: E, barrierHeight: V0, barrierWidth: dSet, packetSigma: sigma }, 4.5);
+    const packet = (E: number, V0: number, d: number, sigma: number): number => {
       const k0 = Math.sqrt(2 * E);
       const sk = 1 / (2 * sigma);
-      const transmission = (k: number): number => {
-        const energy = (k * k) / 2;
-        if (Math.abs(energy - V0) < 1e-9) return 1 / (1 + (V0 * d * d) / 2);
-        if (energy < V0) {
-          const kappa = Math.sqrt(2 * (V0 - energy));
-          return 1 / (1 + (V0 * V0 * Math.sinh(kappa * d) ** 2) / (4 * energy * (V0 - energy)));
-        }
-        const q = Math.sqrt(2 * (energy - V0));
-        return 1 / (1 + (V0 * V0 * Math.sin(q * d) ** 2) / (4 * energy * (energy - V0)));
-      };
       let weight = 0;
       let sum = 0;
       for (let k = Math.max(0.05, k0 - 6 * sk); k <= k0 + 6 * sk; k += sk / 400) {
         const w = Math.exp(-((k - k0) ** 2) / (2 * sk * sk));
         weight += w;
-        sum += w * transmission(k);
+        sum += w * transmission(k, V0, d);
       }
-      r.near(`T for E=${E}, V0=${V0}, d=${dSet} (grid width ${d.toFixed(3)}), σ=${sigma}`, s.transmission_T, sum / weight, 0.08);
+      return sum / weight;
+    };
+    /** Runs until the engine reports T as readable, and returns that reading (or fails). */
+    const settledReading = async (overrides: Record<string, number>): Promise<{ s: Channels; state: any } | null> => {
+      const registration = SIMULATION_CATALOG['quantum-tunneling'];
+      const engine: any = (await registration.load()).createEngine();
+      engine.init({ ...registration.defaultParams, ...overrides });
+      for (let i = 0; i < 4000; i += 1) {
+        engine.step(DT);
+        const state = engine.getState();
+        if (state.settled) return { s: engine.getTelemetrySnapshot() as Channels, state };
+      }
+      return null;
+    };
+
+    for (const [E, V0, d, sigma] of [[5, 8, 1, 0.9], [3, 9, 0.8, 1.2]] as const) {
+      const got = await settledReading({ particleEnergy: E, barrierHeight: V0, barrierWidth: d, packetSigma: sigma });
+      if (!got) {
+        r.fail(`T never became readable (settled) for E=${E}, V0=${V0}, d=${d}, σ=${sigma}`);
+        continue;
+      }
+      const { s } = got;
+      r.near(`T for E=${E}, V0=${V0}, d=${d}, σ=${sigma}`, s.transmission_T, packet(E, V0, d, sigma), 0.06);
       r.near('probability is conserved: T + R + barrier', s.transmission_T + s.reflection_R + s.barrier_prob, 1, 1e-3);
       r.near('norm', s.norm, 1, 1e-3);
-      r.near('k0 = √(2E)', s.wave_number, k0, 1e-12);
+      r.near('k0 = √(2E)', s.wave_number, Math.sqrt(2 * E), 1e-12);
+    }
+
+    // "Settled" means readable: on every step where the engine says so, T is the packet's value, including for wide and
+    // fast packets that reach the edge of the box (where it must stay false rather than report a corrupted T).
+    for (const [E, V0, d, sigma] of [[10, 12, 0.6, 2.0], [10, 12, 0.6, 0.9], [8, 10, 1.5, 0.6]] as const) {
+      const registration = SIMULATION_CATALOG['quantum-tunneling'];
+      const engine: any = (await registration.load()).createEngine();
+      engine.init({ ...registration.defaultParams, particleEnergy: E, barrierHeight: V0, barrierWidth: d, packetSigma: sigma });
+      const exact = packet(E, V0, d, sigma);
+      let worst = 0;
+      let readings = 0;
+      for (let i = 0; i < 3000; i += 1) {
+        engine.step(DT);
+        const state = engine.getState();
+        if (!state.settled) continue;
+        readings += 1;
+        worst = Math.max(worst, Math.abs(state.transmission - exact) / exact);
+      }
+      if (worst > 0.12) r.fail(`E=${E}, d=${d}, σ=${sigma}: T was reported settled while ${(worst * 100).toFixed(0)} % away from the packet value (${readings} settled steps)`);
+    }
+
+    // The width the learner sets is the width drawn: the barrier's area is V0·d exactly, for widths that fall inside a
+    // cell and widths that do not, and T falls steadily as the slider moves (no staircase).
+    const V0 = 8;
+    const readings: number[] = [];
+    for (const d of [0.7, 0.8, 0.9, 1.0, 1.1, 1.2]) {
+      const { state } = await run('quantum-tunneling', { barrierHeight: V0, barrierWidth: d }, 0);
+      const dx = state.gridX[1] - state.gridX[0];
+      const area = state.potential.reduce((a: number, v: number) => a + v, 0) * dx;
+      r.near(`barrier area for d=${d}`, area, V0 * d, 1e-9);
+      const got = await settledReading({ barrierHeight: V0, barrierWidth: d });
+      if (got) readings.push(got.s.transmission_T);
+      else r.fail(`T never became readable for d=${d}`);
+    }
+    for (let i = 1; i < readings.length; i += 1) {
+      if (!(readings[i] < readings[i - 1] * 0.95)) r.fail(`T did not fall by at least 5 % between neighbouring widths (${readings[i - 1]} then ${readings[i]}): a staircase`);
     }
   },
 

@@ -270,6 +270,9 @@ const CardBody: React.FC<LiveTelemetryCardProps> = React.memo(({ sandboxId, stat
           <div className="flex flex-col bg-sunken p-1.5 rounded border border-line">
             <span className="text-xs text-muted">Transmission T</span>
             <span className="text-cyan-300 font-semibold">{tPercent.toFixed(1)}%</span>
+            <span data-settled={state.settled ? 'true' : 'false'} className="text-xs text-muted">
+              {state.settled ? 'settled: ready to read' : 'still moving: not final'}
+            </span>
           </div>
 
           <div className="flex flex-col bg-sunken p-1.5 rounded border border-line">
