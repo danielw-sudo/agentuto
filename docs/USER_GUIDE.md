@@ -165,7 +165,7 @@ The speaker button in the log's header turns on a soft two-note chime for each n
   * **Molecular Mass Separation:** Compare light vs. heavy gases.
 
 ### 6. Quantum Wave Mechanics & Barrier Tunneling (`quantum-tunneling` — MIT 8.04)
-* **Units:** reduced units with $hbar = m = 1$, so energy, length and wave number are one consistent scaled set, not eV and nm (a real electron at 5 eV has $k = 11.5 mathrm{nm}^{-1}$; here $k=sqrt{2E}$). Compare shapes and ratios, not absolute values. The barrier is drawn on a grid, so its width moves in small steps.
+* **Units:** reduced units with $hbar = m = 1$, so energy, length and wave number are one consistent scaled set, not eV and nm (a real electron at 5 eV has $k = 11.5 mathrm{nm}^{-1}$; here $k=sqrt{2E}$). Compare shapes and ratios, not absolute values. Read T only when the card says *settled*: before that the packet is still arriving or leaving the barrier.
 * **Physical Concept:** 1D Time-Dependent Schrödinger Equation:
   $$i\hbar \frac{\partial \psi}{\partial t} = -\frac{\hbar^2}{2m} \frac{\partial^2 \psi}{\partial x^2} + V(x)\psi$$
 * **What to Explore:**

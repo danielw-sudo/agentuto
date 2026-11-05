@@ -138,6 +138,11 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
       const note = await page.$eval('[data-units-note]', (el) => el.textContent ?? '').catch(() => '');
       if (note !== sim.unitsNote) problems.push(`the units note reads "${note.slice(0, 80)}", expected the manifest's`);
     }
+    // The tunnelling card says whether T can be read yet.
+    if (id === 'quantum-tunneling') {
+      const marker = await page.$eval('[data-settled]', (el) => el.getAttribute('data-settled')).catch(() => null);
+      if (marker !== 'true' && marker !== 'false') problems.push('the tunnelling card has no settled marker for T');
+    }
     // Feedback from inside the instrument opens a bug report already titled with the instrument's id.
     const feedback = await page.$eval('a[data-community="feedback"]', (el) => (el as HTMLAnchorElement).href).catch(() => '');
     const wantFeedback = `https://github.com/danielw-sudo/agentuto/issues/new?template=bug_report.md&title=${encodeURIComponent(`[${id}] `)}`;

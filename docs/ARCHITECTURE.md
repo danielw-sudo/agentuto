@@ -245,7 +245,7 @@ Measured after the UI clean-up (2026-11-01), whole `dist/`, in the units the scr
 |---|---|---|
 | First load (entry, React, CSS) | 106.2 kB gzip | 107.4 kB |
 | Largest single chunk (three.js) | 121.3 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 357.2 kB | 366.2 kB |
+| Total gzip (level 9) | 357.4 kB | 366.2 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
@@ -285,6 +285,10 @@ Every outward link comes from `src/community.ts`: Discussions (and new discussio
 ### 6.6c Scaled and reduced units
 
 Three instruments run in scaled units, and the app says so (owner decision 2026-11-04, ROADMAP §4 item 6). Faraday uses an effective permeability of 1×10⁻³ T·m/A in place of 4π×10⁻⁷, so its electrical channels are labelled `scaled V`, `scaled A`, `scaled Wb`, `scaled N` and `scaled W` while its mechanical ones keep their SI units. The tunnelling instrument (ħ = m = 1) and the gas (k_B = 1) label every slider and channel `reduced`. Each manifest carries a one-sentence `unitsNote` that the telemetry card shows beneath itself (`data-units-note`), and the user guide repeats it. `src/core/test/units.test.ts` holds the labels to the conventions (a scaled number never carries a plain SI unit, and no other instrument uses the words); the closed-form cases hold the engines to the conventions; the smoke test checks the note on all three screens. Real constants were considered and not chosen: they would change how fast things happen and what the sliders mean.
+
+### 6.6d Tunnelling read-out
+
+The tunnelling engine (ħ = m = 1, Crank-Nicolson on a grid) was changed on 2026-11-04 (ROADMAP §4 item 7). The barrier potential is averaged over each grid cell, so its area is exactly V₀·d and its width is the one set, with no staircase (a top-hat sampled at points moves in steps of two cells). The box is ±15 with 360 points, the same cell as before, so a packet can clear the barrier before anything reaches the edge. The state carries `settled`, true once the packet has arrived and cleared and almost no probability is in the barrier or the outer strips; the card says "settled: ready to read" or "still moving: not final". A closed-form case compares T, when settled, with the packet-averaged rectangular-barrier coefficient (within 6 %; measured 0.3 to 4.7 % in the cases it uses), checks the barrier area, checks that T falls steadily with the width slider, and checks that whenever `settled` is true T is the packet value, including for wide and fast packets. Some cases never settle (a very wide packet that fills the box, or an above-barrier resonance that decays slowly): the card then stays on "not final". A narrow, fast packet can read about 9 % low even when settled.
 
 ### 6.7 Private modules
 
