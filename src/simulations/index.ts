@@ -35,9 +35,9 @@ const TELEMETRY_UNITS = {
   'lorentz-force': { x: 'm', y: 'm', z: 'm', vx: 'm/s', vy: 'm/s', vz: 'm/s', speed: 'm/s', kinetic_energy: 'µJ', B_z: 'T', E_y: 'V/m' },
   'harmonic-oscillator': { x: 'm', v: 'm/s', accel: 'm/s²', driving_force: 'N', kinetic_energy: 'J', potential_energy: 'J', total_energy: 'J', damping_b: 'N·s/m', spring_k: 'N/m' },
   'lorenz-attractor': { x1: 'dimensionless', y1: 'dimensionless', z1: 'dimensionless', x2: 'dimensionless', y2: 'dimensionless', z2: 'dimensionless', divergence: 'dimensionless', sigma: 'dimensionless', rho: 'dimensionless', beta: 'dimensionless' },
-  'faraday-induction': { z: 'm', vz: 'm/s', emf: 'V', current: 'A', flux: 'Wb', lenz_force: 'N', mechanical_energy: 'J', dissipated_power: 'W' },
-  'maxwell-boltzmann': { temperature: 'K', volume: 'm³', piston_x: 'm', empirical_pressure: 'Pa', ideal_pressure: 'Pa', v_rms: 'm/s', v_avg: 'm/s', kinetic_energy: 'J' },
-  'quantum-tunneling': { transmission_T: 'dimensionless', reflection_R: 'dimensionless', barrier_prob: 'dimensionless', norm: 'dimensionless', energy_E: 'eV', barrier_V0: 'eV', barrier_width: 'nm', wave_number: '1/nm' },
+  'faraday-induction': { z: 'm', vz: 'm/s', emf: 'scaled V', current: 'scaled A', flux: 'scaled Wb', lenz_force: 'scaled N', mechanical_energy: 'J', dissipated_power: 'scaled W' },
+  'maxwell-boltzmann': { temperature: 'reduced', volume: 'reduced', piston_x: 'reduced', empirical_pressure: 'reduced', ideal_pressure: 'reduced', v_rms: 'reduced', v_avg: 'reduced', kinetic_energy: 'reduced' },
+  'quantum-tunneling': { transmission_T: 'dimensionless', reflection_R: 'dimensionless', barrier_prob: 'dimensionless', norm: 'dimensionless', energy_E: 'reduced', barrier_V0: 'reduced', barrier_width: 'reduced', wave_number: 'reduced' },
   'wave-optics': { wavelength_nm: 'nm', slit_separation_um: 'µm', slit_width_um: 'µm', slit_count: 'dimensionless', screen_distance_m: 'm', fringe_spacing_mm: 'mm', envelope_width_mm: 'mm' },
   'kepler-orbits': { x: 'AU', y: 'AU', z: 'AU', vx: 'AU/yr', vy: 'AU/yr', vz: 'AU/yr', r: 'AU', speed: 'AU/yr', angular_momentum: 'AU²/yr', specific_energy: 'AU²/yr²', semi_major_axis: 'AU', eccentricity: 'dimensionless', orbital_period: 'yr', measured_period: 'yr' },
   'projectile-drag': { x: 'm', y: 'm', vx: 'm/s', vy: 'm/s', speed: 'm/s', accel_x: 'm/s²', accel_y: 'm/s²', drag_force: 'N', kinetic_energy: 'J', potential_energy: 'J', total_energy: 'J', range: 'm', max_altitude: 'm' },
@@ -88,6 +88,8 @@ export interface SimulationRegistration<TParams = any, TState extends Simulation
   paramDescriptors: ParameterDescriptor<number>[];
   /** Unit of every numeric telemetry channel this sandbox emits; checked against the engine. */
   telemetryUnits: Record<string, string>;
+  /** For an instrument in scaled or reduced units: one plain sentence saying so, shown under its telemetry card. */
+  unitsNote?: string;
   /** True for a private module read from `local/`: never reviewed, shown as such, never part of the public build. */
   local?: boolean;
   /** Optional worked result for `npm run check:module`; see {@link ModuleBenchmark}. */

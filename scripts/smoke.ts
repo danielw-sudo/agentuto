@@ -133,6 +133,11 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
     }
     const title = await page.evaluate(() => document.querySelector('main h1')?.textContent ?? '');
     if (title && title !== sim.title) problems.push(`the heading says "${title}", expected "${sim.title}"`);
+    // An instrument in scaled or reduced units says so under its telemetry card, in the manifest's own words.
+    if (sim.unitsNote && !(sim.mode === '3D' && !webgl)) {
+      const note = await page.$eval('[data-units-note]', (el) => el.textContent ?? '').catch(() => '');
+      if (note !== sim.unitsNote) problems.push(`the units note reads "${note.slice(0, 80)}", expected the manifest's`);
+    }
     // Feedback from inside the instrument opens a bug report already titled with the instrument's id.
     const feedback = await page.$eval('a[data-community="feedback"]', (el) => (el as HTMLAnchorElement).href).catch(() => '');
     const wantFeedback = `https://github.com/danielw-sudo/agentuto/issues/new?template=bug_report.md&title=${encodeURIComponent(`[${id}] `)}`;

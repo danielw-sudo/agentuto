@@ -168,7 +168,7 @@ conditions that have no slider, and deriving the CSV units line from the manifes
 4. Whether Pages deploys from `main` or from tags (R3).
 5. ~~Whether to freeze the AI tutor and playlist agent and drop the SQLite and Tauri plans~~: decided 2026-11-04. Frozen
    (keep working, add nothing); the SQLite and Tauri plans are removed from the docs.
-6. Three instruments run in scaled units that a learner is not told about, and their labels read as SI. Faraday uses an
+6. **Decided 2026-11-04: disclose and relabel, keep the engines.** Done: manifest `unitsNote` shown under each card, units relabelled `reduced` or `scaled`, user guide updated, tested (ARCHITECTURE §6.6c). Real constants stay an option for tunnelling later, with a faculty review. The finding behind it: three instruments run in scaled units that a learner is not told about, and their labels read as SI. Faraday uses an
    effective permeability of 1e-3 T·m/A where the real value is 4π×10⁻⁷, so flux and EMF are about 800 times the real
    ones and the braking force, which goes as μ², about 6.3 × 10⁵ times (the engine says so in a code comment only). With
    the real μ0 the coil would take about 1.5 × 10⁻⁴ % of the energy in 10 s instead of 92.5 %, so the braking would vanish.

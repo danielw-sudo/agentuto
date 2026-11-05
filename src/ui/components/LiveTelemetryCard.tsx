@@ -34,7 +34,7 @@ export interface LiveTelemetryCardProps {
   state: any;
 }
 
-export const LiveTelemetryCard: React.FC<LiveTelemetryCardProps> = React.memo(({ sandboxId, state }) => {
+const CardBody: React.FC<LiveTelemetryCardProps> = React.memo(({ sandboxId, state }) => {
   const [history, setHistory] = useState<number[]>([]);
 
   useEffect(() => {
@@ -172,19 +172,19 @@ export const LiveTelemetryCard: React.FC<LiveTelemetryCardProps> = React.memo(({
 
           <div className="flex flex-col bg-sunken p-1.5 rounded border border-line">
             <span className="text-xs text-muted">Induced EMF</span>
-            <span className="text-sky-300 font-semibold">{emf.toFixed(3)} V</span>
+            <span className="text-sky-300 font-semibold">{emf.toFixed(3)} V (scaled)</span>
           </div>
 
           <div className="flex flex-col bg-sunken p-1.5 rounded border border-line">
             <span className="text-xs text-muted">Induced I</span>
             <span className={`font-semibold ${current >= 0 ? 'text-cyan-300' : 'text-amber-300'}`}>
-              {current.toFixed(3)} A
+              {current.toFixed(3)} A (scaled)
             </span>
           </div>
 
           <div className="flex flex-col bg-sunken p-1.5 rounded border border-line">
             <span className="text-xs text-muted">Lenz Braking</span>
-            <span className="text-rose-400 font-semibold">{lenzF.toFixed(3)} N</span>
+            <span className="text-rose-400 font-semibold">{lenzF.toFixed(3)} N (scaled)</span>
           </div>
         </div>
 
@@ -193,12 +193,12 @@ export const LiveTelemetryCard: React.FC<LiveTelemetryCardProps> = React.memo(({
           data={history}
           color="#f59e0b"
           label="Induced EMF ℰ(t)"
-          unit="V"
+          unit="V, scaled"
         />
 
         <div className="flex justify-between items-center pt-1 border-t border-line text-xs font-mono text-muted">
           <span>Ohmic Loss (I²R):</span>
-          <span className="text-amber-300 font-semibold">{power.toFixed(3)} W</span>
+          <span className="text-amber-300 font-semibold">{power.toFixed(3)} W (scaled)</span>
         </div>
       </GlassPanel>
     );
@@ -219,22 +219,22 @@ export const LiveTelemetryCard: React.FC<LiveTelemetryCardProps> = React.memo(({
         <div className="grid grid-cols-2 gap-2 text-xs font-mono">
           <div className="flex flex-col bg-sunken p-1.5 rounded border border-line">
             <span className="text-xs text-muted">Temperature</span>
-            <span className="text-amber-300 font-semibold">{state.temperature?.toFixed(0) ?? 300} K</span>
+            <span className="text-amber-300 font-semibold">{state.temperature?.toFixed(0) ?? 300}</span>
           </div>
 
           <div className="flex flex-col bg-sunken p-1.5 rounded border border-line">
             <span className="text-xs text-muted">Volume / Area</span>
-            <span className="text-ink font-semibold">{area.toFixed(1)} m²</span>
+            <span className="text-ink font-semibold">{area.toFixed(1)}</span>
           </div>
 
           <div className="flex flex-col bg-sunken p-1.5 rounded border border-line">
             <span className="text-xs text-muted">Empirical P</span>
-            <span className="text-emerald-300 font-semibold">{pEmp.toFixed(1)} Pa</span>
+            <span className="text-emerald-300 font-semibold">{pEmp.toFixed(1)}</span>
           </div>
 
           <div className="flex flex-col bg-sunken p-1.5 rounded border border-line">
             <span className="text-xs text-muted">Ideal Gas P</span>
-            <span className="text-sky-300 font-semibold">{pIdeal.toFixed(1)} Pa</span>
+            <span className="text-sky-300 font-semibold">{pIdeal.toFixed(1)}</span>
           </div>
         </div>
 
@@ -243,12 +243,12 @@ export const LiveTelemetryCard: React.FC<LiveTelemetryCardProps> = React.memo(({
           data={history}
           color="#10b981"
           label="Wall Pressure P(t)"
-          unit="Pa"
+          unit="reduced"
         />
 
         <div className="flex justify-between items-center pt-1 border-t border-line text-xs font-mono text-muted">
           <span>RMS Speed v_rms:</span>
-          <span className="text-accent font-semibold">{state.vRms?.toFixed(1) ?? 0} m/s</span>
+          <span className="text-accent font-semibold">{state.vRms?.toFixed(1) ?? 0}</span>
         </div>
       </GlassPanel>
     );
@@ -1129,3 +1129,18 @@ export const LiveTelemetryCard: React.FC<LiveTelemetryCardProps> = React.memo(({
     </GlassPanel>
   );
 });
+
+/** The card for an instrument, plus the one-sentence note when it runs in scaled or reduced units (from its manifest). */
+export const LiveTelemetryCard: React.FC<LiveTelemetryCardProps> = ({ sandboxId, state }) => {
+  const note = SIMULATION_CATALOG[sandboxId]?.unitsNote;
+  return (
+    <div className="flex w-full flex-col gap-2">
+      <CardBody sandboxId={sandboxId} state={state} />
+      {state && note && (
+        <p data-units-note className="m-0 rounded-lg border border-line bg-sunken p-2.5 text-xs leading-relaxed text-muted">
+          {note}
+        </p>
+      )}
+    </div>
+  );
+};
