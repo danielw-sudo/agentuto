@@ -206,7 +206,7 @@ const CASES: Record<string, Case> = {
   // packet's transmission is their weighted sum (waves above the barrier use sin in place of sinh). T is read when the
   // engine says it is settled (the packet has cleared the barrier and nothing has reached the edge of the box). The
   // barrier is averaged over grid cells, so its area is exactly V0·d and its width is the one set. What is left, about
-  // 5 % at worst here, is the packet being only roughly Gaussian and the scheme's dispersion; so this is held to 6 %.
+  // 1.3 % at worst here on 719 points, is the scheme's dispersion, so this is held to 2 % (360 points reads 4.7 % low and fails).
   async 'quantum-tunneling'(r) {
     const transmission = (k: number, V0: number, d: number): number => {
       const energy = (k * k) / 2;
@@ -250,7 +250,7 @@ const CASES: Record<string, Case> = {
         continue;
       }
       const { s } = got;
-      r.near(`T for E=${E}, V0=${V0}, d=${d}, σ=${sigma}`, s.transmission_T, packet(E, V0, d, sigma), 0.06);
+      r.near(`T for E=${E}, V0=${V0}, d=${d}, σ=${sigma}`, s.transmission_T, packet(E, V0, d, sigma), 0.02);
       r.near('probability is conserved: T + R + barrier', s.transmission_T + s.reflection_R + s.barrier_prob, 1, 1e-3);
       r.near('norm', s.norm, 1, 1e-3);
       r.near('k0 = √(2E)', s.wave_number, Math.sqrt(2 * E), 1e-12);
@@ -274,7 +274,7 @@ const CASES: Record<string, Case> = {
         readings += 1;
         worst = Math.max(worst, Math.abs(state.transmission - exact) / exact);
       }
-      if (worst > 0.12) r.fail(`E=${E}, d=${d}, σ=${sigma}: T was reported settled while ${(worst * 100).toFixed(0)} % away from the packet value (${readings} settled steps)`);
+      if (worst > 0.03) r.fail(`E=${E}, d=${d}, σ=${sigma}: T was reported settled while ${(worst * 100).toFixed(0)} % away from the packet value (${readings} settled steps)`);
     }
 
     // The lab protocol, as a learner would run it: E = 3, V0 = 9, σ = 1.2, d from 0.5 to 1.5. Every width settles, ln T
@@ -313,7 +313,7 @@ const CASES: Record<string, Case> = {
       for (let i = 0; i < 2000 && !engine.getState().settled; i += 1) engine.step(DT);
       const after = engine.getState();
       if (!after.settled) r.fail(`T never became readable after ${JSON.stringify(change)}`);
-      r.near(`T after ${JSON.stringify(change)}`, after.transmission, packet(5, V0Now, dNow, 0.9), 0.06);
+      r.near(`T after ${JSON.stringify(change)}`, after.transmission, packet(5, V0Now, dNow, 0.9), 0.02);
     }
 
     // After a bounce the mark stays off for that run, and a reset gives the next run its own reading.

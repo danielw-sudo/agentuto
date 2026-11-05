@@ -49,7 +49,7 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
 
   private time: number = 0;
   private wallReached: boolean = false; // One-way within a run: after a bounce, T no longer means transmission
-  private readonly numGridPoints: number = 360;
+  private readonly numGridPoints: number = 719;
   private readonly xMin: number = -15.0;
   private readonly xMax: number = 15.0;
   private dx: number = 0;
