@@ -261,7 +261,7 @@ The speaker button in the log's header turns on a soft two-note chime for each n
 * **What to Explore:**
   * **The 63.2% Rule:** Monitor capacitor voltage $V_C(t)$ reaching exactly $V_0(1 - 1/e) \approx 63.2\%$ of supply voltage at $t = \tau$.
   * **50% Capacitive Energy Theorem:** Verify that during complete DC charging, exactly 50% of supplied energy is stored in the capacitor ($\frac{1}{2}CV^2$), and exactly 50% is dissipated as Ohmic heat in the resistor regardless of $R$.
-  * **RL Inductor Back-EMF:** Observe the initial voltage spike across the inductor ($V_L = V_0$) resisting current onset, followed by exponential decay as current climbs to $V_0/R$.
+  * **RL Inductor Back-EMF:** Observe the initial voltage spike across the inductor ($V_L = V_0$) resisting current onset, followed by exponential decay as current climbs to $V_0/R$. Choose $L = 500$ mH and $R = 10\ \Omega$ ($\tau = 50$ ms) to see it: the clock samples every 5 ms, so a much shorter $\tau$ is correct but settles between samples, and the defaults have $\tau = 1$ ms.
 
 ---
 

@@ -603,6 +603,26 @@ const CASES: Record<string, Case> = {
       r.near(`RC stored energy (mJ) at ${s.t.toFixed(2)} s`, s.stored_energy_mJ, 0.5 * C * vc * vc * 1e3, 4e-3, 1e-6);
       r.near(`RC heat (mJ) at ${s.t.toFixed(2)} s`, s.heat_dissipated_mJ, 0.5 * C * V * V * (1 - Math.exp(-2 * k)) * 1e3, 4e-3, 1e-6);
     }
+    // Fast circuits, where τ is far below the 5 ms step, as the sliders reach: the default RL circuit (τ = 1 ms), and the
+    // fastest of each (RC τ = 0.1 ms, RL τ = 10 µs). Across a whole run the source does work = stored energy + heat.
+    for (const [type, Rq, X, tauFast] of [[1, 100, 100, 1e-3], [0, 10, 10, 1e-4], [1, 1000, 10, 1e-5]] as const) {
+      const { t: s } = await run('rc-rl-circuits', { ...slow, circuitType: type, resistance: Rq, capacitance: X, inductance: X, sourceVoltage: V }, 0.25);
+      r.near(`τ (ms), type ${type}, R=${Rq}`, s.tau_ms, tauFast * 1e3, 1e-9);
+      if (type === 1) {
+        const settled = V / Rq;
+        r.near(`RL settled current (mA), R=${Rq}`, s.current_mA, settled * 1e3, 1e-9);
+        r.near(`RL settled v_L, R=${Rq}`, s.v_component, 0, 0, 1e-9);
+        r.near(`RL stored energy (mJ), R=${Rq}`, s.stored_energy_mJ, 0.5 * X * 1e-3 * settled * settled * 1e3, 1e-9);
+        // Heat closes the energy balance: V ∫ i dt = ½ L i² + heat, and ∫ i dt = (V/R)(t − τ) once settled.
+        r.near(`RL heat (mJ), R=${Rq}`, s.heat_dissipated_mJ, (V * settled * (s.t - tauFast) - 0.5 * X * 1e-3 * settled * settled) * 1e3, 1e-6);
+      } else {
+        r.near(`RC settled v_C, R=${Rq}`, s.v_component, V, 1e-9);
+        r.near(`RC settled current, R=${Rq}`, s.current_mA, 0, 0, 1e-6);
+        r.near(`RC stored energy (mJ), R=${Rq}`, s.stored_energy_mJ, 0.5 * X * 1e-6 * V * V * 1e3, 1e-9);
+        // A capacitor charged through R loses as much to heat as it stores, however fast.
+        r.near(`RC heat (mJ), R=${Rq}`, s.heat_dissipated_mJ, 0.5 * X * 1e-6 * V * V * 1e3, 1e-6);
+      }
+    }
     const Lh = 0.5, Rl = 25; // τ = 20 ms
     const tauL = Lh / Rl;
     for (const seconds of [0.01, 0.02, 0.05]) {
