@@ -29,7 +29,12 @@ export interface QuantumState extends SimulationState {
    * transmitted part has reached the edge of the box (where it would bounce back and corrupt T and R).
    */
   settled: boolean;
+  /** True from the moment any part of the packet reaches the edge of the box until the run is reset. */
+  wallReached: boolean;
 }
+
+const WALL_STRIP = 1.0;  // Width of the outer strips of the box
+const WALL_PROB = 3e-3;  // Probability in those strips that counts as having reached the wall
 
 // In normalized atomic units: hbar = 1, m = 1
 export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumState> {
@@ -43,6 +48,7 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
   };
 
   private time: number = 0;
+  private wallReached: boolean = false; // One-way within a run: after a bounce, T no longer means transmission
   private readonly numGridPoints: number = 360;
   private readonly xMin: number = -15.0;
   private readonly xMax: number = 15.0;
@@ -85,6 +91,7 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
       this.params = { ...params };
     }
     this.time = 0;
+    this.wallReached = false;
     this.buildPotential();
     this.buildInitialWavepacket();
   }
@@ -99,15 +106,22 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
     const prevE = this.params.particleEnergy;
     const prevInitialX = this.params.initialX;
     const prevSigma = this.params.packetSigma;
+    const prevHeight = this.params.barrierHeight;
+    const prevWidth = this.params.barrierWidth;
+    const prevPosition = this.params.barrierPosition;
     this.params = { ...this.params, ...params } as QuantumParams;
 
     this.buildPotential();
 
-    // If initial wavepacket parameters change significantly, re-initialize packet
+    // If the packet or the barrier changes significantly, start again: a T measured against the old barrier says
+    // nothing about the new one
     if (
       params.particleEnergy !== undefined && Math.abs(this.params.particleEnergy - prevE) > 1e-4 ||
       params.initialX !== undefined && Math.abs(this.params.initialX - prevInitialX) > 1e-4 ||
-      params.packetSigma !== undefined && Math.abs(this.params.packetSigma - prevSigma) > 1e-4
+      params.packetSigma !== undefined && Math.abs(this.params.packetSigma - prevSigma) > 1e-4 ||
+      params.barrierHeight !== undefined && Math.abs(this.params.barrierHeight - prevHeight) > 1e-4 ||
+      params.barrierWidth !== undefined && Math.abs(this.params.barrierWidth - prevWidth) > 1e-4 ||
+      params.barrierPosition !== undefined && Math.abs(this.params.barrierPosition - prevPosition) > 1e-4
     ) {
       this.reset();
     }
@@ -273,6 +287,17 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
     }
 
     this.time += dt;
+
+    // Checked on every step, not when the state is read, so a bounce between two reads cannot be missed
+    if (!this.wallReached) {
+      let nearWall = 0;
+      for (let j = 0; j < n; j++) {
+        if (Math.abs(this.gridX[j]) > this.xMax - WALL_STRIP) {
+          nearWall += (this.psiReal[j] * this.psiReal[j] + this.psiImag[j] * this.psiImag[j]) * dx;
+        }
+      }
+      if (nearWall >= WALL_PROB) this.wallReached = true;
+    }
   }
 
   getState(): QuantumState {
@@ -305,15 +330,10 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
     const k0 = Math.sqrt(2 * Math.max(0.1, this.params.particleEnergy));
 
     // Settled: the packet's centre has had time to reach the barrier and its leading and trailing edges to clear it,
-    // and almost no probability is inside the barrier or in the outer strips of the box.
+    // almost no probability is inside the barrier, and nothing has reached the outer strips of the box this run.
     const arrival = (barrierPosition - this.params.initialX) / k0;
     const cleared = this.time > arrival + (barrierWidth + 4 * this.params.packetSigma) / k0;
-    const edge = 1.0;
-    let nearWall = 0;
-    for (let i = 0; i < n; i++) {
-      if (Math.abs(this.gridX[i]) > this.xMax - edge) nearWall += prob[i] * this.dx;
-    }
-    const settled = cleared && inside < 3e-3 && nearWall < 3e-3;
+    const settled = cleared && inside < 3e-3 && !this.wallReached;
 
     return {
       time: this.time,
@@ -331,6 +351,7 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
       barrierWidth: this.params.barrierWidth,
       waveNumber: k0,
       settled,
+      wallReached: this.wallReached,
     };
   }
 

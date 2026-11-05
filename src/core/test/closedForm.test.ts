@@ -233,15 +233,17 @@ const CASES: Record<string, Case> = {
     }
 
     // "Settled" means readable: on every step where the engine says so, T is the packet's value, including for wide and
-    // fast packets that reach the edge of the box (where it must stay false rather than report a corrupted T).
-    for (const [E, V0, d, sigma] of [[10, 12, 0.6, 2.0], [10, 12, 0.6, 0.9], [8, 10, 1.5, 0.6]] as const) {
+    // fast packets that reach the edge of the box (where it must stay false rather than report a corrupted T). The
+    // clock has no stop, so these run for 90 s, long past every bounce; before the wall latch, the last two read about
+    // 150 and 770 times too high while marked settled.
+    for (const [E, V0, d, sigma] of [[10, 12, 0.6, 2.0], [10, 12, 0.6, 0.9], [8, 10, 1.5, 0.6], [12, 20, 1, 2.0], [2, 20, 1, 2.0]] as const) {
       const registration = SIMULATION_CATALOG['quantum-tunneling'];
       const engine: any = (await registration.load()).createEngine();
       engine.init({ ...registration.defaultParams, particleEnergy: E, barrierHeight: V0, barrierWidth: d, packetSigma: sigma });
       const exact = packet(E, V0, d, sigma);
       let worst = 0;
       let readings = 0;
-      for (let i = 0; i < 3000; i += 1) {
+      for (let i = 0; i < 18000; i += 1) {
         engine.step(DT);
         const state = engine.getState();
         if (!state.settled) continue;
@@ -249,6 +251,37 @@ const CASES: Record<string, Case> = {
         worst = Math.max(worst, Math.abs(state.transmission - exact) / exact);
       }
       if (worst > 0.12) r.fail(`E=${E}, d=${d}, σ=${sigma}: T was reported settled while ${(worst * 100).toFixed(0)} % away from the packet value (${readings} settled steps)`);
+    }
+
+    // A reading belongs to one barrier: moving a barrier slider starts the run again, so an old T is never marked as
+    // the new barrier's, and the new run settles on the new barrier's value. Setting a value it already has changes nothing.
+    for (const [change, V0Now, dNow] of [[{ barrierWidth: 1.2 }, 8, 1.2], [{ barrierHeight: 10 }, 10, 1], [{ barrierPosition: 1 }, 8, 1]] as const) {
+      const registration = SIMULATION_CATALOG['quantum-tunneling'];
+      const engine: any = (await registration.load()).createEngine();
+      engine.init({ ...registration.defaultParams });
+      for (let i = 0; i < 2000 && !engine.getState().settled; i += 1) engine.step(DT);
+      if (!engine.getState().settled) r.fail('the default run never settled');
+      engine.setParameters({ barrierHeight: registration.defaultParams.barrierHeight });
+      if (!engine.getState().settled) r.fail('setting a value the barrier already has cleared the reading');
+      engine.setParameters(change);
+      const moved = engine.getState();
+      if (moved.settled || moved.time !== 0) r.fail(`after ${JSON.stringify(change)} the run did not start again (t=${moved.time}, settled=${moved.settled})`);
+      for (let i = 0; i < 2000 && !engine.getState().settled; i += 1) engine.step(DT);
+      const after = engine.getState();
+      if (!after.settled) r.fail(`T never became readable after ${JSON.stringify(change)}`);
+      r.near(`T after ${JSON.stringify(change)}`, after.transmission, packet(5, V0Now, dNow, 0.9), 0.06);
+    }
+
+    // After a bounce the mark stays off for that run, and a reset gives the next run its own reading.
+    {
+      const registration = SIMULATION_CATALOG['quantum-tunneling'];
+      const engine: any = (await registration.load()).createEngine();
+      engine.init({ ...registration.defaultParams });
+      for (let i = 0; i < 4000; i += 1) engine.step(DT);
+      if (!engine.getState().wallReached) r.fail('a default run went 20 s without reaching the edge of the box');
+      engine.reset();
+      for (let i = 0; i < 2000 && !engine.getState().settled; i += 1) engine.step(DT);
+      if (!engine.getState().settled) r.fail('a reset run never settled: the wall mark survived the reset');
     }
 
     // The width the learner sets is the width drawn: the barrier's area is V0·d exactly, for widths that fall inside a

@@ -529,7 +529,7 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
             isNotebookOpen={isNotebookOpen}
             onTogglePlay={togglePlayPause}
             onStepForward={stepForward}
-            onReset={resetSimulation}
+            onReset={() => resetSimulation()}
             onSetSpeed={setSpeedMultiplier}
             onToggleRecording={toggleRecording}
             onExportCSV={handleExportCSV}
