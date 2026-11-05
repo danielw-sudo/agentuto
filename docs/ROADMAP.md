@@ -164,10 +164,10 @@ conditions that have no slider, and deriving the CSV units line from the manifes
 
 1. ~~Positioning sentence and the three rungs~~: accepted by the owner, 2026-10-31.
 2. ~~Constitution amendments in R0~~: ratified, v1.2, 2026-10-31 (#17).
-3. Whether the five engine initial conditions become sliders (R6).
+3. ~~Whether the five engine initial conditions become sliders~~: decided 2026-11-04. Three became sliders (Lorentz `initialSpeedY`, Faraday `coilRadius` and `initialZ`); the two tunnelling ones (`barrierPosition`, `initialX`) stay fixed until item 7 is settled.
 4. Whether Pages deploys from `main` or from tags (R3).
-5. Whether to freeze the AI tutor and playlist agent (keep working, add nothing) and drop the SQLite and
-   Tauri plans from the docs, since they will not ship soon.
+5. ~~Whether to freeze the AI tutor and playlist agent and drop the SQLite and Tauri plans~~: decided 2026-11-04. Frozen
+   (keep working, add nothing); the SQLite and Tauri plans are removed from the docs.
 6. Three instruments run in scaled units that a learner is not told about, and their labels read as SI. Faraday uses an
    effective permeability of 1e-3 T·m/A where the real value is 4π×10⁻⁷, so flux and EMF are about 800 times the real
    ones and the braking force, which goes as μ², about 6.3 × 10⁵ times (the engine says so in a code comment only). With

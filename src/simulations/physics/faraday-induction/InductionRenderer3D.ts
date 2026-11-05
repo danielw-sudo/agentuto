@@ -223,6 +223,12 @@ export class InductionRenderer3D implements ViewportRenderer<InductionState> {
   render(state: InductionState): void {
     if (!this.renderer || !this.scene || !this.camera) return;
 
+    // The coil is drawn at the default radius (0.6 m); the radius slider widens or narrows the drawing in proportion.
+    if (this.coilGroup && state.coilRadius > 0) {
+      const widen = state.coilRadius / 0.6;
+      this.coilGroup.scale.set(widen, 1, widen);
+    }
+
     // Update Magnet Position (state.z maps directly to 3D Y coordinate)
     if (this.magnetGroup) {
       this.magnetGroup.position.y = state.z;

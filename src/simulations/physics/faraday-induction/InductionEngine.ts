@@ -22,6 +22,7 @@ export interface InductionState extends SimulationState {
   lenzForce: number;      // Opposing electromagnetic braking force (N)
   mechanicalEnergy: number; // E_mech = 0.5*m*v^2 + 0.5*k*z^2 (J)
   dissipatedPower: number; // P = I^2 * R (W)
+  coilRadius: number;     // R_coil (m), so the drawing can follow the slider
 }
 
 // Effective magnetic permeability mu_eff = 1e-3 T·m/A (scaled with ferromagnetic core / strong dipole for visible macroscopic demonstration)
@@ -185,6 +186,7 @@ export class InductionEngine implements SimulationEngine<InductionParams, Induct
       lenzForce: this.lenzForce,
       mechanicalEnergy: ke + pe,
       dissipatedPower,
+      coilRadius: this.params.coilRadius,
     };
   }
 

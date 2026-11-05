@@ -72,4 +72,14 @@ export const LORENTZ_PARAM_DESCRIPTORS: ParameterDescriptor<number>[] = [
     defaultValue: 8.0,
     description: 'Initial horizontal velocity component.',
   },
+  {
+    id: 'initialSpeedY',
+    label: 'Initial Speed (v0y)',
+    unit: 'm/s',
+    min: -20.0,
+    max: 20.0,
+    step: 0.5,
+    defaultValue: 0.0,
+    description: 'Initial vertical velocity component. Takes effect when the run is reset. With an electric field, the particle drifts at E/B whatever its starting velocity.',
+  },
 ];
