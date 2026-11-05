@@ -77,16 +77,29 @@ const CASES: Record<string, Case> = {
     // Relative to the drift the velocity rotates: u(t) = (u0x cos wt + u0y sin wt, −u0x sin wt + u0y cos wt).
     const u0 = v0 - drift;
     const c = Math.cos(w * t), sn = Math.sin(w * t);
-    r.near('vx', s.vx, drift + u0 * c + v0y * sn, 1e-5, 1e-8);
-    r.near('vy', s.vy, -u0 * sn + v0y * c, 1e-5, 1e-8);
-    r.near('x', s.x, drift * t + (u0 * sn + v0y * (1 - c)) / w, 1e-6, 1e-8);
-    r.near('y', s.y, (u0 * (c - 1) + v0y * sn) / w, 1e-5, 1e-8); // RK4 at 200 Hz over 18 rad of phase
+    r.near('vx', s.vx, drift + u0 * c + v0y * sn, 1e-9, 1e-9);
+    r.near('vy', s.vy, -u0 * sn + v0y * c, 1e-9, 1e-9);
+    r.near('x', s.x, drift * t + (u0 * sn + v0y * (1 - c)) / w, 1e-9, 1e-9);
+    r.near('y', s.y, (u0 * (c - 1) + v0y * sn) / w, 1e-9, 1e-9);
     // Kinetic energy is ½ m v² with m in kilograms; the channel is read in whatever unit the manifest declares for it.
     const unit = SIMULATION_CATALOG['lorentz-force'].telemetryUnits.kinetic_energy;
     const perJoule: Record<string, number> = { J: 1, 'mJ': 1e3, 'µJ': 1e6 };
     if (!(unit in perJoule)) r.fail('kinetic_energy is declared in ' + unit + ', which this check cannot convert');
     const speed2 = (drift + u0 * c + v0y * sn) ** 2 + (-u0 * sn + v0y * c) ** 2;
-    r.near('kinetic_energy (' + unit + ')', s.kinetic_energy, 0.5 * m * speed2 * (perJoule[unit] ?? 1), 1e-5);
+    r.near('kinetic_energy (' + unit + ')', s.kinetic_energy, 0.5 * m * speed2 * (perJoule[unit] ?? 1), 1e-9);
+
+    // A magnetic field does no work, however fast the turning and however long the run: ω = 75 rad/s, the top of the
+    // slider ranges, for a minute. The radius stays mv/(qB), held by the orbit's centre at (0, −r), since v starts along +x.
+    const fast = await run('lorentz-force', { charge: 3, mass: 0.2, magneticFieldZ: 5, electricFieldY: 0, initialSpeedX: 8, initialSpeedY: 0 }, 60);
+    r.near('speed after 60 s at ω = 75', fast.t.speed, 8, 1e-9);
+    r.near('orbit radius after 60 s at ω = 75', Math.hypot(fast.t.x, fast.t.y + 8 / 75), 8 / 75, 1e-9);
+
+    // No magnetic field: plain constant acceleration qE/m along y.
+    const free = await run('lorentz-force', { charge: 2, mass: 0.5, magneticFieldZ: 0, electricFieldY: 3, initialSpeedX: 4, initialSpeedY: 1 }, 2);
+    const accel = (2 / 0.5) * 3;
+    r.near('B = 0: x', free.t.x, 4 * free.t.t, 1e-9);
+    r.near('B = 0: y', free.t.y, free.t.t + 0.5 * accel * free.t.t * free.t.t, 1e-9);
+    r.near('B = 0: vy', free.t.vy, 1 + accel * free.t.t, 1e-9);
   },
 
   // Damped free decay x = x0 e^{-γt}(cos ω_d t + (γ/ω_d) sin ω_d t) and the driven steady state x = A cos(ωt − δ).
@@ -581,6 +594,35 @@ const CASES: Record<string, Case> = {
     const off = await run('conservation-momentum', { mass1: m1, mass2: m2, velocity1: v1, velocity2: v2, impactParameter: 0.3, restitution: 1 }, 1.0);
     r.near('glancing impact: total momentum x', off.t.total_p_x, m1 * v1 + m2 * v2, 1e-9);
     r.near('glancing impact: total momentum y', off.t.total_p_y, 0, 0, 1e-9);
+
+    // The centre of mass stays on its straight line through the impact, on every step, even with very unequal masses
+    // and the fastest closing speed; head-on and glancing. And a body's position after an impact and after a wall is where
+    // the textbook puts it, not where the 5 ms step left it.
+    for (const [ma, mb, b, rest] of [[10, 0.5, 0, 1], [0.5, 10, 0, 0], [10, 0.5, 0.4, 1], [4, 1, 0.3, 0.5]] as const) {
+      const registration = SIMULATION_CATALOG['conservation-momentum'];
+      const engine: any = (await registration.load()).createEngine();
+      engine.init({ ...registration.defaultParams, mass1: ma, mass2: mb, velocity1: 10, velocity2: -10, impactParameter: b, restitution: rest });
+      const Mt = ma + mb;
+      const start = { x: (ma * -3.5 + mb * 3.5) / Mt, y: ((ma - mb) * (b / 2)) / Mt };
+      const vcm = (10 * ma - 10 * mb) / Mt;
+      let impacts = 0;
+      for (let i = 0; i < 800; i += 1) {
+        engine.step(DT);
+        const now = engine.getState();
+        if (now.wallContactCount > 0) break;
+        impacts = now.collisionCount;
+        r.near(`centre of mass x, m=${ma},${mb}, b=${b}`, now.comX, start.x + vcm * now.time, 1e-9, 1e-9);
+        r.near(`centre of mass y, m=${ma},${mb}, b=${b}`, now.comY, start.y, 0, 1e-9);
+      }
+      if (impacts !== 1) r.fail(`set-up: m=${ma},${mb}, b=${b} had ${impacts} impacts before a wall`);
+    }
+    const hit = (7 - 0.7) / (v1 - v2); // the gap closes from 7 to two radii
+    const after = await run('conservation-momentum', { mass1: m1, mass2: m2, velocity1: v1, velocity2: v2, impactParameter: 0, restitution: e }, 1);
+    r.near('body 1 position after the impact', after.t.body1_x, -3.5 + v1 * hit + w1 * (after.t.t - hit), 1e-9);
+    r.near('body 2 position after the impact', after.t.body2_x, 3.5 + v2 * hit + w2 * (after.t.t - hit), 1e-9);
+    const walled = await run('conservation-momentum', { mass1: 2, mass2: 2, velocity1: -10, velocity2: 10, impactParameter: 0, restitution: 1 }, 0.5);
+    r.near('body 1 position after the wall', walled.t.body1_x, -4.85 + 10 * (walled.t.t - 0.135), 1e-9);
+
     r.near('glancing impact keeps kinetic energy when e = 1', off.t.kinetic_energy_total_J, 0.5 * m1 * v1 * v1 + 0.5 * m2 * v2 * v2, 1e-9);
   },
 
