@@ -231,7 +231,7 @@ export async function runJournalVerification(): Promise<void> {
     // The declaration and the engine must agree, in both directions.
     const emitted = await engineChannelsFromSandbox(sandboxId);
     const missing = emitted.filter((channel) => !declaredKeys.includes(channel));
-    const extra = declaredKeys.filter((channel) => !emitted.includes(channel));
+    const extra = declaredKeys.filter((channel) => channel !== 't' && !emitted.includes(channel)); // t is the clock, which every engine has; its unit may be declared
     if (missing.length > 0 || extra.length > 0) {
       throw new Error(
         `Sandbox "${sandboxId}" channel declaration does not match its engine: ` +

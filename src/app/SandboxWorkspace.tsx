@@ -202,6 +202,8 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
         return formatTelemetryToCSV(recorder.getBuffer(), {
           experimentTitle: simRegistration.title,
           parameters: params,
+          units: simRegistration.telemetryUnits,
+          unitsNote: simRegistration.unitsNote,
         });
       },
     };
@@ -267,6 +269,8 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
       experimentTitle: simRegistration.title,
       parameters: params,
       notes: 'Generated via Agentuto empirical sandbox',
+      units: simRegistration.telemetryUnits,
+      unitsNote: simRegistration.unitsNote,
     });
 
     triggerCSVDownload(

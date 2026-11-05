@@ -36,7 +36,7 @@ import { runThemeVerification } from './theme.test';
 import { runClosedFormVerification } from './closedForm.test';
 import { runCommunityVerification } from './community.test';
 import { runFeedbackVerification } from './feedback.test';
-import { runUnitsVerification } from './units.test';
+import { runUnitsVerification, runUnitsExportVerification } from './units.test';
 import { runLocalModulesVerification } from './localModules.test';
 import { runModuleCheckVerification } from './moduleCheck.test';
 import { runExportModuleVerification } from './exportModule.test';
@@ -1301,6 +1301,7 @@ export async function runCoreVerification(): Promise<boolean> {
 
   // Test 36: unit honesty (ROADMAP §4 item 6) — scaled and reduced instruments say so and are labelled to match.
   runUnitsVerification();
+  await runUnitsExportVerification();
 
   // Test 37: private modules (roadmap R2b) — the rules for local/, the shipped example, git hygiene.
   await runLocalModulesVerification();

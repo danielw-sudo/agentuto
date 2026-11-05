@@ -148,7 +148,7 @@ The speaker button in the log's header turns on a soft two-note chime for each n
   * **Lyapunov Exponent:** Use the in-app Lab Notebook to fit an exponential to $\Delta r(t)$ to estimate the largest Lyapunov exponent $\lambda$. Fit only the early growth phase: once the separation reaches the size of the attractor it stops growing, and including that part biases $\lambda$ low.
 
 ### 4. Faraday's Law & Lenz's Induction (`faraday-induction` — MIT 8.02)
-* **Units:** demonstration scaling. The coil uses an effective permeability of $1	imes10^{-3}$ T·m/A, about 800 times the real vacuum value, so flux and EMF are about 800 times real and the braking force far more; with real values the braking would be too small to see. Flux, EMF, current, force and power are labelled *scaled*.
+* **Units:** demonstration scaling. The coil uses an effective permeability of $1\times10^{-3}$ T·m/A, about 800 times the real vacuum value, so flux and EMF are about 800 times real and the braking force far more; with real values the braking would be too small to see. Flux, EMF, current, force and power are labelled *scaled*.
 * **Physical Concept:** Electromagnetic induction and eddy current braking:
   $$\mathcal{E} = -\frac{d\Phi_B}{dt}, \quad F_{\text{Lenz}} = -\frac{\mathcal{E}^2}{R \, v_z}$$
 * **What to Explore:**
@@ -156,20 +156,20 @@ The speaker button in the log's header turns on a soft two-note chime for each n
   * **Flux vs. EMF Phase Shift:** Notice that induced EMF is zero exactly when the magnet passes the coil center ($z = 0$, maximum flux), but peaks at the coil edges where $d\Phi/dz$ is steepest.
 
 ### 5. Maxwell-Boltzmann Kinetic Theory (`maxwell-boltzmann` — MIT 8.044)
-* **Units:** reduced units with $k_B = 1$: temperature is an energy per particle and pressure is a force per unit length (two dimensions). Every value is labelled *reduced*. The measured wall pressure runs a little above $NkT/A$ because the particles have size.
+* **Units:** reduced units with $k_B = 1$: temperature is an energy per particle and pressure is a force per unit length (two dimensions). Every value is labelled *reduced*. The measured wall pressure runs above $NkT/A$ because the particles have size: 3 to 7 % at $N = 40$, about 7 % at the defaults, about 29 % at $N = 250$, $L_x = 3$ (less at high speed, where the fixed time step misses some collisions).
 * **Physical Concept:** Statistical mechanics, ideal gas law, and molecular speeds in a **2D** gas (so "volume" is the box area $A$, the gas law reads $PA = Nk_BT$, and the speed distribution below is the 2D form; the 3D Maxwell–Boltzmann distribution has a $v^2$ prefactor instead):
   $$PV = N k_B T, \quad f(v) = \frac{mv}{k_BT} e^{-\frac{mv^2}{2k_BT}}$$
 * **What to Explore:**
-  * **Boyle's Law Isothermal Compression:** Slide the movable compression piston to shrink the container volume. Halving the area at constant temperature doubles the measured wall-impulse pressure.
+  * **Boyle's Law Isothermal Compression:** Slide the movable compression piston to shrink the container volume. Halving the area at constant temperature raises the measured wall-impulse pressure by a factor of about 2.1 (2.06 at $N = 40$), close to the ideal 2.
   * **Temperature Speed Scaling:** Double the absolute temperature $T$. Observe how the real-time empirical velocity histogram broadens and shifts such that $v_{\text{rms}} \propto \sqrt{T}$.
   * **Molecular Mass Separation:** Compare light vs. heavy gases.
 
 ### 6. Quantum Wave Mechanics & Barrier Tunneling (`quantum-tunneling` — MIT 8.04)
-* **Units:** reduced units with $hbar = m = 1$, so energy, length and wave number are one consistent scaled set, not eV and nm (a real electron at 5 eV has $k = 11.5 mathrm{nm}^{-1}$; here $k=sqrt{2E}$). Compare shapes and ratios, not absolute values. Read T only when the card says *settled*: before that the packet is still arriving or leaving the barrier.
+* **Units:** reduced units with $\hbar = m = 1$, so energy, length and wave number are one consistent scaled set, not eV and nm (a real electron at 5 eV has $k = 11.5\ \mathrm{nm}^{-1}$; here $k=\sqrt{2E}$). Compare shapes and ratios, not absolute values. Read T only when the card says *settled*: before that the packet is still arriving or leaving the barrier.
 * **Physical Concept:** 1D Time-Dependent Schrödinger Equation:
   $$i\hbar \frac{\partial \psi}{\partial t} = -\frac{\hbar^2}{2m} \frac{\partial^2 \psi}{\partial x^2} + V(x)\psi$$
 * **What to Explore:**
-  * **Evanescent Spatial Decay ($E < V_0$):** Set incident wavepacket energy below barrier height. Observe finite quantum transmission probability $T > 0$ and exponential decay inside the barrier ($T \propto e^{-2\kappa d}$).
+  * **Evanescent Spatial Decay ($E < V_0$):** Set incident wavepacket energy below barrier height. Observe finite quantum transmission probability $T > 0$ and decay inside the barrier. $T \propto e^{-2\kappa d}$ holds closely only when $E$ is well below $V_0$ and the packet is wide: at $E = 3$, $V_0 = 9$, $\sigma = 1.2$, widths 0.5 to 1.5 give a slope of about 6.1 against $2\kappa = 6.9$; at the defaults the fastest part of the packet passes over the barrier and $T$ levels off near 3 %.
   * **Quantum Reflections Above the Barrier ($E > V_0$):** Even when energy exceeds the barrier, observe partial quantum wave reflections from the potential discontinuity.
   * **Probability Conservation (Unitarity):** Monitor the live norm readout confirming $\int |\psi|^2 dx \equiv 1.000000$ to 12 decimal places.
 

@@ -144,7 +144,7 @@ export class GasRenderer2D implements ViewportRenderer<GasState> {
     ctx.font = '10px monospace';
     ctx.fillStyle = '#64748b';
     ctx.textAlign = 'center';
-    ctx.fillText(`Lx = ${state.chamberWidth.toFixed(2)}m (Area = ${(state.chamberWidth * state.chamberHeight).toFixed(1)}m²)`, originX + boxPixelW / 2, originY + boxPixelH + 20);
+    ctx.fillText(`Lx = ${state.chamberWidth.toFixed(2)} (Area = ${(state.chamberWidth * state.chamberHeight).toFixed(1)})`, originX + boxPixelW / 2, originY + boxPixelH + 20);
   }
 
   private renderDistribution(
@@ -255,13 +255,13 @@ export class GasRenderer2D implements ViewportRenderer<GasState> {
     ctx.font = '10px monospace';
     ctx.fillStyle = '#ef4444';
     ctx.textAlign = 'center';
-    ctx.fillText(`v_rms: ${state.vRms.toFixed(1)} m/s`, rmsX, originY + 16);
+    ctx.fillText(`v_rms: ${state.vRms.toFixed(1)}`, rmsX, originY + 16);
 
     // Axis Labels
     ctx.fillStyle = '#64748b';
     ctx.font = '10px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('Molecular Speed v (m/s) →', originX + plotW / 2, originY + plotH + 24);
+    ctx.fillText('Molecular Speed v (reduced units) →', originX + plotW / 2, originY + plotH + 24);
 
     ctx.save();
     ctx.translate(originX - 16, originY + plotH / 2);

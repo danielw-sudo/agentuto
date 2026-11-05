@@ -156,7 +156,7 @@ bundle budget and the 35-check smoke test accepted it, then it was reverted.
 **Built — community links.** Discuss, report and propose are linked from every page and from inside each instrument, from one tested source (ARCHITECTURE §6.6a). Longer-term topics the owner raised (courses and correctness, look and feel, running as a community, and what is worth sharing if no community forms) are in [`OPEN_TOPICS.md`](OPEN_TOPICS.md).
 In this order: ~~Inquiry Log streak and heatmap (Kaizen 3b)~~ (built), ~~independent closed-form recomputation for all 17
 sandboxes (5a, Art. 1.5)~~ (built), ~~micro-feedback (batch 4)~~ (built), then the owner's decision on the five engine initial
-conditions that have no slider, and deriving the CSV units line from the manifest.
+conditions that have no slider (decided, §4 item 3), and ~~deriving the CSV units line from the manifest~~ (built).
 
 **Built — streak and heatmap.** The home page shows "Your inquiry log" once the learner has a first entry: current and longest streak, entry count, and a 26-week calendar (Monday to Sunday columns, today last, UTC days, four shades). It reads only the browser's own storage, sits in a lazy chunk so the first load is unchanged (104.0 kB), and draws nothing for a new visitor. The grid is a pure function (`src/ui/journal/activityModel.ts`) checked against hand-counted dates, mutation-tested six ways; the smoke test seeds an entry and reads the card (35 checks). It reuses the existing UTC series, so no streak rule changed.
 

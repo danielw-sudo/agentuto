@@ -136,7 +136,7 @@ export class QuantumRenderer2D implements ViewportRenderer<QuantumState> {
       ctx.font = '10px monospace';
       ctx.fillStyle = '#f59e0b';
       ctx.textAlign = 'center';
-      ctx.fillText(`V0 = ${state.barrierHeight.toFixed(1)} eV`, (sxLeft + sxRight) / 2, baselineY - barrierPixelH - 8);
+      ctx.fillText(`V0 = ${state.barrierHeight.toFixed(1)}`, (sxLeft + sxRight) / 2, baselineY - barrierPixelH - 8);
     }
 
     // Incident Energy E dashed horizontal line
@@ -155,7 +155,7 @@ export class QuantumRenderer2D implements ViewportRenderer<QuantumState> {
     ctx.font = '10px monospace';
     ctx.fillStyle = '#38bdf8';
     ctx.textAlign = 'left';
-    ctx.fillText(`E = ${state.particleEnergy.toFixed(1)} eV ${state.particleEnergy < state.barrierHeight ? '(Tunneling E < V0)' : '(E > V0)'}`, originX + 8, energyY - 6);
+    ctx.fillText(`E = ${state.particleEnergy.toFixed(1)} ${state.particleEnergy < state.barrierHeight ? '(Tunneling E < V0)' : '(E > V0)'}`, originX + 8, energyY - 6);
 
     // Probability Density |psi(x)|^2 Fill Area
     // Max probability density scaling
@@ -209,7 +209,7 @@ export class QuantumRenderer2D implements ViewportRenderer<QuantumState> {
     ctx.fillStyle = '#64748b';
     ctx.font = '10px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('Position x (nm) →', originX + plotW / 2, baselineY + 22);
+    ctx.fillText('Position x (reduced units) →', originX + plotW / 2, baselineY + 22);
 
     ctx.fillText(`${xMin.toFixed(0)}`, originX, baselineY + 16);
     ctx.fillText('0', toScreenX(0), baselineY + 16);
@@ -285,7 +285,7 @@ export class QuantumRenderer2D implements ViewportRenderer<QuantumState> {
       ctx.lineWidth = 1;
       ctx.strokeRect(originX, graphY0, plotW, graphH);
 
-      // Plot Theoretical T(E) for E from 1 to 15 eV
+      // Plot Theoretical T(E) for E from 1 to 15 (reduced units)
       const V0 = Math.max(0.1, state.barrierHeight);
       const d = Math.max(0.1, state.barrierWidth);
 
@@ -343,7 +343,7 @@ export class QuantumRenderer2D implements ViewportRenderer<QuantumState> {
       ctx.fillText('Theoretical T(E) Curve', originX + 8, graphY0 + 14);
 
       ctx.fillStyle = '#64748b';
-      ctx.fillText('Energy E (1 - 15 eV) →', originX + plotW / 2 - 40, graphY0 + graphH - 6);
+      ctx.fillText('Energy E, reduced (1 - 15) →', originX + plotW / 2 - 40, graphY0 + graphH - 6);
     }
 
     // Unitarity status check

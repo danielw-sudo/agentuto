@@ -9,7 +9,7 @@ export const QUANTUM_METADATA = {
   governingODE: 'i\\hbar \\frac{\\partial \\psi}{\\partial t} = -\\frac{\\hbar^2}{2m} \\frac{\\partial^2 \\psi}{\\partial x^2} + V(x)\\psi',
   formattedODE: 'iℏ ∂ψ/∂t = -(ℏ²/2m) ∇²ψ + V(x)ψ',
   description:
-    'Simulate unitary wavepacket dynamics via the Time-Dependent Schrödinger Equation. Observe quantum tunneling through finite potential barriers (E < V0) and verify exponential decay.',
+    'Simulate unitary wavepacket dynamics via the Time-Dependent Schrödinger Equation. Observe quantum tunneling through finite potential barriers (E < V0) and measure how transmission falls with barrier width.',
   unitsNote:
     'Reduced units: ħ = m = 1, so energy, length and wave number are in one consistent scaled set, not eV and nm (a real electron at 5 eV has k = 11.5 nm⁻¹; here k = √(2E)). Compare shapes and ratios, not absolute values.',
 };
@@ -52,7 +52,7 @@ export const QUANTUM_PARAM_DESCRIPTORS: ParameterDescriptor<number>[] = [
     max: 2.5,
     step: 0.1,
     defaultValue: 1.0,
-    description: 'Thickness of the potential barrier. Transmission decays exponentially with thickness: T ∝ exp(-2κd).',
+    description: 'Thickness of the potential barrier. Transmission falls with thickness, close to T ∝ exp(-2κd) when E is well below V0 and the packet has a small spread of energies.',
   },
   {
     id: 'packetSigma',

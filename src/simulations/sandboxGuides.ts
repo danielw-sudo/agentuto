@@ -123,13 +123,13 @@ export const SANDBOX_LAB_GUIDES: Record<string, SandboxGuideEntry> = {
   'maxwell-boltzmann': {
     labProtocol: [
       'Hold T constant and vary piston position L_x while recording empirical wall pressure P.',
-      'Verify the 2D isothermal gas relation P · A = N k_B T in the Lab Notebook.',
+      'Set N = 40 and compare P · A with N k_B T in the Lab Notebook: it comes out 3 to 7 % high, and the excess grows as the box fills.',
       'Quadruple temperature T and verify that root-mean-square speed v_rms doubles (v_rms ∝ √T).',
     ],
     whatToExplore: [
       {
         title: '2D Ideal Gas Law & Boyle Compression',
-        detail: 'In this 2D chamber, volume is box area A = L_x L_y and P · A = N k_B T. Halving piston width L_x at constant T doubles wall-impulse pressure.',
+        detail: 'In this 2D chamber, volume is box area A = L_x L_y and P · A = N k_B T. Halving piston width L_x from 6 to 3 at constant T raises wall-impulse pressure by a factor of about 2.1 (2.06 at N = 40): the particles have size, so the gas is not quite ideal.',
       },
       {
         title: '2D Maxwell Speed Distribution',
@@ -145,14 +145,14 @@ export const SANDBOX_LAB_GUIDES: Record<string, SandboxGuideEntry> = {
   },
   'quantum-tunneling': {
     labProtocol: [
-      'Set particle energy E = 5 eV below barrier height V₀ = 8 eV.',
-      'Sweep barrier width d from 0.5 nm to 2.0 nm, recording transmission probability T after impact.',
-      'Verify exponential attenuation T ∝ exp(−2κd) while total norm ∫|ψ|² dx stays 1.000000.',
+      'Set particle energy E = 3 below barrier height V₀ = 9, and wavepacket width σ = 1.2.',
+      'Sweep barrier width d from 0.5 to 1.5. Each change restarts the run: record T when the card says settled.',
+      'Fit ln T against d: the slope comes out near −6.1, a little short of −2κ = −6.9 because the faster part of the packet tunnels more easily. Total norm ∫|ψ|² dx stays 1.000000.',
     ],
     whatToExplore: [
       {
         title: 'Sub-Barrier Evanescent Tunneling (E < V₀)',
-        detail: 'Classical particles reflect 100%, but the quantum wavefunction penetrates the forbidden region with exponential decay T ∝ exp(−2κd).',
+        detail: 'Classical particles reflect 100%, but the quantum wavefunction penetrates the forbidden region and T falls with width, close to exp(−2κd) when E is well below V₀ and σ is large. At the defaults the fastest part of the packet passes over the barrier, so T levels off near 3 % however thick it is.',
       },
       {
         title: 'Over-Barrier Quantum Reflection (E > V₀)',
