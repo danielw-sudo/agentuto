@@ -98,7 +98,7 @@ each sandbox's `*Config.ts`.
 Every commit to `main` has to pass all three, and CI runs them on Node 20 and 22:
 
 - `npm test` — 53 checks: 25 engine, analytic and no-GPU verifications, one structural-contract pass,
-  6 for the Inquiry Log core, 7 for the Inquiry Log panel, 1 for page addresses, 1 for courses, 1 for design tokens, 1 for search, 1 for the activity grid, 1 for the theme choice, 1 for independent closed forms of all 17 instruments, 1 for the community links, 1 for milestones and sound, 1 for unit labels, 1 for private modules, 1 for the module checker and 1 for the share path.
+  6 for the Inquiry Log core, 7 for the Inquiry Log panel, 1 for page addresses, 1 for courses, 1 for design tokens, 1 for search, 1 for the activity grid, 1 for the theme choice, 1 for independent closed forms of all 17 instruments, 1 for the community links, 1 for milestones and sound, 2 for unit labels and unit text, 1 for private modules, 1 for the module checker and 1 for the share path.
 - `npm run build` — TypeScript and production build, zero errors.
 - `npm run check:module -- examples/local-module` — the module checker run on the shipped example, so the tool cannot rot.
 - `npm run smoke` — a browser smoke test on the built site: opens every instrument from a cold link in headless Chrome
