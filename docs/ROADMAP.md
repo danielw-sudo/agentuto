@@ -151,6 +151,8 @@ bundle budget and the 35-check smoke test accepted it, then it was reverted.
 
 **Built — independent closed forms (Art. 1.5).** One case per built-in instrument in `src/core/test/closedForm.test.ts` (see ARCHITECTURE §6.7a), mutation-tested with 25 deliberate engine errors, all caught. Fixed what it found: Lorentz kinetic-energy unit (J to µJ), the Doppler receiver-speed sign on the ahead/behind channels, and first-order RC/RL heat. Left for the owner: decisions 6 and 7 below.
 
+**Built — every control, tested.** After two bugs that no check had reached (Reset wiped the parameters on all instruments; RL mode diverged at its defaults), `sliderExtremes.test.ts` holds 251 settings across all 17 instruments to finite readings, from the start and moved mid-run, and the smoke test moves every slider and presses each control on the built site. A finite reading is not always a right one: comparing with a 20 times finer step (done once, by hand, on 2026-11-05) leaves `conservation-momentum` a few centimetres off and `lorentz-force` 3 % off at one extreme, not yet looked into.
+
 **Built — theme toggle.** An icon button at the top right (Auto, Light, Dark, High contrast), remembered in this browser, applied before first paint (see ARCHITECTURE §6.6).
 
 **Built — community links.** Discuss, report and propose are linked from every page and from inside each instrument, from one tested source (ARCHITECTURE §6.6a). Longer-term topics the owner raised (courses and correctness, look and feel, running as a community, and what is worth sharing if no community forms) are in [`OPEN_TOPICS.md`](OPEN_TOPICS.md).

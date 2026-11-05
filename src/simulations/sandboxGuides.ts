@@ -414,9 +414,9 @@ export const SANDBOX_LAB_GUIDES: Record<string, SandboxGuideEntry> = {
   },
   'rc-rl-circuits': {
     labProtocol: [
-      'Reset with Switch = Charge and click Record to capture the transient voltage/current relaxation.',
+      'Reset with Switch = Charge and click Record to capture the transient. The clock samples every 5 ms, so choose a τ of 10 ms or more: for RL use L = 500 mH and R = 10 Ω (τ = 50 ms). A shorter τ is correct but settles between samples.',
       'Verify that V_C(t) reaches 63.2% of V₀ at t = τ = RC (or I(t) reaches 63.2% at t = τ = L/R).',
-      'Fit v_resistor vs. t in the Lab Notebook using Exponential Regression to extract slope −1/τ.',
+      'Fit v_resistor (v_component in RL mode) vs. t in the Lab Notebook using Exponential Regression to extract slope −1/τ.',
     ],
     whatToExplore: [
       {

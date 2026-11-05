@@ -153,6 +153,46 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
     await new Promise((resolve) => setTimeout(resolve, 400));
     const broken = await page.evaluate(() => document.body.innerText.match(/\bNaN\b|\bundefined\b/)?.[0] ?? '');
     if (broken) problems.push(`after pressing reset the page shows ${broken}`);
+    // Press everything a learner can press, as the reset above: a control no check presses can stay broken unseen.
+    // Every slider goes to both ends and back, then each button in turn; each is followed by a look at the page.
+    await page.evaluate('window.__name = (fn) => fn'); // tsx wraps named functions in a helper the page does not have
+    const pressed = await page.evaluate(async () => {
+      const found: string[] = [];
+      const pause = () => new Promise((resolve) => setTimeout(resolve, 40));
+      const look = async (what: string) => {
+        await pause();
+        const shown = document.body.innerText.match(/\bNaN\b|\bundefined\b|\bInfinity\b/)?.[0];
+        if (shown) found.push(`${what} shows ${shown}`);
+      };
+      const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+      const sliders = () => [...document.querySelectorAll<HTMLInputElement>('input[type=range]')];
+      const count = sliders().length;
+      if (count === 0) found.push('no sliders to move');
+      for (let i = 0; i < count; i += 1) {
+        const slider = sliders()[i];
+        if (!slider) continue;
+        const start = slider.value;
+        const name = slider.closest('div')?.parentElement?.textContent?.slice(0, 40) ?? `slider ${i}`;
+        for (const value of [slider.min, slider.max, start]) {
+          setValue?.call(slider, value);
+          slider.dispatchEvent(new Event('input', { bubbles: true }));
+          await look(`${name} at ${value}`);
+        }
+      }
+      const press = async (start: RegExp) => {
+        const button = [...document.querySelectorAll('button')].find((b) => start.test(b.title || b.getAttribute('aria-label') || b.textContent?.trim() || ''));
+        if (!button) {
+          found.push(`no button ${start.source}`);
+          return;
+        }
+        button.click();
+        await look(start.source);
+      };
+      const buttons = [/^Single Step/, /^0\.25×/, /^0\.5×/, /^2×/, /^1×/, /^Toggle telemetry recording/, /^Toggle telemetry recording/, /^Download raw data/, /^Toggle Empirical Lab Notebook/, /^Toggle Empirical Lab Notebook/, /^Toggle the Inquiry Log/, /^Toggle the Inquiry Log/, /^Reset parameters to defaults/, /^Reset Simulation/, /^Play|^Pause/];
+      for (const button of buttons) await press(button);
+      return found;
+    });
+    problems.push(...pressed);
     // Feedback from inside the instrument opens a bug report already titled with the instrument's id.
     const feedback = await page.$eval('a[data-community="feedback"]', (el) => (el as HTMLAnchorElement).href).catch(() => '');
     const wantFeedback = `https://github.com/danielw-sudo/agentuto/issues/new?template=bug_report.md&title=${encodeURIComponent(`[${id}] `)}`;

@@ -72,40 +72,30 @@ export class TransientEngine implements SimulationEngine<TransientParams, Transi
       Vin = this.params.switchState === 1 ? V0 : 0.0;
     }
 
+    // Vin is constant across a step, so each step is a first-order linear ODE with an exact solution. It is stable for
+    // any tau: the slider ranges reach tau = 10 µs, far below the 5 ms step, where an explicit integrator diverges.
     if (!isRL) {
       // --- RC Circuit: dq/dt = (Vin - q/C) / R = I ---
-      // RK4 integration for charge q
-      const f = (qVal: number, vIn: number) => (vIn - qVal / C) / R;
-
-      const k1 = f(this.qCoulombs, Vin);
-      const k2 = f(this.qCoulombs + 0.5 * dt * k1, Vin);
-      const k3 = f(this.qCoulombs + 0.5 * dt * k2, Vin);
-      const k4 = f(this.qCoulombs + dt * k3, Vin);
-
-      const iAvg = (k1 + 2 * k2 + 2 * k3 + k4) / 6.0;
-      this.qCoulombs = Math.max(0.0, this.qCoulombs + iAvg * dt);
+      const tau = R * C;
+      const iStart = (Vin - this.qCoulombs / C) / R;
+      this.qCoulombs = C * Vin + (this.qCoulombs - C * Vin) * Math.exp(-dt / tau);
       this.currentAmps = (Vin - this.qCoulombs / C) / R;
 
-      // Ohmic Joule heat dE = I^2 R dt, integrated with the same RK4 stage currents (k1..k4 are the currents at
-      // the four stages) so that source work = stored energy + heat holds to fourth order, not to O(dt/tau).
-      this.totalHeatJoules += ((k1 * k1 + 2 * k2 * k2 + 2 * k3 * k3 + k4 * k4) / 6.0) * R * dt;
+      // Ohmic Joule heat over the step: the integral of I^2 R with I = iStart e^(-t/tau)
+      this.totalHeatJoules += iStart * iStart * R * (tau / 2) * -Math.expm1((-2 * dt) / tau);
     } else {
       // --- RL Circuit: di/dt = (Vin - R*i) / L ---
-      // RK4 integration for current i
-      const f = (iVal: number, vIn: number) => (vIn - R * iVal) / L;
+      const tau = L / R;
+      const iFinal = Vin / R;
+      const iOffset = this.currentAmps - iFinal;
 
-      const k1 = f(this.currentAmps, Vin);
-      const k2 = f(this.currentAmps + 0.5 * dt * k1, Vin);
-      const k3 = f(this.currentAmps + 0.5 * dt * k2, Vin);
-      const k4 = f(this.currentAmps + dt * k3, Vin);
-
-      // Stage currents, for the heat integral (same RK4 weights as the current itself).
-      const i1 = this.currentAmps;
-      const i2 = this.currentAmps + 0.5 * dt * k1;
-      const i3 = this.currentAmps + 0.5 * dt * k2;
-      const i4 = this.currentAmps + dt * k3;
-      this.totalHeatJoules += ((i1 * i1 + 2 * i2 * i2 + 2 * i3 * i3 + i4 * i4) / 6.0) * R * dt;
-      this.currentAmps += ((k1 + 2 * k2 + 2 * k3 + k4) / 6.0) * dt;
+      // Ohmic Joule heat over the step: the integral of i^2 R with i = iFinal + iOffset e^(-t/tau)
+      this.totalHeatJoules += R * (
+        iFinal * iFinal * dt
+        + 2 * iFinal * iOffset * tau * -Math.expm1(-dt / tau)
+        + iOffset * iOffset * (tau / 2) * -Math.expm1((-2 * dt) / tau)
+      );
+      this.currentAmps = iFinal + iOffset * Math.exp(-dt / tau);
     }
 
     this.time += dt;
