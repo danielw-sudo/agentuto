@@ -1,8 +1,10 @@
 # Agentuto roadmap
 
-> **Status: plan, nothing here has shipped.** Proposed 2026-10-31 by Claude with the repository owner. Items
-> move to `docs/ARCHITECTURE.md` §7 only when they are merged and their gates have run on `main` (Constitution
-> Art. 4.1). The owner may reorder or strike anything. `CONSTITUTION.md` wins on any conflict.
+> **Status (2026-11-04): mostly shipped.** Proposed 2026-10-31 by Claude with the repository owner. Batches R0 to R5
+> and the R6 items listed under it are merged and their gates have run on `main`; each is marked **Built** in §3, and
+> `docs/ARCHITECTURE.md` describes what has shipped (Constitution Art. 4.1). What is still open is the owner's decisions
+> in §4 and the longer-term topics in [`OPEN_TOPICS.md`](OPEN_TOPICS.md). The owner may reorder or strike anything.
+> `CONSTITUTION.md` wins on any conflict.
 
 Read this before picking up work. It is the shared plan for every agent on this project, whatever model
 or tool it runs on.
@@ -68,12 +70,12 @@ Outcome: the concept is written down and the entry prompt is safe.
 - README leads with the positioning sentence. No "free tier" claims (we cannot verify or promise them).
 - Check: `npm test` unchanged, links resolve, no number contradicts a check.
 
-*Built (R0):* `CONSTITUTION.md` v1.2 is **proposed** in its pull request and takes effect only when the owner merges it
+*Built (R0):* `CONSTITUTION.md` v1.2 was **ratified** by the owner on 2026-10-31 by merging #17
 (Art. 12 on scope, audiences, no identity checks, local content and sharing; the permission notice in Art. 3.5; links
 are conveniences in Art. 8.3). The permission notice is in the README, user guide, About page and the in-app notices.
 The setup prompt in the user guide is hardened and works on Windows, macOS and Linux. It still says *do not edit any
 file inside the project*: setting up and running Agentuto never needs to. Adding a private module is a separate prompt
-(R2b, in `docs/LOCAL_MODULES.md`) whose rule is *write only inside `local/`*. The README leads with the positioning sentence and marks "extend it privately" as planned.
+(R2b, in `docs/LOCAL_MODULES.md`) whose rule is *write only inside `local/`*. The README leads with the positioning sentence; "extend it privately" and "share it" have since been built (R2b, R2c, R5).
 
 ### R1 — Tidy the repository
 Outcome: a visitor sees what matters. Prose moved under `docs/` (`ARCHITECTURE.md`, `devlog.md`);
@@ -160,8 +162,8 @@ conditions that have no slider, and deriving the CSV units line from the manifes
 
 ## 4. Decisions that are the owner's
 
-1. Positioning sentence and the three rungs (proposed above).
-2. Constitution amendments in R0.
+1. ~~Positioning sentence and the three rungs~~: accepted by the owner, 2026-10-31.
+2. ~~Constitution amendments in R0~~: ratified, v1.2, 2026-10-31 (#17).
 3. Whether the five engine initial conditions become sliders (R6).
 4. Whether Pages deploys from `main` or from tags (R3).
 5. Whether to freeze the AI tutor and playlist agent (keep working, add nothing) and drop the SQLite and
