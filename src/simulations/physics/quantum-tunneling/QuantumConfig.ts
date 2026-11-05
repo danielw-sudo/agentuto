@@ -10,6 +10,8 @@ export const QUANTUM_METADATA = {
   formattedODE: 'iℏ ∂ψ/∂t = -(ℏ²/2m) ∇²ψ + V(x)ψ',
   description:
     'Simulate unitary wavepacket dynamics via the Time-Dependent Schrödinger Equation. Observe quantum tunneling through finite potential barriers (E < V0) and verify exponential decay.',
+  unitsNote:
+    'Reduced units: ħ = m = 1, so energy, length and wave number are in one consistent scaled set, not eV and nm (a real electron at 5 eV has k = 11.5 nm⁻¹; here k = √(2E)). Compare shapes and ratios, not absolute values.',
 };
 
 export const QUANTUM_DEFAULT_PARAMS: QuantumParams = {
@@ -25,7 +27,7 @@ export const QUANTUM_PARAM_DESCRIPTORS: ParameterDescriptor<number>[] = [
   {
     id: 'particleEnergy',
     label: 'Incident Energy (E)',
-    unit: 'eV',
+    unit: 'reduced',
     min: 1.0,
     max: 12.0,
     step: 0.5,
@@ -35,7 +37,7 @@ export const QUANTUM_PARAM_DESCRIPTORS: ParameterDescriptor<number>[] = [
   {
     id: 'barrierHeight',
     label: 'Barrier Height (V0)',
-    unit: 'eV',
+    unit: 'reduced',
     min: 0.0,
     max: 20.0,
     step: 0.5,
@@ -45,7 +47,7 @@ export const QUANTUM_PARAM_DESCRIPTORS: ParameterDescriptor<number>[] = [
   {
     id: 'barrierWidth',
     label: 'Barrier Width (d)',
-    unit: 'nm',
+    unit: 'reduced',
     min: 0.2,
     max: 2.5,
     step: 0.1,
@@ -55,7 +57,7 @@ export const QUANTUM_PARAM_DESCRIPTORS: ParameterDescriptor<number>[] = [
   {
     id: 'packetSigma',
     label: 'Wavepacket Width (σ)',
-    unit: 'nm',
+    unit: 'reduced',
     min: 0.5,
     max: 2.0,
     step: 0.1,

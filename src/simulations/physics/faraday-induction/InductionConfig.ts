@@ -10,6 +10,8 @@ export const INDUCTION_METADATA = {
   formattedODE: 'EMF = -dΦ/dt,  F_Lenz = -(dΦ/dz)²·v / R',
   description:
     "Observe magnetic flux change through a solenoid coil as a bar magnet oscillates. Verify Lenz's law opposing force and electromagnetic damping.",
+  unitsNote:
+    'Demonstration scaling: the coil uses an effective permeability of 1×10⁻³ T·m/A, about 800× the real vacuum value, so flux and EMF are about 800× real and the braking force far more. With real values the braking would be too small to see. Flux, EMF, current, braking force and power are labelled scaled.',
 };
 
 export const INDUCTION_DEFAULT_PARAMS: InductionParams = {

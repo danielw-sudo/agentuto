@@ -36,6 +36,7 @@ import { runThemeVerification } from './theme.test';
 import { runClosedFormVerification } from './closedForm.test';
 import { runCommunityVerification } from './community.test';
 import { runFeedbackVerification } from './feedback.test';
+import { runUnitsVerification } from './units.test';
 import { runLocalModulesVerification } from './localModules.test';
 import { runModuleCheckVerification } from './moduleCheck.test';
 import { runExportModuleVerification } from './exportModule.test';
@@ -1298,13 +1299,16 @@ export async function runCoreVerification(): Promise<boolean> {
   // Test 35: micro-feedback (roadmap R6) — milestones from behaviour only, sound off by default and capped.
   runFeedbackVerification();
 
-  // Test 36: private modules (roadmap R2b) — the rules for local/, the shipped example, git hygiene.
+  // Test 36: unit honesty (ROADMAP §4 item 6) — scaled and reduced instruments say so and are labelled to match.
+  runUnitsVerification();
+
+  // Test 37: private modules (roadmap R2b) — the rules for local/, the shipped example, git hygiene.
   await runLocalModulesVerification();
 
-  // Test 37: module checker (roadmap R2c) — a good module passes, each rule catches a deliberately broken one.
+  // Test 38: module checker (roadmap R2c) — a good module passes, each rule catches a deliberately broken one.
   await runModuleCheckVerification();
 
-  // Test 38: share path (roadmap R5) — a finished module becomes exactly the edits a PR needs; the rest is refused.
+  // Test 39: share path (roadmap R5) — a finished module becomes exactly the edits a PR needs; the rest is refused.
   await runExportModuleVerification();
 
   console.log('\n🎉 ALL CORE ENGINE CONTRACTS VERIFIED SUCCESSFULLY!');

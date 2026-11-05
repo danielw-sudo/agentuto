@@ -243,9 +243,9 @@ Measured after the UI clean-up (2026-11-01), whole `dist/`, in the units the scr
 
 | Measure | Measured | Budget |
 |---|---|---|
-| First load (entry, React, CSS) | 105.7 kB gzip | 107.4 kB |
+| First load (entry, React, CSS) | 106.2 kB gzip | 107.4 kB |
 | Largest single chunk (three.js) | 121.3 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 356.6 kB | 366.2 kB |
+| Total gzip (level 9) | 357.2 kB | 366.2 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
@@ -281,6 +281,10 @@ Every outward link comes from `src/community.ts`: Discussions (and new discussio
 ### 6.6b Milestones and sound
 
 `src/ui/journal/milestones.ts` turns the saved Inquiry Log into a short list of milestones (nine: first entry, a numeric prediction, prediction plus conclusion, changing one parameter and measuring again, an own fit over five or more points, three instruments, three- and seven-day runs, ten entries). Each is a pure function of the log and today's date, looks only at behaviour and never compares a prediction with a measurement (Art. 2.2), and cannot be lost: the longest streak counts. The drawer shows what a save just earned in a polite live region and keeps the full list under "Milestones". `src/ui/journal/chime.ts` holds an optional two-note sine chime made with Web Audio (no files); it is off by default, remembered per browser, capped at gain 0.1 and 0.6 s, and silently does nothing where audio is unavailable. Both live in the lazily loaded sandbox chunk, not the first download. The check counts each rule's boundary against hand-built logs and the smoke test earns two milestones from a seeded log and confirms sound starts off. The mutation list (17 deliberate breaks of thresholds, grouping, the diff, the sound default and the caps) is all caught.
+
+### 6.6c Scaled and reduced units
+
+Three instruments run in scaled units, and the app says so (owner decision 2026-11-04, ROADMAP §4 item 6). Faraday uses an effective permeability of 1×10⁻³ T·m/A in place of 4π×10⁻⁷, so its electrical channels are labelled `scaled V`, `scaled A`, `scaled Wb`, `scaled N` and `scaled W` while its mechanical ones keep their SI units. The tunnelling instrument (ħ = m = 1) and the gas (k_B = 1) label every slider and channel `reduced`. Each manifest carries a one-sentence `unitsNote` that the telemetry card shows beneath itself (`data-units-note`), and the user guide repeats it. `src/core/test/units.test.ts` holds the labels to the conventions (a scaled number never carries a plain SI unit, and no other instrument uses the words); the closed-form cases hold the engines to the conventions; the smoke test checks the note on all three screens. Real constants were considered and not chosen: they would change how fast things happen and what the sliders mean.
 
 ### 6.7 Private modules
 

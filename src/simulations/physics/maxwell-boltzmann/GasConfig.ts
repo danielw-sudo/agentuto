@@ -10,6 +10,8 @@ export const GAS_METADATA = {
   formattedODE: 'P·V = N·k_B·T,  f(v) = (m·v / k_B·T)·exp(-m·v² / 2k_B·T)',
   description:
     'Simulate microscopic elastic collisions of N gas particles. Observe emergent Maxwell-Boltzmann speed distributions, wall impulse pressure, and the Ideal Gas Law.',
+  unitsNote:
+    'Reduced units: k_B = 1, so temperature is an energy per particle and pressure is a force per unit length (two dimensions). The measured wall pressure runs a little above N k T / A because the particles have size.',
 };
 
 export const GAS_DEFAULT_PARAMS: GasParams = {
@@ -23,7 +25,7 @@ export const GAS_PARAM_DESCRIPTORS: ParameterDescriptor<number>[] = [
   {
     id: 'temperature',
     label: 'Temperature (T)',
-    unit: 'K',
+    unit: 'reduced',
     min: 100,
     max: 800,
     step: 25,
@@ -33,7 +35,7 @@ export const GAS_PARAM_DESCRIPTORS: ParameterDescriptor<number>[] = [
   {
     id: 'pistonX',
     label: 'Volume / Piston (Lx)',
-    unit: 'm',
+    unit: 'reduced',
     min: 3.0,
     max: 9.0,
     step: 0.2,
@@ -53,7 +55,7 @@ export const GAS_PARAM_DESCRIPTORS: ParameterDescriptor<number>[] = [
   {
     id: 'particleMass',
     label: 'Molecular Mass (m)',
-    unit: 'u',
+    unit: 'reduced',
     min: 0.5,
     max: 4.0,
     step: 0.5,
