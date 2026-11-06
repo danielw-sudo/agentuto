@@ -245,7 +245,7 @@ Measured after the UI clean-up (2026-11-01), whole `dist/`, in the units the scr
 |---|---|---|
 | First load (entry, React, CSS) | 106.3 kB gzip | 107.4 kB |
 | Largest single chunk (three.js) | 121.3 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 358.1 kB | 366.2 kB |
+| Total gzip (level 9) | 358.4 kB | 366.2 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
