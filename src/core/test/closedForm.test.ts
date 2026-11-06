@@ -623,6 +623,92 @@ const CASES: Record<string, Case> = {
     const walled = await run('conservation-momentum', { mass1: 2, mass2: 2, velocity1: -10, velocity2: 10, impactParameter: 0, restitution: 1 }, 0.5);
     r.near('body 1 position after the wall', walled.t.body1_x, -4.85 + 10 * (walled.t.t - 0.135), 1e-9);
 
+    const table = async (overrides: Record<string, number>) => {
+      const registration = SIMULATION_CATALOG['conservation-momentum'];
+      const engine: any = (await registration.load()).createEngine();
+      engine.init({ ...registration.defaultParams, ...overrides });
+      return engine;
+    };
+
+    // Equal masses, head-on, e = 1: the discs swap velocities, so as a pair they move like two points that pass through
+    // each other and bounce off the walls. Shrink each disc to a point by moving its wall in by one diameter's half: a point
+    // then travels a triangle wave in ±4.5. This holds through walls and impacts in any order, arriving part-way through a
+    // step, with no event logic of its own.
+    const fold = (u: number) => {
+      const span = 18;
+      const wrapped = ((u + 4.5) % span + span) % span;
+      return (wrapped <= 9 ? wrapped : span - wrapped) - 4.5;
+    };
+    for (const [va, vb] of [[-8, 5], [9.5, -6.5], [-10, -7.5], [3.5, 3], [10, 10], [0.5, -9]] as const) {
+      const engine = await table({ mass1: 2, mass2: 2, velocity1: va, velocity2: vb, impactParameter: 0, restitution: 1 });
+      for (let i = 1; i <= 2400; i += 1) {
+        engine.step(DT);
+        if (i % 7 !== 0) continue;
+        const now = engine.getState();
+        const [left, right] = [fold(-3.15 + va * now.time), fold(3.15 + vb * now.time)].sort((p, q) => p - q);
+        r.near(`equal masses v=${va},${vb}, left disc at t=${now.time.toFixed(3)}`, now.body1.x, left - 0.35, 0, 1e-9);
+        r.near(`equal masses v=${va},${vb}, right disc at t=${now.time.toFixed(3)}`, now.body2.x, right + 0.35, 0, 1e-9);
+      }
+    }
+
+    // In one dimension nothing is chaotic, so the path cannot depend on the step: the order of events is the physics.
+    // The last case traps a light disc, which rattles many times inside one step.
+    for (const [ma, mb, va, vb, rest] of [[0.5, 2, -10, 5, 1], [10, 0.5, 7.5, -3, 1], [3, 1, 2.5, 10, 1], [0.5, 10, -10, -10, 0.05]] as const) {
+      const a = await table({ mass1: ma, mass2: mb, velocity1: va, velocity2: vb, impactParameter: 0, restitution: rest });
+      const b = await table({ mass1: ma, mass2: mb, velocity1: va, velocity2: vb, impactParameter: 0, restitution: rest });
+      for (let i = 0; i < 2400; i += 1) {
+        a.step(DT);
+        for (let j = 0; j < 7; j += 1) b.step(DT / 7);
+      }
+      r.near(`m=${ma},${mb}: same path at a seventh of the step`, a.getState().body1.x, b.getState().body1.x, 0, 1e-6);
+      r.near(`m=${ma},${mb}: same collisions at a seventh of the step`, a.getState().collisionCount, b.getState().collisionCount, 0);
+    }
+
+    // A pair that stops sticking at e = 0 comes to rest touching, against the wall, and a light disc trapped by a heavy one
+    // ends the same way: the last collisions drain the motion into the wall. It is never pushed through.
+    for (const [ma, mb, va, vb, left] of [[2, 2, 5, -3, 4.15], [0.5, 10, -3, -10, -4.85], [10, 0.5, 10, 10, 4.15]] as const) {
+      const engine = await table({ mass1: ma, mass2: mb, velocity1: va, velocity2: vb, impactParameter: 0, restitution: 0 });
+      for (let i = 0; i < 2400; i += 1) engine.step(DT);
+      const now = engine.getState();
+      r.near(`e = 0, m=${ma},${mb}: rests at the wall`, now.body1.x, left, 0, 1e-6);
+      r.near(`e = 0, m=${ma},${mb}: rests touching`, now.body2.x - now.body1.x, 0.7, 0, 1e-9);
+      r.near(`e = 0, m=${ma},${mb}: at rest`, now.totalKineticEnergy, 0, 0, 1e-9);
+    }
+
+    // One collision at e = 0, one count: rounding after it must not look like another.
+    const stuck = await table({ mass1: 0.5, mass2: 10, velocity1: 5, velocity2: -10, impactParameter: 0, restitution: 0 });
+    while (stuck.getState().body1.x > -4.4) stuck.step(DT);
+    if (stuck.getState().collisionCount !== 1) r.fail(`one inelastic impact counted ${stuck.getState().collisionCount} times`);
+
+    // A touch far shorter than one step is still a collision. Offset b of 0.7: n = (√(1 − (b/0.7)²), −b/0.7), and equal
+    // masses swap the normal part of their velocity. Exactly at b = 0.7 the discs only brush, and nothing happens.
+    const graze = 0.6995;
+    const brush = await table({ mass1: 2, mass2: 2, velocity1: 10, velocity2: -10, impactParameter: graze, restitution: 1 });
+    for (let i = 0; i < 70; i += 1) brush.step(DT);
+    const nx = Math.sqrt(1 - (graze / 0.7) ** 2);
+    const after2 = brush.getState();
+    if (after2.collisionCount !== 1) r.fail(`a grazing touch counted ${after2.collisionCount} collisions`);
+    r.near('grazing touch: v_x after', after2.body1.vx, 10 - 20 * nx * nx, 1e-9);
+    r.near('grazing touch: v_y after', after2.body1.vy, 20 * nx * (graze / 0.7), 1e-9);
+    const missed = await table({ mass1: 2, mass2: 2, velocity1: 10, velocity2: -10, impactParameter: 0.7, restitution: 1 });
+    for (let i = 0; i < 70; i += 1) missed.step(DT);
+    if (missed.getState().collisionCount !== 0) r.fail('discs that only brush at b = 0.7 counted a collision');
+
+    // No setting of the sliders leaves the discs overlapping or off the table, at any moment.
+    let tightest = Infinity;
+    let widest = 0;
+    for (const ma of [0.5, 2, 10]) for (const mb of [0.5, 10]) for (const va of [-10, -3, 5, 10]) for (const vb of [-10, -3, 3, 10]) for (const b of [0, 0.3, 0.6]) for (const rest of [0, 0.25, 0.5, 1]) {
+      const engine = await table({ mass1: ma, mass2: mb, velocity1: va, velocity2: vb, impactParameter: b, restitution: rest });
+      for (let i = 0; i < 1600; i += 1) {
+        engine.step(DT);
+        const { body1, body2 } = engine.getState();
+        tightest = Math.min(tightest, Math.hypot(body2.x - body1.x, body2.y - body1.y));
+        widest = Math.max(widest, Math.abs(body1.x), Math.abs(body2.x), Math.abs(body1.y) + 2.4, Math.abs(body2.y) + 2.4);
+      }
+    }
+    if (tightest < 0.7 - 1e-9) r.fail(`discs overlapped: centres ${tightest} apart`);
+    if (widest > 4.85 + 1e-9) r.fail(`a disc left the table: ${widest}`);
+
     r.near('glancing impact keeps kinetic energy when e = 1', off.t.kinetic_energy_total_J, 0.5 * m1 * v1 * v1 + 0.5 * m2 * v2 * v2, 1e-9);
   },
 

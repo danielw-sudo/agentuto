@@ -245,7 +245,7 @@ Measured after the UI clean-up (2026-11-01), whole `dist/`, in the units the scr
 |---|---|---|
 | First load (entry, React, CSS) | 106.3 kB gzip | 107.4 kB |
 | Largest single chunk (three.js) | 121.3 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 358.4 kB | 366.2 kB |
+| Total gzip (level 9) | 358.5 kB | 366.2 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
@@ -289,6 +289,13 @@ Three instruments run in scaled units, and the app says so (owner decision 2026-
 ### 6.6d Tunnelling read-out
 
 The tunnelling engine (ħ = m = 1, Crank-Nicolson on a grid) was changed on 2026-11-04 (ROADMAP §4 item 7). The barrier potential is averaged over each grid cell, so its area is exactly V₀·d and its width is the one set, with no staircase (a top-hat sampled at points moves in steps of two cells). The box is ±15, so a packet can clear the barrier before anything reaches the edge, with 719 points (cell 0.042; doubled from 360 on 2026-11-05, 0.010 ms a step here, about 0.2 % of a core at 200 Hz). The state carries `settled`, true once the packet has arrived and cleared, almost no probability is in the barrier, and nothing has reached the outer strips of the box during this run. That last condition is one-way and checked on every step: after a bounce T no longer means transmission, and the clock has no stop, so the mark stays off until the run is reset. Changing the barrier also restarts the run, as changing the packet already did, so a T measured against one barrier is never shown against another. The card says "settled: ready to read", "still moving: not final", or "hit the wall: reset to read". A closed-form case compares T, when settled, with the packet-averaged rectangular-barrier coefficient (within 2 %; measured 0.2 to 1.3 % in the cases it uses), checks the barrier area, checks that T falls steadily with the width slider, checks that whenever `settled` is true T is the packet value, including for wide and fast packets over 90 s of run, and checks the restart when a barrier slider moves. Known limits, measured on a grid of 525 slider settings (60 s each): 177 settle, at most 6.5 s into a run, none later; by packet width that is 1 of 175 at σ = 2, 112 of 175 at σ = 0.9, 64 of 175 at σ = 0.5. The rest never show the mark. At the default E and V0 a barrier of d = 2.0 does not settle, and the default packet reads 0.4 to 2.6 % low up to d = 1.5 and 4 to 6 % low from d = 1.6 to 1.9. Of the 168 settings that settle with exact T above 1e-4, 12 read more than 6 % off and 9 more than 10 %, worst 48 % (E = 12, V0 = 20, d = 2.5, σ = 0.9, very small T). On 360 points those counts were 41, 22 and 65 %, and 192 settled: the finer grid costs some settling, probably because the fast tail now runs at its true speed and reaches the wall sooner (not separately measured). A wide packet now almost never settles, and the card says so.
+
+
+### 6.6e Momentum table
+
+The discs and walls are event-driven inside each 5 ms step: the engine goes to the next wall or contact in time order, resolves it, and goes on until the step is used up. So discs do not overlap, a touch shorter than a step is not missed, and the order of a wall and a collision is the order they happen. Closed-form checks: equal masses at e = 1 against the free-point solution over 12 s, step independence in one dimension, pairs at e = 0 at rest at the wall, a grazing touch, and no overlap across a slider grid.
+
+Known limits, measured: in one dimension the path does not depend on the step. Glancing elastic runs are chaotic: over 810 settings the engine stays within 1e-6 of a separate event solver for 4 s, but moving the start by 1e-13 m moved that solver's own answer by 3 m at 12 s, so a long glancing run is not repeatable to the rounding of the machine. A light disc trapped by a heavy one at low e really does bounce very often: the collision count reached 307 on the sliders tested, and the most events in one step was 613, under the cap of 4096.
 
 ### 6.7 Private modules
 
