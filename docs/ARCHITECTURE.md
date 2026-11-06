@@ -245,7 +245,7 @@ Measured after the UI clean-up (2026-11-01), whole `dist/`, in the units the scr
 |---|---|---|
 | First load (entry, React, CSS) | 106.3 kB gzip | 107.4 kB |
 | Largest single chunk (three.js) | 121.3 kB gzip | 180.7 kB |
-| Total gzip (level 9) | 357.9 kB | 366.2 kB |
+| Total gzip (level 9) | 358.1 kB | 366.2 kB |
 | Total raw | ~1.25 MB | 1.3 MB |
 
 Before sandboxes were split out, a first visit downloaded the whole ~320 kB. The total budget rose from
@@ -338,7 +338,7 @@ agentuto/
 
 ### Phased Roadmap & Live Status
 * [x] **Phase 1: Foundation Scaffolding:** Vite + React + TypeScript + Tailwind v4 + core simulation contracts + unit test suite. *(Completed)*
-* [x] **Phase 2: First 3D Sandbox:** Extract Lorentz Force ($q(\vec{E} + \vec{v} \times \vec{B})$) with RK4 integrator & procedural Three.js renderer. *(Completed)*
+* [x] **Phase 2: First 3D Sandbox:** Extract Lorentz Force ($q(\vec{E} + \vec{v} \times \vec{B})$) with an exact step in the drifting frame (RK4 until 2026-11-05, which lost speed at the top of the slider ranges) & procedural Three.js renderer. *(Completed)*
 * [x] **Phase 3: Floating HUD & Telemetry CSV Export:** Glassmorphic controls, live recording ring buffer, RFC-4180 CSV exporter, and `window.__AGENTUTO_SIM__` developer bridge. *(Completed)*
 * [x] **Phase 4: In-App Gemini Socratic Tutor:** Direct client-side Gemini REST API (BYOK in localStorage), live telemetry context injection, Socratic system prompt, and slide-out chat drawer. *(Completed)*
 * [x] **Phase 5: Hybrid 2D Motion Sandbox & Multi-Sim Catalog:** MIT 18.03 Damped/Driven Oscillator with dual-view physical spring & 2D Phase Portrait ($x$ vs. $\dot{x}$), plus dynamic catalog switcher. *(Completed)*

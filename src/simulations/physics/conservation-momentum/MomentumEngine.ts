@@ -124,14 +124,33 @@ export class MomentumEngine implements SimulationEngine<MomentumParams, Momentum
     const minDist = this.b1.radius + this.b2.radius;
 
     if (dist < minDist && dist > 1e-4) {
-      const nx = dx / dist;
-      const ny = dy / dist;
-
-      // Relative velocity along collision normal
-      const vrelN = (this.b1.vx - this.b2.vx) * nx + (this.b1.vy - this.b2.vy) * ny;
+      // Relative velocity along the line of centres
+      const closing = (this.b1.vx - this.b2.vx) * dx + (this.b1.vy - this.b2.vy) * dy;
 
       // Only resolve if bodies are approaching
-      if (vrelN > 0) {
+      if (closing > 0) {
+        // The discs met part-way through this step: go back to that moment, so the impact happens where it really
+        // did and the centre of mass stays on its line. |d - w*s| = minDist, with s the time since contact.
+        const wx = this.b2.vx - this.b1.vx;
+        const wy = this.b2.vy - this.b1.vy;
+        const w2 = wx * wx + wy * wy;
+        const dw = dx * wx + dy * wy;
+        const since = Math.min(dt, (dw + Math.sqrt(Math.max(0, dw * dw - w2 * (dist * dist - minDist * minDist)))) / w2);
+
+        this.b1.x -= this.b1.vx * since;
+        this.b1.y -= this.b1.vy * since;
+        this.b2.x -= this.b2.vx * since;
+        this.b2.y -= this.b2.vy * since;
+
+        const contactX = this.b2.x - this.b1.x;
+        const contactY = this.b2.y - this.b1.y;
+        const contact = Math.hypot(contactX, contactY);
+        const nx = contactX / contact;
+        const ny = contactY / contact;
+
+        // Relative velocity along collision normal
+        const vrelN = (this.b1.vx - this.b2.vx) * nx + (this.b1.vy - this.b2.vy) * ny;
+
         const m1 = this.b1.mass;
         const m2 = this.b2.mass;
 
@@ -145,36 +164,36 @@ export class MomentumEngine implements SimulationEngine<MomentumParams, Momentum
         this.b2.vx -= (J / m2) * nx;
         this.b2.vy -= (J / m2) * ny;
 
-        // Separate bodies to prevent sticking / tunneling
-        const overlap = (minDist - dist) * 0.5;
-        this.b1.x -= nx * overlap;
-        this.b1.y -= ny * overlap;
-        this.b2.x += nx * overlap;
-        this.b2.y += ny * overlap;
+        // Finish the step with the new velocities
+        this.b1.x += this.b1.vx * since;
+        this.b1.y += this.b1.vy * since;
+        this.b2.x += this.b2.vx * since;
+        this.b2.y += this.b2.vy * since;
 
         this.collisionCount++;
         this.justCollided = true;
       }
     }
 
-    // 3. Elastic Table Boundary Reflections (external boundary impulse)
+    // 3. Elastic Table Boundary Reflections (external boundary impulse). A body past a wall is mirrored in it, which is
+    // where it would be had it bounced part-way through the step.
     const checkWall = (b: BodyDisk) => {
       let touchedWall = false;
       if (b.x < -this.boundX + b.radius) {
-        b.x = -this.boundX + b.radius;
+        b.x = 2 * (-this.boundX + b.radius) - b.x;
         b.vx = Math.abs(b.vx);
         touchedWall = true;
       } else if (b.x > this.boundX - b.radius) {
-        b.x = this.boundX - b.radius;
+        b.x = 2 * (this.boundX - b.radius) - b.x;
         b.vx = -Math.abs(b.vx);
         touchedWall = true;
       }
       if (b.y < -this.boundY + b.radius) {
-        b.y = -this.boundY + b.radius;
+        b.y = 2 * (-this.boundY + b.radius) - b.y;
         b.vy = Math.abs(b.vy);
         touchedWall = true;
       } else if (b.y > this.boundY - b.radius) {
-        b.y = this.boundY - b.radius;
+        b.y = 2 * (this.boundY - b.radius) - b.y;
         b.vy = -Math.abs(b.vy);
         touchedWall = true;
       }

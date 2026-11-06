@@ -1,6 +1,5 @@
 import { SimulationEngine, SimulationState, TelemetryPoint } from '../../../core/types/simulation';
 import { Vec3 } from '../../../core/math/vector3';
-import { rk4KinematicStep } from '../../../core/math/integrators';
 
 export interface LorentzParams extends Record<string, number> {
   charge: number;        // microCoulombs (uC = 10^-6 C)
@@ -61,19 +60,31 @@ export class LorentzEngine implements SimulationEngine<LorentzParams, LorentzSta
   step(dt: number): void {
     const safeMass = Math.max(this.params.mass, 1e-6);
     const qOverM = this.params.charge / safeMass; // Exact SI unit ratio: (10^-6 C) / (10^-6 kg) = 1 C/kg
-    const B = new Vec3(0, 0, this.params.magneticFieldZ);
-    const E = new Vec3(0, this.params.electricFieldY, 0);
+    const B = this.params.magneticFieldZ;
+    const E = this.params.electricFieldY;
+    const omega = qOverM * B;
 
-    // Lorentz force acceleration: a = (q/m) * (E + v x B)
-    const accelFn = (_t: number, _r: Vec3, v: Vec3): Vec3 => {
-      const vCrossB = v.cross(B);
-      const totalForcePerMass = E.add(vCrossB).scale(qOverM);
-      return totalForcePerMass;
-    };
-
-    const next = rk4KinematicStep(this.pos, this.vel, this.time, dt, accelFn);
-    this.pos = next.pos;
-    this.vel = next.vel;
+    // Lorentz force acceleration: a = (q/m) * (E + v x B). The fields are constant and perpendicular, so the exact
+    // motion is known: the velocity rotates at omega in the frame drifting at E/B. An integrator would shrink the speed
+    // instead (RK4 lost 20 % a minute at the top of the slider ranges), though a magnetic field does no work.
+    const { x: vx, y: vy, z: vz } = this.vel;
+    if (Math.abs(omega) < 1e-9) {
+      // No magnetic turning: constant acceleration along E
+      const ay = qOverM * E;
+      this.pos = new Vec3(this.pos.x + vx * dt, this.pos.y + vy * dt + 0.5 * ay * dt * dt, this.pos.z + vz * dt);
+      this.vel = new Vec3(vx, vy + ay * dt, vz);
+    } else {
+      const drift = E / B;
+      const ux = vx - drift;
+      const sinW = Math.sin(omega * dt);
+      const cosW = Math.cos(omega * dt);
+      this.pos = new Vec3(
+        this.pos.x + drift * dt + (ux * sinW + vy * (1 - cosW)) / omega,
+        this.pos.y + (ux * (cosW - 1) + vy * sinW) / omega,
+        this.pos.z + vz * dt
+      );
+      this.vel = new Vec3(drift + ux * cosW + vy * sinW, vy * cosW - ux * sinW, vz);
+    }
     this.time += dt;
 
     // Record trail point every 3 steps to maintain performance
