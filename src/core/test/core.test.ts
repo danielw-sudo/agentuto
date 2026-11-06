@@ -1,6 +1,7 @@
 import { Vec3 } from '../math/vector3';
 import { rk4KinematicStep } from '../math/integrators';
 import { TelemetryRecorder } from '../telemetry/TelemetryRecorder';
+import { runLabRecordingVerification } from './labRecording.test';
 import { formatTelemetryToCSV } from '../telemetry/csvExporter';
 import { LorentzEngine } from '../../simulations/physics/lorentz-force/LorentzEngine';
 import { OscillatorEngine } from '../../simulations/physics/harmonic-oscillator/OscillatorEngine';
@@ -1290,6 +1291,9 @@ export async function runCoreVerification(): Promise<boolean> {
 
   // Test 32: colour theme choice — saved, defaults to the system, survives blocked storage.
   runThemeVerification();
+
+  // Test 32b: a lab run as a learner does it: a sweep keeps every run, and every width can be read.
+  await runLabRecordingVerification();
 
   // Test 33: independent closed forms for every instrument (Art. 1.5, roadmap R6) — own constants, off-default parameters.
   await runClosedFormVerification();

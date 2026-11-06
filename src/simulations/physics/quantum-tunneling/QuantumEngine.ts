@@ -367,6 +367,7 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
       barrier_V0: state.barrierHeight,
       barrier_width: state.barrierWidth,
       wave_number: state.waveNumber,
+      settled: state.settled ? 1 : 0,
     };
   }
 }

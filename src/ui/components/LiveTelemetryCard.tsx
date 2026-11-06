@@ -3,6 +3,7 @@ import { Activity } from 'lucide-react';
 import { GlassPanel } from './GlassPanel';
 import { SIMULATION_CATALOG } from '../../simulations';
 import { TelemetrySparkline } from './TelemetrySparkline';
+import { formatPercent } from '../../core/telemetry/formatPercent';
 
 /**
  * Instruments with a card of their own below. Anything else, a private module or one just shared from `local/`,
@@ -34,45 +35,51 @@ export interface LiveTelemetryCardProps {
   state: any;
 }
 
+/** The number each card's sparkline follows, in the unit that sparkline is labelled with. */
+export function sparklineMetric(sandboxId: string, state: any): number {
+  return (
+    sandboxId === 'harmonic-oscillator'
+      ? (state.x ?? 0)
+      : sandboxId === 'lorenz-attractor'
+      ? (state.divergence ?? 0)
+      : sandboxId === 'faraday-induction'
+      ? (state.emf ?? 0)
+      : sandboxId === 'maxwell-boltzmann'
+      ? (state.empiricalPressure ?? 0)
+      : sandboxId === 'quantum-tunneling'
+      ? (state.transmission ?? 0) * 100
+      : sandboxId === 'wave-optics'
+      ? (state.fringeSpacingMm ?? 0)
+      : sandboxId === 'kepler-orbits'
+      ? (state.r ?? 0)
+      : sandboxId === 'projectile-drag'
+      ? (state.y ?? 0)
+      : sandboxId === 'lcr-circuit'
+      ? (state.current ?? 0)
+      : sandboxId === 'standing-waves'
+      ? (state.kineticEnergy ?? 0)
+      : sandboxId === 'doppler-shift'
+      ? (state.observedFrequencyAtReceiver ?? 0)
+      : sandboxId === 'photoelectric-effect'
+      ? (state.photocurrentMicroAmps ?? 0)
+      : sandboxId === 'carnot-cycle'
+      ? (state.pressureAtm ?? 0)
+      : sandboxId === 'gauss-flux'
+      ? (state.enclosedChargeNc ?? 0)
+      : sandboxId === 'conservation-momentum'
+      ? (state.totalMomentumMag ?? 0)
+      : sandboxId === 'rc-rl-circuits'
+      ? (state.componentVoltage ?? 0)
+      : (state.speed ?? 0)
+  );
+}
+
 const CardBody: React.FC<LiveTelemetryCardProps> = React.memo(({ sandboxId, state }) => {
   const [history, setHistory] = useState<number[]>([]);
 
   useEffect(() => {
     if (!state) return;
-    const metric =
-      sandboxId === 'harmonic-oscillator'
-        ? (state.x ?? 0)
-        : sandboxId === 'lorenz-attractor'
-        ? (state.divergence ?? 0)
-        : sandboxId === 'faraday-induction'
-        ? (state.emf ?? 0)
-        : sandboxId === 'maxwell-boltzmann'
-        ? (state.empiricalPressure ?? 0)
-        : sandboxId === 'quantum-tunneling'
-        ? (state.transmission ?? 0)
-        : sandboxId === 'wave-optics'
-        ? (state.fringeSpacingMm ?? 0)
-        : sandboxId === 'kepler-orbits'
-        ? (state.r ?? 0)
-        : sandboxId === 'projectile-drag'
-        ? (state.y ?? 0)
-        : sandboxId === 'lcr-circuit'
-        ? (state.current ?? 0)
-        : sandboxId === 'standing-waves'
-        ? (state.kineticEnergy ?? 0)
-        : sandboxId === 'doppler-shift'
-        ? (state.observedFrequencyAtReceiver ?? 0)
-        : sandboxId === 'photoelectric-effect'
-        ? (state.photocurrentMicroAmps ?? 0)
-        : sandboxId === 'carnot-cycle'
-        ? (state.pressureAtm ?? 0)
-        : sandboxId === 'gauss-flux'
-        ? (state.enclosedChargeNc ?? 0)
-        : sandboxId === 'conservation-momentum'
-        ? (state.totalMomentumMag ?? 0)
-        : sandboxId === 'rc-rl-circuits'
-        ? (state.componentVoltage ?? 0)
-        : (state.speed ?? 0);
+    const metric = sparklineMetric(sandboxId, state);
 
     setHistory((prev) => {
       const next = [...prev, metric];
@@ -269,7 +276,7 @@ const CardBody: React.FC<LiveTelemetryCardProps> = React.memo(({ sandboxId, stat
         <div className="grid grid-cols-2 gap-2 text-xs font-mono">
           <div className="flex flex-col bg-sunken p-1.5 rounded border border-line">
             <span className="text-xs text-muted">Transmission T</span>
-            <span className="text-cyan-300 font-semibold">{tPercent.toFixed(1)}%</span>
+            <span className="text-cyan-300 font-semibold">{formatPercent(tPercent)}</span>
             <span data-settled={state.settled ? 'true' : 'false'} className="text-xs text-muted">
               {state.settled ? 'settled: ready to read' : state.wallReached ? 'hit the wall: reset to read' : 'still moving: not final'}
             </span>

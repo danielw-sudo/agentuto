@@ -1,5 +1,6 @@
 import { ViewportRenderer } from '../../../core/types/simulation';
 import { QuantumState } from './QuantumEngine';
+import { formatPercent } from '../../../core/telemetry/formatPercent';
 
 export class QuantumRenderer2D implements ViewportRenderer<QuantumState> {
   private canvas: HTMLCanvasElement | null = null;
@@ -251,7 +252,7 @@ export class QuantumRenderer2D implements ViewportRenderer<QuantumState> {
     // Dual Progress Bars for T, R & Barrier
     ctx.font = '11px monospace';
     ctx.fillStyle = '#38bdf8';
-    ctx.fillText(`Transmission T: ${tPercent.toFixed(1)}%`, originX, originY + 14);
+    ctx.fillText(`Transmission T: ${formatPercent(tPercent)}`, originX, originY + 14);
 
     ctx.fillStyle = '#1e293b';
     ctx.fillRect(originX, originY + 20, plotW, 6);

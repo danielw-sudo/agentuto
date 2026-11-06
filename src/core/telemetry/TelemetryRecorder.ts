@@ -61,8 +61,11 @@ export class TelemetryRecorder {
   sample(point: TelemetryPoint): boolean {
     if (!this.isRecording) return false;
 
+    // A slider can restart the run under an open recording: the clock goes back, and the new run is kept after the old
+    const restarted = point.t < this.lastRecordedSimTime;
+
     // Check if enough simulation time has elapsed since last sample
-    if (point.t - this.lastRecordedSimTime >= this.sampleInterval) {
+    if (restarted || point.t - this.lastRecordedSimTime >= this.sampleInterval) {
       const snapshot = { ...point };
       this.lastRecordedSimTime = point.t;
 
@@ -109,9 +112,12 @@ export class TelemetryRecorder {
       };
     }
 
-    const first = ordered[0];
     const last = ordered[ordered.length - 1];
-    const duration = last.t - first.t;
+    // Time recorded, across any restarts
+    let duration = 0;
+    for (let i = 1; i < ordered.length; i++) {
+      duration += Math.max(0, ordered[i].t - ordered[i - 1].t);
+    }
 
     const minVals: Record<string, number> = {};
     const maxVals: Record<string, number> = {};

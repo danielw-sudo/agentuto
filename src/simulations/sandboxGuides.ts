@@ -123,7 +123,7 @@ export const SANDBOX_LAB_GUIDES: Record<string, SandboxGuideEntry> = {
   'maxwell-boltzmann': {
     labProtocol: [
       'Hold T constant and vary piston position L_x while recording empirical wall pressure P.',
-      'Set N = 40 and compare P · A with N k_B T in the Lab Notebook: it comes out 3 to 7 % high, and the excess grows as the box fills.',
+      'Set N = 40 and compare empirical_pressure with ideal_pressure (N k_B T / A) in the Lab Notebook: it comes out 3 to 7 % high, and the excess grows as the box fills.',
       'Quadruple temperature T and verify that root-mean-square speed v_rms doubles (v_rms ∝ √T).',
     ],
     whatToExplore: [
@@ -146,7 +146,7 @@ export const SANDBOX_LAB_GUIDES: Record<string, SandboxGuideEntry> = {
   'quantum-tunneling': {
     labProtocol: [
       'Set particle energy E = 3 below barrier height V₀ = 9, and wavepacket width σ = 1.2.',
-      'Sweep barrier width d from 0.5 to 1.5. Each change restarts the run: record T when the card says settled.',
+      'Sweep barrier width d from 0.5 to 1.5. Each change restarts the run: note T when the card says settled, or leave Record on and keep the exported rows with settled = 1.',
       'Fit ln T against d: the slope comes out near −6.1, a little short of −2κ = −6.9 because the faster part of the packet tunnels more easily. Total norm ∫|ψ|² dx stays 1.000000.',
     ],
     whatToExplore: [
@@ -414,7 +414,7 @@ export const SANDBOX_LAB_GUIDES: Record<string, SandboxGuideEntry> = {
   },
   'rc-rl-circuits': {
     labProtocol: [
-      'Reset with Switch = Charge and click Record to capture the transient. The clock samples every 5 ms, so choose a τ of 10 ms or more: for RL use L = 500 mH and R = 10 Ω (τ = 50 ms). A shorter τ is correct but settles between samples.',
+      'Reset with Switch = Charge and click Record to capture the transient. Record keeps a sample every 20 to 25 ms, so choose a τ of 50 ms or more: for RL use L = 500 mH and R = 10 Ω. A shorter τ is correct but settles between samples. Stop Record before the half-cycle ends, because a fit across several cycles means nothing.',
       'Verify that V_C(t) reaches 63.2% of V₀ at t = τ = RC (or I(t) reaches 63.2% at t = τ = L/R).',
       'Fit v_resistor (v_component in RL mode) vs. t in the Lab Notebook using Exponential Regression to extract slope −1/τ.',
     ],
