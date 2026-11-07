@@ -137,7 +137,7 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
       },
       {
         label: 'Thick Barrier Evanescent Suppression',
-        desc: 'd = 2.0 nm, V0 = 12 eV. Demonstrates exponential attenuation T ∝ exp(-2κd).',
+        desc: 'd = 2.0 nm, V0 = 12 eV. T falls far below the thin barrier’s, though the fast part of the packet keeps it above exp(-2κd).',
         sandbox: 'quantum-tunneling',
         params: { particleEnergy: 5.0, barrierHeight: 12.0, barrierWidth: 2.0, packetSigma: 0.9, barrierPosition: 0.0, initialX: -5.0 },
       },

@@ -259,10 +259,12 @@ const CASES: Record<string, Case> = {
   // Reduced units, as the engine states them: ħ = m = 1, so k = √(2E). A packet is a Gaussian spread of
   // wave numbers, |φ(k)|² centred on k0 with standard deviation 1/(2σ); each k is transmitted by the textbook
   // rectangular-barrier coefficient T(k) = 1 / (1 + V0² sinh²(κd) / (4E(V0−E))), κ = √(2(V0−E)), and the
-  // packet's transmission is their weighted sum (waves above the barrier use sin in place of sinh). T is read when the
-  // engine says it is settled (the packet has cleared the barrier and nothing has reached the edge of the box). The
-  // barrier is averaged over grid cells, so its area is exactly V0·d and its width is the one set. What is left, about
-  // 1.3 % at worst here on 719 points, is the scheme's dispersion, so this is held to 2 % (360 points reads 4.7 % low and fails).
+  // packet's transmission is their weighted sum (waves above the barrier use sin in place of sinh). A slow packet also
+  // holds some k < 0, which moves away from the barrier and never meets it: that part counts in the weight and transmits
+  // nothing (7.9 % of the packet at E = 1, σ = 0.5). T is read when the engine says it is settled (T has stopped rising,
+  // and nothing has reached the edge of the box). The barrier is averaged over grid cells, so its area is exactly V0·d and
+  // its width is the one set. What is left is the scheme's dispersion, second order in the cell, so a check of one reading
+  // is held to 2 % and a check of every settled step to 3 %.
   async 'quantum-tunneling'(r) {
     const transmission = (k: number, V0: number, d: number): number => {
       const energy = (k * k) / 2;
@@ -279,19 +281,23 @@ const CASES: Record<string, Case> = {
       const sk = 1 / (2 * sigma);
       let weight = 0;
       let sum = 0;
-      for (let k = Math.max(0.05, k0 - 6 * sk); k <= k0 + 6 * sk; k += sk / 400) {
+      // The upper limit runs far past the packet: at a small T the sum is ruled by a tail of waves above the barrier
+      // (±6 spreads reads 4.9 % low at E = 10, V0 = 20, d = 2.5, σ = 1.6).
+      for (let k = k0 - 6 * sk; k <= k0 + 16 * sk; k += sk / 400) {
         const w = Math.exp(-((k - k0) ** 2) / (2 * sk * sk));
         weight += w;
-        sum += w * transmission(k, V0, d);
+        if (k > 0.05) sum += w * transmission(k, V0, d);
       }
       return sum / weight;
     };
+    // One-sided Gaussian tail beyond 7 standard deviations: Q(7) = 1.28e-12.
+    const Q7 = 1.28e-12;
     /** Runs until the engine reports T as readable, and returns that reading (or fails). */
     const settledReading = async (overrides: Record<string, number>): Promise<{ s: Channels; state: any } | null> => {
       const registration = SIMULATION_CATALOG['quantum-tunneling'];
       const engine: any = (await registration.load()).createEngine();
       engine.init({ ...registration.defaultParams, ...overrides });
-      for (let i = 0; i < 4000; i += 1) {
+      for (let i = 0; i < 6000; i += 1) {
         engine.step(DT);
         const state = engine.getState();
         if (state.settled) return { s: engine.getTelemetrySnapshot() as Channels, state };
@@ -312,18 +318,32 @@ const CASES: Record<string, Case> = {
       r.near('k0 = √(2E)', s.wave_number, Math.sqrt(2 * E), 1e-12);
     }
 
+    // What a packet starts with is not transmission: it starts 7σ clear of the barrier (or at x = -5 if that is further),
+    // so at most Q(7) of it is at or past the barrier's left edge at t = 0, whatever the sliders say. Read from the density.
+    for (const [d, sigma] of [[2.5, 2.0], [1.5, 1.4], [1.5, 1.2], [1, 0.9], [0.2, 0.5]] as const) {
+      const { state } = await run('quantum-tunneling', { barrierWidth: d, packetSigma: sigma }, 0);
+      const dx = state.gridX[1] - state.gridX[0];
+      const centre = state.probabilityDensity.reduce((a: number, p: number, i: number) => a + p * state.gridX[i] * dx, 0);
+      r.near(`packet centre at the start for d=${d}, σ=${sigma}`, centre, -Math.max(5, d / 2 + 7 * sigma), 1e-6);
+      if (!(state.transmission + state.insideBarrier < 2 * Q7)) r.fail(`d=${d}, σ=${sigma} starts with ${state.transmission + state.insideBarrier} at or past the barrier, more than the 7σ tail`);
+    }
+
     // Settled means readable, and every case below says which way it must go, so no case can pass without being tested.
     // The first list must settle, and on every settled step T is the packet's value. The second must never settle, and
-    // the clock has no stop, so all of them run for 90 s, long past every bounce. These four pin today's box, so a larger
-    // box would legitimately move them. In the three σ = 2 cases the packet starts across the barrier and its edge reaches
-    // the wall before the packet clears it (before the wall latch, the last two read far too high while marked settled).
-    // The fourth is measured, not derived: probability stays inside the barrier (0.0045) until the wall latches. This does
-    // not show settled can be trusted at every slider value. On the grid of 1155 slider settings in the pull request for
-    // this check, 132 of the 512 that settle read more than 3 % off: a packet that starts overlapping the barrier reads
-    // high, and others read low for causes not yet established. The guide's lab sweep is not on that grid and reads 23 %
-    // high at d = 1.5. Those are open faults in the engine; the first list avoids them on purpose.
-    const settling = [[10, 12, 0.6, 0.9], [8, 4, 0.6, 1.6], [8, 16, 0.6, 0.5], [2, 20, 0.6, 0.9], [3, 4, 1.5, 1.2]] as const;
-    const never = [[10, 12, 0.6, 2.0], [12, 20, 1, 2.0], [2, 20, 1, 2.0], [8, 10, 1.5, 0.6]] as const;
+    // the clock has no stop, so all of them run for 90 s, long past every bounce.
+    // The first list holds settings that once read wrong while marked settled: too high from a packet that started
+    // overlapping the barrier (the wide packets, including the lab sweep's d = 1.5), and too low from T being read while
+    // still rising and from the grid (E = 12, E = 2 at σ = 0.5, and the Thick Barrier preset). The second list pins today's
+    // box, so a larger box would legitimately move it: T is still rising, or too much of the packet is still at the barrier
+    // for so small a T, when the packet reaches the wall, so the mark stays off. In [1, 20, 0.2, 0.5] 7.9 % of the packet
+    // moves away from the barrier, so that entry fails if the reference leaves that part out.
+    const settling = [
+      [10, 12, 0.6, 0.9], [8, 4, 0.6, 1.6], [8, 16, 0.6, 0.5], [2, 20, 0.6, 0.9], [3, 4, 1.5, 1.2],
+      [10, 12, 0.6, 2.0], [12, 20, 1, 2.0], [2, 20, 1, 2.0],
+      [3, 9, 1.5, 1.2], [5, 12, 2, 0.9], [5, 20, 1.5, 1.4], [5, 16, 1.5, 1.4], [3, 12, 1.5, 1.2],
+      [12, 20, 1.5, 0.9], [12, 16, 1.5, 1.2], [2, 16, 0.2, 0.5], [1, 20, 0.2, 0.5],
+    ] as const;
+    const never = [[5, 20, 2.5, 0.9], [3, 20, 1.5, 1.2], [12, 20, 2.5, 0.9], [8, 20, 2.5, 0.5], [1, 12, 1.5, 1.2], [1, 4, 0.2, 0.5]] as const;
     for (const [E, V0, d, sigma, mustSettle] of [...settling.map((c) => [...c, true] as const), ...never.map((c) => [...c, false] as const)]) {
       const registration = SIMULATION_CATALOG['quantum-tunneling'];
       const engine: any = (await registration.load()).createEngine();
@@ -345,10 +365,12 @@ const CASES: Record<string, Case> = {
       if (!engine.getState().wallReached) r.fail(`${who}: expected the packet to reach the wall within 90 s, but wallReached is false`);
     }
 
-    // The lab protocol, as a learner would run it: E = 3, V0 = 9, σ = 1.2, d from 0.5 to 1.5. Every width settles, ln T
-    // falls near the slope the guide states (−6.1, short of −2κ = −6.9), and the norm holds to the six places shown.
+    // The lab protocol, as a learner would run it: E = 3, V0 = 9, σ = 1.2, d from 0.5 to 1.5. Every width settles on the
+    // packet's value, ln T falls at the packet's slope, which the guide states (−6.2, short of −2κ = −6.9), and the norm
+    // holds to the six places shown.
     const widths: number[] = [];
     const logs: number[] = [];
+    const exactLogs: number[] = [];
     for (let i = 0; i <= 10; i += 1) {
       const d = 0.5 + i * 0.1;
       const got = await settledReading({ particleEnergy: 3, barrierHeight: 9, barrierWidth: d, packetSigma: 1.2 });
@@ -358,12 +380,17 @@ const CASES: Record<string, Case> = {
       }
       widths.push(d);
       logs.push(Math.log(got.s.transmission_T));
+      exactLogs.push(Math.log(packet(3, 9, d, 1.2)));
+      r.near(`T in the lab protocol at d=${d.toFixed(1)}`, got.s.transmission_T, packet(3, 9, d, 1.2), 0.01);
       r.near(`norm at d=${d.toFixed(1)}`, got.s.norm, 1, 5e-7);
     }
     const meanD = widths.reduce((a, b) => a + b, 0) / widths.length;
-    const meanLog = logs.reduce((a, b) => a + b, 0) / logs.length;
-    const slope = widths.reduce((a, d, i) => a + (d - meanD) * (logs[i] - meanLog), 0) / widths.reduce((a, d) => a + (d - meanD) ** 2, 0);
-    r.near('the lab protocol\'s slope of ln T against d', slope, -6.1, 0.03);
+    const slopeOf = (ys: number[]): number => {
+      const meanY = ys.reduce((a, b) => a + b, 0) / ys.length;
+      return widths.reduce((a, d, i) => a + (d - meanD) * (ys[i] - meanY), 0) / widths.reduce((a, d) => a + (d - meanD) ** 2, 0);
+    };
+    r.near('the lab protocol\'s slope of ln T against d, against the packet', slopeOf(logs), slopeOf(exactLogs), 0.005);
+    r.near('the lab protocol\'s slope of ln T against d, as the guide states it', slopeOf(logs), -6.2, 0.005);
 
     // A reading belongs to one barrier: moving a barrier slider starts the run again, so an old T is never marked as
     // the new barrier's, and the new run settles on the new barrier's value. Setting a value it already has changes nothing.
