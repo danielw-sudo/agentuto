@@ -191,10 +191,14 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
       const buttons = [/^Single Step/, /^0\.25×/, /^0\.5×/, /^2×/, /^1×/, /^Toggle telemetry recording/, /^Toggle telemetry recording/, /^Download raw data/, /^Toggle Empirical Lab Notebook/, /^Toggle Empirical Lab Notebook/, /^Toggle the Inquiry Log/, /^Toggle the Inquiry Log/, /^Reset parameters to defaults/, /^Reset Simulation/, /^Play|^Pause/];
       for (const button of buttons) await press(button);
 
-      // The two measuring instruments, which open from the telemetry bar and have no test ids: each panel is found by
-      // its close button. textContent is read, not innerText, because a CSS class upper-cases some of the labels.
+      // The two measuring instruments, which open from the telemetry bar. They have no test ids, so each panel is found
+      // by its close button.
       const panelOf = (closeTitle: string) => document.querySelector(`button[title="${closeTitle}"]`)?.closest('div.fixed') ?? null;
-      const clickTitled = (title: string) => document.querySelector<HTMLButtonElement>(`button[title="${title}"]`)?.click();
+      const clickTitled = (title: string) => {
+        const button = document.querySelector<HTMLButtonElement>(`button[title="${title}"]`);
+        if (!button) found.push(`no button "${title}"`);
+        button?.click();
+      };
       const rangeOf = (panel: Element | null) => panel?.querySelector<HTMLInputElement>('input[type=range]') ?? null;
       const moveTo = async (panel: Element | null, value: number, what: string) => {
         const slider = rangeOf(panel);
@@ -240,20 +244,48 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
         reads(panelOf('Close Photogate'), '-4.00 m', 'the Photogate at -4');
         await moveTo(panelOf('Close Photogate'), 0, 'the Photogate position');
         reads(panelOf('Close Photogate'), '0.00 m', 'the Photogate back at 0');
-        // The oscillator starts at x = 2.5 m with a period of about 2.8 s, so a gate at 0 sees a crossing within 6 s.
-        // Only that a crossing is logged is checked; the period is timed by animation frames and is not compared.
+        // The oscillator is held to its closed form. Its defaults are m = 1, b = 0.3, k = 5, x0 = 2.5 and no drive, so with
+        // g = b / 2m = 0.15 and wd = sqrt(k/m - g^2): x = 2.5 e^(-g t) (cos wd t + (g/wd) sin wd t) and
+        // v = -2.5 (k/m / wd) e^(-g t) sin wd t. A gate at 1 m must log two crossings, one each way, each at a time when
+        // that formula puts the particle at the gate and with the speed it gives. Position and speed are compared at the
+        // row's own logged time, so frame timing does not enter. The Period readout is timed by animation frames and is
+        // still not compared.
         if (id === 'harmonic-oscillator') {
+          const g = 0.15;
+          const wd = Math.sqrt(5 - g * g);
+          const xAt = (t: number) => 2.5 * Math.exp(-g * t) * (Math.cos(wd * t) + (g / wd) * Math.sin(wd * t));
+          const vAt = (t: number) => -2.5 * (5 / wd) * Math.exp(-g * t) * Math.sin(wd * t);
+          const rowsOf = () => [...(panelOf('Close Photogate')?.textContent ?? '').matchAll(/t = (\d+\.\d\d)s\s*(\d+\.\d\d) m\/s/g)];
+          // The gate at 0 first logs a crossing, so the log has something in it for Reset Transits to clear.
+          for (let waited = 0; waited < 6000 && rowsOf().length === 0; waited += 100) await new Promise((resolve) => setTimeout(resolve, 100));
+          if (rowsOf().length === 0) found.push('the Photogate at 0 m logged no crossing in 6 s');
+          await moveTo(panelOf('Close Photogate'), 1, 'the Photogate position');
+          reads(panelOf('Close Photogate'), '1.00 m', 'the Photogate at 1');
+          // Reset first: putting the particle back at 2.5 can itself jump it past the gate, so the log is cleared after.
+          await press(/^Reset Simulation/);
+          await new Promise((resolve) => setTimeout(resolve, 150));
+          clickTitled('Reset Transits');
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          if (!(panelOf('Close Photogate')?.textContent ?? '').includes('Waiting for particle transit')) found.push('Reset Transits did not clear the log');
           let waited = 0;
-          while (waited < 6000 && (panelOf('Close Photogate')?.textContent ?? '').includes('Waiting for particle transit')) {
+          while (waited < 8000 && rowsOf().length < 2) {
             await new Promise((resolve) => setTimeout(resolve, 100));
             waited += 100;
           }
-          const shown = panelOf('Close Photogate')?.textContent ?? '';
-          if (shown.includes('Waiting for particle transit')) found.push('the Photogate saw no crossing in 6 s');
+          const rows = rowsOf();
+          if (rows.length < 2) found.push(`the Photogate at 1 m logged ${rows.length} crossings in 8 s, expected 2`);
           else {
-            const crossing = shown.match(/t = \d+\.\d\ds\s*(\d+\.\d\d) m\/s/);
-            if (!crossing) found.push(`the Photogate crossing line is not "t = <time>s <speed> m/s": "${shown.slice(0, 160)}"`);
-            else if (!(parseFloat(crossing[1]) > 0)) found.push(`the Photogate crossing reads a speed of ${crossing[1]} m/s`);
+            const signs: number[] = [];
+            for (const row of rows.slice(0, 2)) {
+              const t = parseFloat(row[1]);
+              const speed = parseFloat(row[2]);
+              const v = vAt(t);
+              signs.push(Math.sign(v));
+              if (!(t > 0.1)) found.push(`a Photogate crossing is logged at t = ${t} s, expected after 0.1 s`);
+              if (!(Math.abs(xAt(t) - 1) <= 0.6)) found.push(`at the Photogate's t = ${t} s the particle should be near 1 m, but the closed form puts it at ${xAt(t).toFixed(2)} m`);
+              if (!(Math.abs(speed - Math.abs(v)) <= 0.15 * Math.abs(v))) found.push(`at t = ${t} s the Photogate logs ${speed} m/s, the closed form gives ${Math.abs(v).toFixed(2)} m/s`);
+            }
+            if (signs[0] === signs[1]) found.push('the Photogate logged two crossings in the same direction');
           }
         }
         clickTitled('Reset Transits');

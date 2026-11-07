@@ -181,7 +181,8 @@ const CASES: Record<string, Case> = {
       r.near(`initialZ ${z0}: mechanical energy at t=0`, s.mechanical_energy, 0.5 * 20 * z0 * z0, 1e-9);
     }
 
-    // Free decay from a set height: with the magnet off there is no braking, so z and vz follow the damped oscillator exactly.
+    // Free decay from a set height. magnetMoment: 0 is below the slider's minimum of 1 and is used because it removes the
+    // braking, so z and vz follow the damped oscillator exactly.
     {
       const k = 20, b = 0.4, mass = 1.6, z0 = 1.3, tEnd = 2.7;
       const gamma = b / (2 * mass);
@@ -203,6 +204,13 @@ const CASES: Record<string, Case> = {
       r.near('initialZ set mid-run: z after reset', again.z, 2.9, 1e-12);
       r.near('initialZ set mid-run: vz after reset', again.vz, 0, 0, 1e-12);
       r.near('initialZ set mid-run: time after reset', again.time, 0, 0, 1e-12);
+    }
+
+    // A reset with no slider move returns to the set height.
+    {
+      const plain = await run('faraday-induction', { initialZ: 0.8 }, 1);
+      plain.engine.reset();
+      r.near('initialZ 0.8, reset with no slider move: z', plain.engine.getState().z, 0.8, 1e-12);
     }
   },
 
@@ -306,13 +314,14 @@ const CASES: Record<string, Case> = {
 
     // Settled means readable, and every case below says which way it must go, so no case can pass without being tested.
     // The first list must settle, and on every settled step T is the packet's value. The second must never settle, and
-    // the clock has no stop, so all of them run for 90 s, long past every bounce. In the three σ = 2 cases the packet
-    // starts across the barrier and its edge reaches the wall before the packet clears it (before the wall latch, the
-    // last two read about 150 and 770 times too high while marked settled). The fourth is measured, not derived:
-    // probability stays inside the barrier (0.0045) until the wall latches. This does not show settled can be trusted
-    // at every slider value: a scan of the sliders finds 132 of 512 settling combinations more than 3 % off, because a
-    // wide packet starts overlapping the barrier and because low T reads low. Those are open faults in the engine,
-    // listed in the pull request for this check; the first list avoids them on purpose.
+    // the clock has no stop, so all of them run for 90 s, long past every bounce. These four pin today's box, so a larger
+    // box would legitimately move them. In the three σ = 2 cases the packet starts across the barrier and its edge reaches
+    // the wall before the packet clears it (before the wall latch, the last two read far too high while marked settled).
+    // The fourth is measured, not derived: probability stays inside the barrier (0.0045) until the wall latches. This does
+    // not show settled can be trusted at every slider value. On the grid of 1155 slider settings in the pull request for
+    // this check, 132 of the 512 that settle read more than 3 % off, some of them on the guide's own lab sweep: a wide
+    // packet starts overlapping the barrier and reads high, and others read low for causes not yet established. Those are
+    // open faults in the engine; the first list avoids them on purpose.
     const settling = [[10, 12, 0.6, 0.9], [8, 4, 0.6, 1.6], [8, 16, 0.6, 0.5], [2, 20, 0.6, 0.9], [3, 4, 1.5, 1.2]] as const;
     const never = [[10, 12, 0.6, 2.0], [12, 20, 1, 2.0], [2, 20, 1, 2.0], [8, 10, 1.5, 0.6]] as const;
     for (const [E, V0, d, sigma, mustSettle] of [...settling.map((c) => [...c, true] as const), ...never.map((c) => [...c, false] as const)]) {
