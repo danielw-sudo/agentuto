@@ -332,8 +332,8 @@ const CASES: Record<string, Case> = {
     // The first list holds settings that once read wrong while marked settled: too high from a packet that started
     // overlapping the barrier (the wide packets, including the lab sweep's d = 1.5), and too low from T being read while
     // still rising and from the grid (E = 12, E = 2 at σ = 0.5, and the Thick Barrier preset). The second list pins today's
-    // box, so a larger box would legitimately move it: T is still rising when the reflected packet reaches the wall, so the
-    // mark stays off. The E = 1 cases are slow, and a little of the packet is still at the barrier when the wall is reached.
+    // box, so a larger box would legitimately move it: T is still rising, or too much of the packet is still at the barrier
+    // for so small a T, when the reflected packet reaches the wall, so the mark stays off.
     const settling = [
       [10, 12, 0.6, 0.9], [8, 4, 0.6, 1.6], [8, 16, 0.6, 0.5], [2, 20, 0.6, 0.9], [3, 4, 1.5, 1.2],
       [10, 12, 0.6, 2.0], [12, 20, 1, 2.0], [2, 20, 1, 2.0],

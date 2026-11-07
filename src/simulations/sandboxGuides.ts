@@ -146,8 +146,8 @@ export const SANDBOX_LAB_GUIDES: Record<string, SandboxGuideEntry> = {
   'quantum-tunneling': {
     labProtocol: [
       'Set particle energy E = 3 below barrier height V₀ = 9, and wavepacket width σ = 1.2.',
-      'Sweep barrier width d from 0.5 to 1.5. Each change restarts the run: note T when the card says settled, or leave Record on and keep the exported rows with settled = 1.',
-      'Fit ln T against d: the slope comes out near −6.1, a little short of −2κ = −6.9 because the faster part of the packet tunnels more easily. Total norm ∫|ψ|² dx stays 1.000000.',
+      'Sweep barrier width d from 0.5 to 1.5. Each change restarts the run and T takes 7 to 9 s to settle: note T when the card says settled, or leave Record on and keep the exported rows with settled = 1.',
+      'Fit ln T against d: the slope comes out near −6.2, a little short of −2κ = −6.9 because the faster part of the packet tunnels more easily. Total norm ∫|ψ|² dx stays 1.000000.',
     ],
     whatToExplore: [
       {

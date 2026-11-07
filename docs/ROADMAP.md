@@ -166,7 +166,7 @@ conditions that have no slider (decided, §4 item 3), and ~~deriving the CSV uni
 
 1. ~~Positioning sentence and the three rungs~~: accepted by the owner, 2026-10-31.
 2. ~~Constitution amendments in R0~~: ratified, v1.2, 2026-10-31 (#17).
-3. ~~Whether the five engine initial conditions become sliders~~: decided 2026-11-04. Three became sliders (Lorentz `initialSpeedY`, Faraday `coilRadius` and `initialZ`); the two tunnelling ones (`barrierPosition`, `initialX`) stay fixed until item 7 is settled.
+3. ~~Whether the five engine initial conditions become sliders~~: decided 2026-11-04. Three became sliders (Lorentz `initialSpeedY`, Faraday `coilRadius` and `initialZ`); the two tunnelling ones (`barrierPosition`, `initialX`) stay without sliders. Since #57 `initialX` means "no closer than": the engine starts a wide packet further left.
 4. Whether Pages deploys from `main` or from tags (R3).
 5. ~~Whether to freeze the AI tutor and playlist agent and drop the SQLite and Tauri plans~~: decided 2026-11-04. Frozen
    (keep working, add nothing); the SQLite and Tauri plans are removed from the docs.
@@ -179,7 +179,7 @@ conditions that have no slider (decided, §4 item 3), and ~~deriving the CSV uni
    measured wall pressure also runs 5–29 % above N k T / A, from the particles' size and from collisions missed between
    steps. Options: say so in each instrument's guide and relabel the units as reduced, or move to real constants
    (this changes how fast things happen and what the sliders mean, so it needs a faculty review). Measured in issue #30.
-7. **Decided 2026-11-04, done (ARCHITECTURE §6.6d):** the barrier is averaged over grid cells (its width is the one set, which removes the staircase and is better than snapping the slider), the box is ±15, the grid is 719 points (doubled 2026-11-05), and the card shows a "settled" mark for T. The mark is one-way within a run and a barrier change restarts the run (added after review, so a wrong T is not marked readable). Many settings never settle, and some read low: the measured limits are in §6.6d. The finding behind it: the tunnelling grid has 240 points over 20 length units (cell 0.084) and no point at x = 0, so a centred barrier
+7. **Decided 2026-11-04, done (ARCHITECTURE §6.6d):** the barrier is averaged over grid cells (its width is the one set, which removes the staircase and is better than snapping the slider), the card shows a "settled" mark for T, a barrier change restarts the run, and after a bounce the mark stays off for that run. Revised 2026-11-06 (owner, #57), after the mark was found on wrong readings: the box is ±40 on 3831 points, the packet starts 7σ clear of the barrier when −5 is too close, and the mark waits for T to stop changing. Some settings never settle: the measured limits are in §6.6d. The finding behind it: the tunnelling grid has 240 points over 20 length units (cell 0.084) and no point at x = 0, so a centred barrier
    covers an even number of cells and its width moves in steps of 0.167: 8 of the 24 slider positions draw the same barrier
    as their neighbour (0.8 and 0.9 both draw 0.837), so a sweep of d gives a staircase. Allowing for the drawn width,
    T is within 1–5 % of the exact packet value (0.1–1.4 % on 960 points). The larger error is when T is read: the box is
