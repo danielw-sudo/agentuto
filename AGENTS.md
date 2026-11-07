@@ -21,6 +21,24 @@
 
 The owner updates this table when models change.
 
+### 0a. Model routing inside Claude Code
+
+When the owner has a Claude Code session do the work, the session runs on Opus 5.5 and routes it as below. The owner asks for this standing delegation here, so a session does not need to be told again. The definitions are in `.claude/agents/`.
+
+| Work | Who does it |
+|---|---|
+| Plan, write the brief, talk to the owner, open and merge pull requests | The Opus main session |
+| A change beyond a few lines, from a written brief on a named branch | `coder` (Sonnet 5.5) |
+| Running gates, reading logs, CI status, issue look-ups | `runner` (Haiku 5.5) |
+| Finding code | `Explore` (Haiku 5.5) |
+| Reading a finished diff before a pull request opens | `reviewer` (Opus 5.5) |
+
+* An edit of a few lines stays in the main session: a subagent starts cold, and it draws on the same usage.
+* For physics, the main session writes the closed-form check before `coder` writes the engine, so the code and its check do not come from the same run (Art. 1.5).
+* Sonnet, Haiku and Opus are one model family. `reviewer` is an internal check and does not meet Art. 1.4 or 10.8; a change to physics output still needs a reviewer from another family before it counts as reviewed.
+* Forks run on the main session's model, so use a named subagent for work meant for Sonnet or Haiku.
+* Two writers never touch the same files at once.
+
 ---
 
 ## 1. Overview of Agents
