@@ -38,6 +38,9 @@ When the owner has a Claude Code session do the work, the session runs on Opus 5
 * Sonnet, Haiku and Opus are one model family. `reviewer` is an internal check and does not meet Art. 1.4 or 10.8; a change to physics output still needs a reviewer from another family before it counts as reviewed.
 * Forks run on the main session's model, so use a named subagent for work meant for Sonnet or Haiku.
 * Two writers never touch the same files at once.
+* `npm run smoke` serves on a fixed port, so only one gate run at a time, across every session on this machine.
+* `coder` runs the gates before it reports; after that, `runner` runs them once on the final commit. Do not repeat them in between.
+* Skip `Explore` when the main session will read the same files anyway, for example to write expected values.
 
 ---
 
