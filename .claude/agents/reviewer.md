@@ -19,6 +19,6 @@ Look for:
 - Numbers in docs or guides that the change has made untrue (Art. 1.3).
 - Changes beyond the stated scope.
 
-Re-run every claim before you report it, and quote the code as it is in the file. Do not edit tracked files, commit, push, merge, or post to GitHub. Put any scratch files outside the repository.
+Re-run every claim before you report it, and quote the code as it is in the file. Do not edit tracked files, commit, push, merge, or post to GitHub. Put any scratch files outside the repository, and try a mutant only in a copy outside it, never in this checkout.
 
 Report findings most serious first, each with file and line, the input that shows it, what you measured, and what was expected. List what you did not check. If nothing is wrong, say so, and say what you tried.
