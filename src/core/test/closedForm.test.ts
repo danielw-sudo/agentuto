@@ -319,9 +319,9 @@ const CASES: Record<string, Case> = {
     // the wall before the packet clears it (before the wall latch, the last two read far too high while marked settled).
     // The fourth is measured, not derived: probability stays inside the barrier (0.0045) until the wall latches. This does
     // not show settled can be trusted at every slider value. On the grid of 1155 slider settings in the pull request for
-    // this check, 132 of the 512 that settle read more than 3 % off, some of them on the guide's own lab sweep: a wide
-    // packet starts overlapping the barrier and reads high, and others read low for causes not yet established. Those are
-    // open faults in the engine; the first list avoids them on purpose.
+    // this check, 132 of the 512 that settle read more than 3 % off: a packet that starts overlapping the barrier reads
+    // high, and others read low for causes not yet established. The guide's lab sweep is not on that grid and reads 23 %
+    // high at d = 1.5. Those are open faults in the engine; the first list avoids them on purpose.
     const settling = [[10, 12, 0.6, 0.9], [8, 4, 0.6, 1.6], [8, 16, 0.6, 0.5], [2, 20, 0.6, 0.9], [3, 4, 1.5, 1.2]] as const;
     const never = [[10, 12, 0.6, 2.0], [12, 20, 1, 2.0], [2, 20, 1, 2.0], [8, 10, 1.5, 0.6]] as const;
     for (const [E, V0, d, sigma, mustSettle] of [...settling.map((c) => [...c, true] as const), ...never.map((c) => [...c, false] as const)]) {

@@ -247,9 +247,10 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
         // The oscillator is held to its closed form. Its defaults are m = 1, b = 0.3, k = 5, x0 = 2.5 and no drive, so with
         // g = b / 2m = 0.15 and wd = sqrt(k/m - g^2): x = 2.5 e^(-g t) (cos wd t + (g/wd) sin wd t) and
         // v = -2.5 (k/m / wd) e^(-g t) sin wd t. A gate at 1 m must log two crossings, one each way, each at a time when
-        // that formula puts the particle at the gate and with the speed it gives. Position and speed are compared at the
-        // row's own logged time, so frame timing does not enter. The Period readout is timed by animation frames and is
-        // still not compared.
+        // that formula puts the particle at the gate and with the speed it gives. Speed and time come from the same render,
+        // so speed is held to 3 %. The row is logged on the first frame past the gate, so the particle is on the far side by
+        // up to one frame: at most 0.1 s (the capped frame) at 4.8 m/s, 0.48 m, and never short of it beyond the 0.03 m that
+        // rounding t to 0.01 s allows. The Period readout is timed by animation frames and is still not compared.
         if (id === 'harmonic-oscillator') {
           const g = 0.15;
           const wd = Math.sqrt(5 - g * g);
@@ -282,8 +283,9 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
               const v = vAt(t);
               signs.push(Math.sign(v));
               if (!(t > 0.1)) found.push(`a Photogate crossing is logged at t = ${t} s, expected after 0.1 s`);
-              if (!(Math.abs(xAt(t) - 1) <= 0.6)) found.push(`at the Photogate's t = ${t} s the particle should be near 1 m, but the closed form puts it at ${xAt(t).toFixed(2)} m`);
-              if (!(Math.abs(speed - Math.abs(v)) <= 0.15 * Math.abs(v))) found.push(`at t = ${t} s the Photogate logs ${speed} m/s, the closed form gives ${Math.abs(v).toFixed(2)} m/s`);
+              const past = (xAt(t) - 1) * Math.sign(v); // how far beyond the gate the particle is, in its direction of travel
+              if (!(past >= -0.03 && past <= 0.6)) found.push(`at the Photogate's t = ${t} s the particle should be just past 1 m, but the closed form puts it at ${xAt(t).toFixed(2)} m`);
+              if (!(Math.abs(speed - Math.abs(v)) <= 0.03 * Math.abs(v))) found.push(`at t = ${t} s the Photogate logs ${speed} m/s, the closed form gives ${Math.abs(v).toFixed(2)} m/s`);
             }
             if (signs[0] === signs[1]) found.push('the Photogate logged two crossings in the same direction');
           }
