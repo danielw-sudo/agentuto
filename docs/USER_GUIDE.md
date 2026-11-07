@@ -253,6 +253,8 @@ The speaker button in the log's header turns on a soft two-note chime for each n
   * **Elastic Collisions ($e = 1.0$):** In equal-mass collisions, pucks completely exchange velocities while conserving total kinetic energy.
   * **Completely Inelastic Collision ($e = 0.0$):** The bodies leave the collision with a common velocity, and all kinetic energy of relative motion is dissipated: $\Delta K = \tfrac{1}{2}\mu v_{\text{rel}}^2$ with $\mu = m_1 m_2/(m_1+m_2)$, while $\mathbf{V}_{\text{cm}}$ is unchanged. The fraction lost depends on the setup: exactly 50% for equal masses with one at rest, 75% if the target is three times heavier, and 94% with the default head-on settings.
   * **2D Glancing Scatter:** Offset the impact parameter ($b > 0$). For an elastic collision of **equal masses with the target initially at rest**, the two pucks leave at exactly $90^\circ$ to each other (try the "2D Glancing Scatter" roadmap preset). Unequal masses or a moving target give other angles.
+  * **Trapped pucks:** A light puck caught between a wall and a heavy one bounces many times, so the collision count can jump by hundreds. Each one is a real impact in this model.
+  * **Long glancing runs:** Off-centre collisions amplify tiny differences, so after a few bounces the path cannot be predicted, here or on a real table.
   * **Isolated-system caveat:** The table walls exert external forces. Momentum and $\mathbf{V}_{\text{cm}}$ are conserved only until a puck touches a wall, so record your measurements before then.
 
 ### 17. RC & RL Transient Relaxation Circuits (`rc-rl-circuits` — MIT 8.02 / 18.03)

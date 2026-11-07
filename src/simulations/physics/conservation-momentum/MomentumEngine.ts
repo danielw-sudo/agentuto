@@ -38,6 +38,16 @@ export interface MomentumState extends SimulationState {
   justCollided: boolean;
 }
 
+// Below this the discs are at rest against each other: rounding must not read as another impact.
+const MIN_CLOSING_SPEED = 1e-12;
+
+// Paths that meet this shallowly only brush: the square root in the contact time cannot tell that from a real touch.
+const MIN_SHALLOWNESS = 1e-10;
+
+// A disc caught between a wall and the other disc can bounce very many times in one step, with e < 1 without end. Only
+// a safeguard: the sliders use far fewer, and if it were reached the discs would simply wait for the next step.
+const MAX_EVENTS_PER_STEP = 4096;
+
 export class MomentumEngine implements SimulationEngine<MomentumParams, MomentumState> {
   private params: MomentumParams = { ...MOMENTUM_DEFAULT_PARAMS };
   private time: number = 0;
@@ -104,106 +114,115 @@ export class MomentumEngine implements SimulationEngine<MomentumParams, Momentum
     // Pure computation
   }
 
+  /**
+   * Goes from one event to the next, in the order they happen: a disc reaching a wall, or the discs reaching each other.
+   * Nothing can pass another event inside a step, however fast, so discs never overlap and an event is never missed.
+   */
   step(dt: number): void {
     this.justCollided = false;
-    const e = Math.max(0.0, Math.min(1.0, this.params.restitution));
+    let remaining = dt;
 
-    // 1. Advance Kinematics
-    this.b1.x += this.b1.vx * dt;
-    this.b1.y += this.b1.vy * dt;
+    for (let events = 0; events < MAX_EVENTS_PER_STEP && remaining > 0; events += 1) {
+      const contact = this.timeToContact();
+      const wall = this.nextWall();
+      const next = Math.min(contact, wall.time);
 
-    this.b2.x += this.b2.vx * dt;
-    this.b2.y += this.b2.vy * dt;
+      if (next >= remaining) {
+        this.advance(remaining);
+        break;
+      }
 
-    this.time += dt;
+      this.advance(next);
+      remaining -= next;
 
-    // 2. Body-Body Collision Detection & Resolution
-    const dx = this.b2.x - this.b1.x;
-    const dy = this.b2.y - this.b1.y;
-    const dist = Math.hypot(dx, dy);
-    const minDist = this.b1.radius + this.b2.radius;
-
-    if (dist < minDist && dist > 1e-4) {
-      // Relative velocity along the line of centres
-      const closing = (this.b1.vx - this.b2.vx) * dx + (this.b1.vy - this.b2.vy) * dy;
-
-      // Only resolve if bodies are approaching
-      if (closing > 0) {
-        // The discs met part-way through this step: go back to that moment, so the impact happens where it really
-        // did and the centre of mass stays on its line. |d - w*s| = minDist, with s the time since contact.
-        const wx = this.b2.vx - this.b1.vx;
-        const wy = this.b2.vy - this.b1.vy;
-        const w2 = wx * wx + wy * wy;
-        const dw = dx * wx + dy * wy;
-        const since = Math.min(dt, (dw + Math.sqrt(Math.max(0, dw * dw - w2 * (dist * dist - minDist * minDist)))) / w2);
-
-        this.b1.x -= this.b1.vx * since;
-        this.b1.y -= this.b1.vy * since;
-        this.b2.x -= this.b2.vx * since;
-        this.b2.y -= this.b2.vy * since;
-
-        const contactX = this.b2.x - this.b1.x;
-        const contactY = this.b2.y - this.b1.y;
-        const contact = Math.hypot(contactX, contactY);
-        const nx = contactX / contact;
-        const ny = contactY / contact;
-
-        // Relative velocity along collision normal
-        const vrelN = (this.b1.vx - this.b2.vx) * nx + (this.b1.vy - this.b2.vy) * ny;
-
-        const m1 = this.b1.mass;
-        const m2 = this.b2.mass;
-
-        // Impulse scalar J = -(1 + e) * v_rel_n / (1/m1 + 1/m2)
-        const J = (-(1.0 + e) * vrelN) / (1.0 / m1 + 1.0 / m2);
-
-        // Apply impulse: Δv1 = J / m1 * n, Δv2 = -J / m2 * n
-        this.b1.vx += (J / m1) * nx;
-        this.b1.vy += (J / m1) * ny;
-
-        this.b2.vx -= (J / m2) * nx;
-        this.b2.vy -= (J / m2) * ny;
-
-        // Finish the step with the new velocities
-        this.b1.x += this.b1.vx * since;
-        this.b1.y += this.b1.vy * since;
-        this.b2.x += this.b2.vx * since;
-        this.b2.y += this.b2.vy * since;
-
-        this.collisionCount++;
-        this.justCollided = true;
+      if (contact <= wall.time) {
+        this.collide();
+      } else if (wall.body) {
+        this.bounce(wall.body, wall.axis);
       }
     }
 
-    // 3. Elastic Table Boundary Reflections (external boundary impulse). A body past a wall is mirrored in it, which is
-    // where it would be had it bounced part-way through the step.
-    const checkWall = (b: BodyDisk) => {
-      let touchedWall = false;
-      if (b.x < -this.boundX + b.radius) {
-        b.x = 2 * (-this.boundX + b.radius) - b.x;
-        b.vx = Math.abs(b.vx);
-        touchedWall = true;
-      } else if (b.x > this.boundX - b.radius) {
-        b.x = 2 * (this.boundX - b.radius) - b.x;
-        b.vx = -Math.abs(b.vx);
-        touchedWall = true;
-      }
-      if (b.y < -this.boundY + b.radius) {
-        b.y = 2 * (-this.boundY + b.radius) - b.y;
-        b.vy = Math.abs(b.vy);
-        touchedWall = true;
-      } else if (b.y > this.boundY - b.radius) {
-        b.y = 2 * (this.boundY - b.radius) - b.y;
-        b.vy = -Math.abs(b.vy);
-        touchedWall = true;
-      }
-      if (touchedWall) {
-        this.wallContactCount++;
-      }
-    };
+    this.time += dt;
+  }
 
-    checkWall(this.b1);
-    checkWall(this.b2);
+  private advance(seconds: number): void {
+    this.b1.x += this.b1.vx * seconds;
+    this.b1.y += this.b1.vy * seconds;
+    this.b2.x += this.b2.vx * seconds;
+    this.b2.y += this.b2.vy * seconds;
+  }
+
+  /** Seconds until the discs touch and are closing at that moment; Infinity if they will not. */
+  private timeToContact(): number {
+    const dx = this.b2.x - this.b1.x;
+    const dy = this.b2.y - this.b1.y;
+    const wx = this.b2.vx - this.b1.vx;
+    const wy = this.b2.vy - this.b1.vy;
+    const dw = dx * wx + dy * wy;
+    if (-dw / Math.hypot(dx, dy) <= MIN_CLOSING_SPEED) return Infinity;
+
+    const minDist = this.b1.radius + this.b2.radius;
+    const gap = dx * dx + dy * dy - minDist * minDist;
+    if (gap <= 0) return 0;
+
+    const discriminant = dw * dw - (wx * wx + wy * wy) * gap;
+    if (discriminant <= MIN_SHALLOWNESS * dw * dw) return Infinity;
+
+    // |d + w*s| = minDist, smaller root
+    return gap / (Math.sqrt(discriminant) - dw);
+  }
+
+  /** The first wall either disc will reach, and when. */
+  private nextWall(): { time: number; body: BodyDisk | null; axis: 'x' | 'y' } {
+    let first: { time: number; body: BodyDisk | null; axis: 'x' | 'y' } = { time: Infinity, body: null, axis: 'x' };
+    for (const body of [this.b1, this.b2]) {
+      const xLimit = this.boundX - body.radius;
+      const yLimit = this.boundY - body.radius;
+      const toX = body.vx === 0 ? Infinity : Math.max(0, (Math.sign(body.vx) * xLimit - body.x) / body.vx);
+      const toY = body.vy === 0 ? Infinity : Math.max(0, (Math.sign(body.vy) * yLimit - body.y) / body.vy);
+      if (toX < first.time) first = { time: toX, body, axis: 'x' };
+      if (toY < first.time) first = { time: toY, body, axis: 'y' };
+    }
+    return first;
+  }
+
+  /** Impulse along the line of centres, with the discs exactly in contact. */
+  private collide(): void {
+    const e = Math.max(0.0, Math.min(1.0, this.params.restitution));
+    const contactX = this.b2.x - this.b1.x;
+    const contactY = this.b2.y - this.b1.y;
+    const contact = Math.hypot(contactX, contactY);
+    const nx = contactX / contact;
+    const ny = contactY / contact;
+
+    // Relative velocity along collision normal
+    const vrelN = (this.b1.vx - this.b2.vx) * nx + (this.b1.vy - this.b2.vy) * ny;
+
+    const m1 = this.b1.mass;
+    const m2 = this.b2.mass;
+
+    // Impulse scalar J = -(1 + e) * v_rel_n / (1/m1 + 1/m2)
+    const J = (-(1.0 + e) * vrelN) / (1.0 / m1 + 1.0 / m2);
+
+    // Apply impulse: Δv1 = J / m1 * n, Δv2 = -J / m2 * n
+    this.b1.vx += (J / m1) * nx;
+    this.b1.vy += (J / m1) * ny;
+
+    this.b2.vx -= (J / m2) * nx;
+    this.b2.vy -= (J / m2) * ny;
+
+    this.collisionCount++;
+    this.justCollided = true;
+  }
+
+  /** Elastic table boundary reflection (an external impulse on the system). */
+  private bounce(body: BodyDisk, axis: 'x' | 'y'): void {
+    if (axis === 'x') {
+      body.vx = -body.vx;
+    } else {
+      body.vy = -body.vy;
+    }
+    this.wallContactCount++;
   }
 
   getState(): MomentumState {
