@@ -5,6 +5,8 @@ import { SIMULATION_CATALOG } from '../../simulations';
 import { SANDBOX_LAB_GUIDES } from '../../simulations/sandboxGuides';
 
 const DT = 0.005;
+// Steps per width in the sweep: 12 s, past the 8 s the slowest of these widths needs before T reads as settled (the packet starts 7 sigma clear of the barrier)
+const SWEEP_STEPS = 2400;
 
 async function tunnelling(overrides: Record<string, number>) {
   const registration = SIMULATION_CATALOG['quantum-tunneling'];
@@ -23,7 +25,7 @@ export async function runLabRecordingVerification(): Promise<void> {
   const widths = [0.5, 0.6, 0.7];
   for (const width of widths) {
     engine.setParameters({ barrierWidth: width });
-    for (let i = 0; i < 1100; i += 1) {
+    for (let i = 0; i < SWEEP_STEPS; i += 1) {
       engine.step(DT);
       recorder.sample(engine.getTelemetrySnapshot());
     }
@@ -37,7 +39,7 @@ export async function runLabRecordingVerification(): Promise<void> {
     if (settled.length === 0) throw new Error(`no row is marked settled at d = ${width}, so the export cannot be filtered to readable T`);
     if (own.some((row) => row.settled !== 0 && row.settled !== 1)) throw new Error('settled must be 0 or 1');
   }
-  const seconds = 3 * 1100 * DT;
+  const seconds = 3 * SWEEP_STEPS * DT;
   const { duration_s: duration } = recorder.getSummary();
   if (Math.abs(duration - seconds) > 0.1) throw new Error(`a three-run recording lasted ${seconds} s, the summary says ${duration}`);
 

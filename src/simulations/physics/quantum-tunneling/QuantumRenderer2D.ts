@@ -2,6 +2,11 @@ import { ViewportRenderer } from '../../../core/types/simulation';
 import { QuantumState } from './QuantumEngine';
 import { formatPercent } from '../../../core/telemetry/formatPercent';
 
+// The wavepacket plot shows this window of the box, not the whole box (which is wider so the packet can start well clear
+// of the barrier and finish well clear of it), so the barrier and the packet keep their size on screen.
+const PLOT_X_MIN = -20;
+const PLOT_X_MAX = 20;
+
 export class QuantumRenderer2D implements ViewportRenderer<QuantumState> {
   private canvas: HTMLCanvasElement | null = null;
   private ctx: CanvasRenderingContext2D | null = null;
@@ -104,8 +109,14 @@ export class QuantumRenderer2D implements ViewportRenderer<QuantumState> {
     const n = state.gridX.length;
     if (n === 0) return;
 
-    const xMin = state.gridX[0];
-    const xMax = state.gridX[n - 1];
+    const xMin = PLOT_X_MIN;
+    const xMax = PLOT_X_MAX;
+
+    // The grid points inside the window, found once per frame (the grid is uniform)
+    const gridStep = state.gridX[1] - state.gridX[0];
+    const first = Math.max(0, Math.ceil((xMin - state.gridX[0]) / gridStep - 1e-9));
+    const last = Math.min(n - 1, Math.floor((xMax - state.gridX[0]) / gridStep + 1e-9));
+    if (last <= first) return;
 
     const toScreenX = (x: number) => originX + ((x - xMin) / (xMax - xMin)) * plotW;
 
@@ -164,15 +175,15 @@ export class QuantumRenderer2D implements ViewportRenderer<QuantumState> {
     const toScreenYProb = (prob: number) => baselineY - (prob / maxProb) * (plotH * 0.85);
 
     ctx.beginPath();
-    ctx.moveTo(toScreenX(state.gridX[0]), baselineY);
+    ctx.moveTo(toScreenX(state.gridX[first]), baselineY);
 
-    for (let i = 0; i < n; i++) {
+    for (let i = first; i <= last; i++) {
       const sx = toScreenX(state.gridX[i]);
       const sy = toScreenYProb(state.probabilityDensity[i]);
       ctx.lineTo(sx, sy);
     }
 
-    ctx.lineTo(toScreenX(state.gridX[n - 1]), baselineY);
+    ctx.lineTo(toScreenX(state.gridX[last]), baselineY);
     ctx.closePath();
 
     const grad = ctx.createLinearGradient(0, baselineY - plotH, 0, baselineY);
@@ -186,10 +197,10 @@ export class QuantumRenderer2D implements ViewportRenderer<QuantumState> {
     ctx.strokeStyle = '#38bdf8';
     ctx.lineWidth = 2.0;
     ctx.beginPath();
-    for (let i = 0; i < n; i++) {
+    for (let i = first; i <= last; i++) {
       const sx = toScreenX(state.gridX[i]);
       const sy = toScreenYProb(state.probabilityDensity[i]);
-      if (i === 0) ctx.moveTo(sx, sy);
+      if (i === first) ctx.moveTo(sx, sy);
       else ctx.lineTo(sx, sy);
     }
     ctx.stroke();
@@ -198,10 +209,10 @@ export class QuantumRenderer2D implements ViewportRenderer<QuantumState> {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
     ctx.lineWidth = 1.0;
     ctx.beginPath();
-    for (let i = 0; i < n; i++) {
+    for (let i = first; i <= last; i++) {
       const sx = toScreenX(state.gridX[i]);
       const sy = baselineY - (state.psiReal[i] / Math.sqrt(maxProb)) * (plotH * 0.4);
-      if (i === 0) ctx.moveTo(sx, sy);
+      if (i === first) ctx.moveTo(sx, sy);
       else ctx.lineTo(sx, sy);
     }
     ctx.stroke();
