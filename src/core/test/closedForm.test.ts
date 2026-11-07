@@ -169,6 +169,41 @@ const CASES: Record<string, Case> = {
       r.near(`dissipated power at t=${seconds}`, s.dissipated_power, (emf * emf) / Rc, 1e-9, 1e-18);
       r.near(`|magnetic force| at t=${seconds}`, Math.abs(s.lenz_force), Math.abs((emf / Rc) * dPhiDz), 1e-9, 1e-15);
     }
+
+    // The release height at t = 0: at rest, no emf, flux and energy as the closed forms give for that z, not for the default 2.2.
+    for (const z0 of [0.5, 1.3, 3.0]) {
+      const { t: s } = await run('faraday-induction', { ...ov, springConstant: 20, initialZ: z0 }, 0);
+      r.near(`initialZ ${z0}: z at t=0`, s.z, z0, 1e-12);
+      r.near(`initialZ ${z0}: vz at t=0`, s.vz, 0, 0, 1e-12);
+      r.near(`initialZ ${z0}: emf at t=0`, s.emf, 0, 0, 1e-12);
+      r.near(`initialZ ${z0}: current at t=0`, s.current, 0, 0, 1e-12);
+      r.near(`initialZ ${z0}: flux at t=0`, s.flux, (N * MU_EFFECTIVE * m * R * R) / (2 * Math.pow(R * R + z0 * z0, 1.5)), 1e-9);
+      r.near(`initialZ ${z0}: mechanical energy at t=0`, s.mechanical_energy, 0.5 * 20 * z0 * z0, 1e-9);
+    }
+
+    // Free decay from a set height: with the magnet off there is no braking, so z and vz follow the damped oscillator exactly.
+    {
+      const k = 20, b = 0.4, mass = 1.6, z0 = 1.3, tEnd = 2.7;
+      const gamma = b / (2 * mass);
+      const w0Sq = k / mass;
+      const wd = Math.sqrt(w0Sq - gamma * gamma);
+      const { t: s } = await run('faraday-induction', { ...ov, magnetMoment: 0, springConstant: k, mechDamping: b, mass, initialZ: z0 }, tEnd);
+      r.near('initialZ 1.3, magnet off: z(2.7 s)', s.z, z0 * Math.exp(-gamma * tEnd) * (Math.cos(wd * tEnd) + (gamma / wd) * Math.sin(wd * tEnd)), 1e-6, 1e-9);
+      r.near('initialZ 1.3, magnet off: vz(2.7 s)', s.vz, -z0 * (w0Sq / wd) * Math.exp(-gamma * tEnd) * Math.sin(wd * tEnd), 1e-6, 1e-9);
+    }
+
+    // The slider says it takes effect when the run is reset: setting it mid-run leaves z alone, and a reset starts from it.
+    {
+      const moved = await run('faraday-induction', { initialZ: 0.8 }, 1);
+      const zBefore = moved.engine.getState().z;
+      moved.engine.setParameters({ initialZ: 2.9 });
+      r.near('initialZ set mid-run: z is unchanged', moved.engine.getState().z, zBefore, 0, 1e-12);
+      moved.engine.reset();
+      const again = moved.engine.getState();
+      r.near('initialZ set mid-run: z after reset', again.z, 2.9, 1e-12);
+      r.near('initialZ set mid-run: vz after reset', again.vz, 0, 0, 1e-12);
+      r.near('initialZ set mid-run: time after reset', again.time, 0, 0, 1e-12);
+    }
   },
 
   // Two dimensions, k_B = 1 and m = 1 in the engine's reduced units: ⟨E_k⟩ = k_B T per particle (two quadratic
@@ -269,15 +304,23 @@ const CASES: Record<string, Case> = {
       r.near('k0 = √(2E)', s.wave_number, Math.sqrt(2 * E), 1e-12);
     }
 
-    // "Settled" means readable: on every step where the engine says so, T is the packet's value, including for wide and
-    // fast packets that reach the edge of the box (where it must stay false rather than report a corrupted T). The
-    // clock has no stop, so these run for 90 s, long past every bounce; before the wall latch, the last two read about
-    // 150 and 770 times too high while marked settled.
-    for (const [E, V0, d, sigma] of [[10, 12, 0.6, 2.0], [10, 12, 0.6, 0.9], [8, 10, 1.5, 0.6], [12, 20, 1, 2.0], [2, 20, 1, 2.0]] as const) {
+    // Settled means readable, and every case below says which way it must go, so no case can pass without being tested.
+    // The first list must settle, and on every settled step T is the packet's value. The second must never settle, and
+    // the clock has no stop, so all of them run for 90 s, long past every bounce. In the three σ = 2 cases the packet
+    // starts across the barrier and its edge reaches the wall before the packet clears it (before the wall latch, the
+    // last two read about 150 and 770 times too high while marked settled). The fourth is measured, not derived:
+    // probability stays inside the barrier (0.0045) until the wall latches. This does not show settled can be trusted
+    // at every slider value: a scan of the sliders finds 132 of 512 settling combinations more than 3 % off, because a
+    // wide packet starts overlapping the barrier and because low T reads low. Those are open faults in the engine,
+    // listed in the pull request for this check; the first list avoids them on purpose.
+    const settling = [[10, 12, 0.6, 0.9], [8, 4, 0.6, 1.6], [8, 16, 0.6, 0.5], [2, 20, 0.6, 0.9], [3, 4, 1.5, 1.2]] as const;
+    const never = [[10, 12, 0.6, 2.0], [12, 20, 1, 2.0], [2, 20, 1, 2.0], [8, 10, 1.5, 0.6]] as const;
+    for (const [E, V0, d, sigma, mustSettle] of [...settling.map((c) => [...c, true] as const), ...never.map((c) => [...c, false] as const)]) {
       const registration = SIMULATION_CATALOG['quantum-tunneling'];
       const engine: any = (await registration.load()).createEngine();
       engine.init({ ...registration.defaultParams, particleEnergy: E, barrierHeight: V0, barrierWidth: d, packetSigma: sigma });
       const exact = packet(E, V0, d, sigma);
+      const who = `E=${E}, V0=${V0}, d=${d}, σ=${sigma}`;
       let worst = 0;
       let readings = 0;
       for (let i = 0; i < 18000; i += 1) {
@@ -287,7 +330,10 @@ const CASES: Record<string, Case> = {
         readings += 1;
         worst = Math.max(worst, Math.abs(state.transmission - exact) / exact);
       }
-      if (worst > 0.03) r.fail(`E=${E}, d=${d}, σ=${sigma}: T was reported settled while ${(worst * 100).toFixed(0)} % away from the packet value (${readings} settled steps)`);
+      if (mustSettle && readings === 0) r.fail(`${who}: expected T to become readable, but it never settled in 90 s`);
+      else if (mustSettle && worst > 0.03) r.fail(`${who}: T was reported settled while ${(worst * 100).toFixed(1)} % away from the packet value (${readings} settled steps)`);
+      if (!mustSettle && readings !== 0) r.fail(`${who}: expected T never to be readable, but it was reported settled on ${readings} steps`);
+      if (!engine.getState().wallReached) r.fail(`${who}: expected the packet to reach the wall within 90 s, but wallReached is false`);
     }
 
     // The lab protocol, as a learner would run it: E = 3, V0 = 9, σ = 1.2, d from 0.5 to 1.5. Every width settles, ln T

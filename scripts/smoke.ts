@@ -156,7 +156,7 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
     // Press everything a learner can press, as the reset above: a control no check presses can stay broken unseen.
     // Every slider goes to both ends and back, then each button in turn; each is followed by a look at the page.
     await page.evaluate('window.__name = (fn) => fn'); // tsx wraps named functions in a helper the page does not have
-    const pressed = await page.evaluate(async () => {
+    const pressed = await page.evaluate(async (id) => {
       const found: string[] = [];
       const pause = () => new Promise((resolve) => setTimeout(resolve, 40));
       const look = async (what: string) => {
@@ -190,8 +190,81 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
       };
       const buttons = [/^Single Step/, /^0\.25×/, /^0\.5×/, /^2×/, /^1×/, /^Toggle telemetry recording/, /^Toggle telemetry recording/, /^Download raw data/, /^Toggle Empirical Lab Notebook/, /^Toggle Empirical Lab Notebook/, /^Toggle the Inquiry Log/, /^Toggle the Inquiry Log/, /^Reset parameters to defaults/, /^Reset Simulation/, /^Play|^Pause/];
       for (const button of buttons) await press(button);
+
+      // The two measuring instruments, which open from the telemetry bar and have no test ids: each panel is found by
+      // its close button. textContent is read, not innerText, because a CSS class upper-cases some of the labels.
+      const panelOf = (closeTitle: string) => document.querySelector(`button[title="${closeTitle}"]`)?.closest('div.fixed') ?? null;
+      const clickTitled = (title: string) => document.querySelector<HTMLButtonElement>(`button[title="${title}"]`)?.click();
+      const rangeOf = (panel: Element | null) => panel?.querySelector<HTMLInputElement>('input[type=range]') ?? null;
+      const moveTo = async (panel: Element | null, value: number, what: string) => {
+        const slider = rangeOf(panel);
+        if (!slider) {
+          found.push(`${what} has no slider`);
+          return;
+        }
+        setValue?.call(slider, String(value));
+        slider.dispatchEvent(new Event('input', { bubbles: true }));
+        await look(`${what} at ${value}`);
+      };
+      const reads = (panel: Element | null, text: string, what: string) => {
+        const shown = panel?.textContent ?? '';
+        if (!shown.includes(text)) found.push(`${what}: expected "${text}" in "${shown.slice(0, 120)}"`);
+      };
+
+      // Caliper: 35 px per metre, so the default span of 140 px reads 4.00 m and 350 px reads 10.00 m.
+      await press(/^Toggle Virtual Caliper/);
+      let caliper = panelOf('Close Caliper');
+      if (!caliper) found.push('the Caliper did not open');
+      else {
+        reads(caliper, '4.00 m', 'the Caliper at its default span');
+        await moveTo(caliper, 350, 'the Caliper span');
+        reads(panelOf('Close Caliper'), '10.00 m', 'the Caliper at 350 px');
+        clickTitled('Reset Span');
+        await look('Reset Span');
+        reads(panelOf('Close Caliper'), '4.00 m', 'the Caliper after Reset Span');
+        clickTitled('Close Caliper');
+        await look('Close Caliper');
+        caliper = panelOf('Close Caliper');
+        if (caliper) found.push('the Caliper did not close');
+      }
+
+      // Photogate: the gate runs from -4 to 4 m and starts at 0.
+      await press(/^Toggle Virtual Photogate/);
+      let gate = panelOf('Close Photogate');
+      if (!gate) found.push('the Photogate did not open');
+      else {
+        reads(gate, '0.00 m', 'the Photogate at its default position');
+        await moveTo(gate, 4, 'the Photogate position');
+        reads(panelOf('Close Photogate'), '4.00 m', 'the Photogate at 4');
+        await moveTo(panelOf('Close Photogate'), -4, 'the Photogate position');
+        reads(panelOf('Close Photogate'), '-4.00 m', 'the Photogate at -4');
+        await moveTo(panelOf('Close Photogate'), 0, 'the Photogate position');
+        reads(panelOf('Close Photogate'), '0.00 m', 'the Photogate back at 0');
+        // The oscillator starts at x = 2.5 m with a period of about 2.8 s, so a gate at 0 sees a crossing within 6 s.
+        // Only that a crossing is logged is checked; the period is timed by animation frames and is not compared.
+        if (id === 'harmonic-oscillator') {
+          let waited = 0;
+          while (waited < 6000 && (panelOf('Close Photogate')?.textContent ?? '').includes('Waiting for particle transit')) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            waited += 100;
+          }
+          const shown = panelOf('Close Photogate')?.textContent ?? '';
+          if (shown.includes('Waiting for particle transit')) found.push('the Photogate saw no crossing in 6 s');
+          else {
+            const crossing = shown.match(/t = \d+\.\d\ds\s*(\d+\.\d\d) m\/s/);
+            if (!crossing) found.push(`the Photogate crossing line is not "t = <time>s <speed> m/s": "${shown.slice(0, 160)}"`);
+            else if (!(parseFloat(crossing[1]) > 0)) found.push(`the Photogate crossing reads a speed of ${crossing[1]} m/s`);
+          }
+        }
+        clickTitled('Reset Transits');
+        await look('Reset Transits');
+        clickTitled('Close Photogate');
+        await look('Close Photogate');
+        gate = panelOf('Close Photogate');
+        if (gate) found.push('the Photogate did not close');
+      }
       return found;
-    });
+    }, id);
     problems.push(...pressed);
     // Feedback from inside the instrument opens a bug report already titled with the instrument's id.
     const feedback = await page.$eval('a[data-community="feedback"]', (el) => (el as HTMLAnchorElement).href).catch(() => '');
