@@ -29,9 +29,18 @@ When the owner has a Claude Code session do the work, the session runs on Opus 5
 |---|---|
 | Plan, write the brief, talk to the owner, open and merge pull requests | The Opus main session |
 | A change beyond a few lines, from a written brief on a named branch | `coder` (Sonnet 5.5) |
-| Running gates, reading logs, CI status, issue look-ups | `runner` (Haiku 5.5) |
-| Finding code | `Explore` (Haiku 5.5) |
+| Long gate runs and long logs | `runner` (Haiku 5.5) |
+| A wide code search | `Explore` (Haiku 5.5) |
 | Reading a finished diff before a pull request opens | `reviewer` (Opus 5.5) |
+
+How much of this a change needs depends on what it can break. The standard does not change with the size: expected values come first, every new check is shown to fail, and a report is re-run before it is acted on.
+
+| Change | Route |
+|---|---|
+| A few lines, docs, agent config | Main session alone, then CI |
+| Tests, checks, UI code | Main session writes the expected values, `coder` builds, one `reviewer` pass |
+| Physics output | The same, plus a scan across the slider grid first and a reviewer from another family |
+| A new instrument | Everything above, as `new-sandbox` sets out |
 
 * An edit of a few lines stays in the main session: a subagent starts cold, and it draws on the same usage.
 * For physics, the main session writes the closed-form check before `coder` writes the engine, so the code and its check do not come from the same run (Art. 1.5).
@@ -39,8 +48,10 @@ When the owner has a Claude Code session do the work, the session runs on Opus 5
 * Forks run on the main session's model, so use a named subagent for work meant for Sonnet or Haiku.
 * Two writers never touch the same files at once.
 * `npm run smoke` serves on a fixed port, so only one gate run at a time, across every session on this machine.
-* `coder` runs the gates before it reports; after that, `runner` runs them once on the final commit. Do not repeat them in between.
-* Skip `Explore` when the main session will read the same files anyway, for example to write expected values.
+* `coder` runs the gates before it reports and CI runs them again, so run them locally again only if the commit changes after that.
+* The main session searches the code and makes one-line look-ups itself.
+* Show each new check failing with one or two mutants aimed at what it claims; a long list set in advance adds little. `reviewer` then tries to break the checks.
+* A second `reviewer` round is for physics. Otherwise the main session fixes the findings and tests those fixes itself.
 
 ---
 
