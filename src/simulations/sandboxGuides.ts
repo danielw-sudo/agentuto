@@ -152,7 +152,7 @@ export const SANDBOX_LAB_GUIDES: Record<string, SandboxGuideEntry> = {
     whatToExplore: [
       {
         title: 'Sub-Barrier Evanescent Tunneling (E < V₀)',
-        detail: 'Classical particles reflect 100%, but the quantum wavefunction penetrates the forbidden region and T falls with width, close to exp(−2κd) when E is well below V₀ and σ is large. At the defaults the fastest part of the packet passes over the barrier, so T levels off near 3 % however thick it is.',
+        detail: 'Classical particles reflect 100%, but the quantum wavefunction penetrates the forbidden region and T falls with width, close to exp(−2κd) when E is well below V₀ and σ is large. At the defaults the fastest part of the packet passes over the barrier, so T levels off near 3.4 % however thick it is.',
       },
       {
         title: 'Over-Barrier Quantum Reflection (E > V₀)',

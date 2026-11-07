@@ -281,7 +281,9 @@ const CASES: Record<string, Case> = {
       const sk = 1 / (2 * sigma);
       let weight = 0;
       let sum = 0;
-      for (let k = k0 - 6 * sk; k <= k0 + 6 * sk; k += sk / 400) {
+      // The upper limit runs far past the packet: at a small T the sum is ruled by a tail of waves above the barrier
+      // (±6 spreads reads 4.9 % low at E = 10, V0 = 20, d = 2.5, σ = 1.6).
+      for (let k = k0 - 6 * sk; k <= k0 + 16 * sk; k += sk / 400) {
         const w = Math.exp(-((k - k0) ** 2) / (2 * sk * sk));
         weight += w;
         if (k > 0.05) sum += w * transmission(k, V0, d);
@@ -333,12 +335,13 @@ const CASES: Record<string, Case> = {
     // overlapping the barrier (the wide packets, including the lab sweep's d = 1.5), and too low from T being read while
     // still rising and from the grid (E = 12, E = 2 at σ = 0.5, and the Thick Barrier preset). The second list pins today's
     // box, so a larger box would legitimately move it: T is still rising, or too much of the packet is still at the barrier
-    // for so small a T, when the reflected packet reaches the wall, so the mark stays off.
+    // for so small a T, when the packet reaches the wall, so the mark stays off. In [1, 20, 0.2, 0.5] 7.9 % of the packet
+    // moves away from the barrier, so that entry fails if the reference leaves that part out.
     const settling = [
       [10, 12, 0.6, 0.9], [8, 4, 0.6, 1.6], [8, 16, 0.6, 0.5], [2, 20, 0.6, 0.9], [3, 4, 1.5, 1.2],
       [10, 12, 0.6, 2.0], [12, 20, 1, 2.0], [2, 20, 1, 2.0],
       [3, 9, 1.5, 1.2], [5, 12, 2, 0.9], [5, 20, 1.5, 1.4], [5, 16, 1.5, 1.4], [3, 12, 1.5, 1.2],
-      [12, 20, 1.5, 0.9], [12, 16, 1.5, 1.2], [2, 16, 0.2, 0.5],
+      [12, 20, 1.5, 0.9], [12, 16, 1.5, 1.2], [2, 16, 0.2, 0.5], [1, 20, 0.2, 0.5],
     ] as const;
     const never = [[5, 20, 2.5, 0.9], [3, 20, 1.5, 1.2], [12, 20, 2.5, 0.9], [8, 20, 2.5, 0.5], [1, 12, 1.5, 1.2], [1, 4, 0.2, 0.5]] as const;
     for (const [E, V0, d, sigma, mustSettle] of [...settling.map((c) => [...c, true] as const), ...never.map((c) => [...c, false] as const)]) {

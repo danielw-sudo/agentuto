@@ -3,7 +3,7 @@ import { QuantumState } from './QuantumEngine';
 import { formatPercent } from '../../../core/telemetry/formatPercent';
 
 // The wavepacket plot shows this window of the box, not the whole box (which is wider so the packet can start well clear
-// of the barrier and finish well clear of it), so the barrier and the packet keep their size on screen.
+// of the barrier and finish well clear of it), so the barrier and the packet stay large enough to read.
 const PLOT_X_MIN = -20;
 const PLOT_X_MAX = 20;
 
@@ -221,7 +221,7 @@ export class QuantumRenderer2D implements ViewportRenderer<QuantumState> {
     ctx.fillStyle = '#64748b';
     ctx.font = '10px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('Position x (reduced units) →', originX + plotW / 2, baselineY + 22);
+    ctx.fillText('Position x (reduced units; the box runs to ±40) →', originX + plotW / 2, baselineY + 22);
 
     ctx.fillText(`${xMin.toFixed(0)}`, originX, baselineY + 16);
     ctx.fillText('0', toScreenX(0), baselineY + 16);

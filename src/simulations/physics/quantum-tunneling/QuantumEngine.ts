@@ -338,7 +338,7 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
       if (nearWall >= WALL_PROB) this.wallReached = true;
     }
 
-    // Sample T every SAMPLE_DT of simulation time (not every so many steps, so it does not depend on dt)
+    // Sample T every SAMPLE_DT of simulation time, not every so many steps, so the window does not depend on dt (below SAMPLE_DT)
     if (this.time >= this.nextSample * SAMPLE_DT) {
       this.recordSample();
       this.nextSample = Math.floor(this.time / SAMPLE_DT + 1e-9) + 1;
