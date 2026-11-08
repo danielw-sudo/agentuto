@@ -8,6 +8,18 @@
 > deepen-module, design-system, faculty-review, ui-review). Antigravity loads them natively; other agents
 > read the `SKILL.md` directly.
 
+**Where effort goes (all agents, Constitution Art. 1.6–1.7, 6.4, 8.4, 10.9).** This is a small project. Faculty
+comes first: instruments, courses, guides and labs that are correct where a learner meets them.
+* Anchor each check on a published worked problem with its answer, and cite it. A model's own closed form
+  comes second.
+* Link open lectures, readings and videos instead of rewriting them. Copy only under a compatible licence.
+* Act on a finding only if a learner would meet it. Record smaller ones once as known limits, and do not
+  reopen them or an owner's decision without new evidence.
+* No new tooling, themes or site features unless a learner, a contributor or the owner asks for them.
+* In review, keep to the brief's scope. Style and structure preferences are not findings, and working code
+  is not rebuilt to taste.
+* Community work (triage, replies) is the owner's operational work, not a coding task.
+
 ---
 
 ## 0. Role Assignments (Constitution Art. 10)

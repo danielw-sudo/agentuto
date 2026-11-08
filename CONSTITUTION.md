@@ -1,8 +1,8 @@
 # Agentuto Constitution
 
-> **Status:** v1.2 — **ratified** 2026-10-31 by the repository owner, who merged the pull request carrying it
-> (#17, proposed by Claude at the owner's instruction). It replaces v1.1, whose text it builds on; v1.0 was
-> ratified by the repository owner on 2026-10-31.
+> **Status:** v1.3 — proposed 2026-11-07 by Claude at the owner's instruction, and **ratified** when the
+> repository owner merges the pull request carrying it. It builds on v1.2, ratified 2026-10-31 (#17), and
+> adds Art. 1.6–1.7, 6.4, 8.4 and 10.9.
 
 This document holds the few rules that must stay true however the project grows. `AGENTS.md` says *how*
 agents work day to day; the skills in `.agents/skills/` say *how to do* specific tasks. When they conflict,
@@ -29,6 +29,14 @@ hand-off reports, and do not block unrelated work. New and changed code must com
    evaluates that closed form independently rather than reusing the engine's own constants, helpers or
    integration path. A test that recomputes the implementation from the same inputs, by the same route,
    confirms the arithmetic but proves nothing about the physics.
+6. **External anchors first.** Where one exists, a sandbox's checks include at least one published worked
+   problem with its stated answer, from an open textbook or course, cited with its source. A closed form
+   derived by a model adds to that anchor and does not replace it, because the engine and its check may then
+   come from the same model family. A mismatch is investigated, not assumed to be the engine's fault.
+7. **Materiality.** A faculty finding needs action only when a learner would meet it: a number wrong beyond
+   the digits shown or a stated tolerance, a claim that does not hold, or an explanation that misleads.
+   Anything smaller is recorded once as a known limit, with its measured size, and closed. A recorded limit or
+   an owner's decision is reopened only with new evidence that a learner meets it.
 
 ## Article 2: Pedagogy
 1. Agentuto is an instrument for inquiry. Learners set parameters, predict, observe, measure and explain.
@@ -66,6 +74,11 @@ hand-off reports, and do not block unrelated work. New and changed code must com
    speculatively.
 3. Courses are content (data) over shared sandboxes. A new course adds a new sandbox only when no existing one
    can express the experiment. A course on a learner's own machine (Art. 12.4) is data in the same form.
+4. **Open materials before writing.** Equations, facts and published numerical answers are free to use and
+   are cited. Lectures, readings and videos are linked, not rewritten. Established lab activities are adapted
+   with attribution. Text, figures or worksheets are copied only under a licence compatible with this
+   project's (Art. 11.2); otherwise they are linked. Agentuto's own work is what open materials lack: an
+   instrument on which the learner measures, records and fits.
 
 ## Article 7: Design system
 1. Colours, type, spacing and motion come only from design tokens. Raw colour literals and ad-hoc font sizes
@@ -83,6 +96,10 @@ hand-off reports, and do not block unrelated work. New and changed code must com
    browser with the details filled in (an "add to Google Calendar" link) is a convenience. Agentuto holds no
    third-party credentials, tokens or OAuth client, and calls no third-party API except the provider the user
    configured for the optional AI (Art. 3.2).
+4. **Value before platform.** Effort goes to what a learner uses: instruments, courses, guides, labs and
+   their faculty correctness. A feature that is none of these (tooling, themes, site features, community
+   features) needs a request from a learner or contributor, or the owner's decision. Running the community
+   (triage, replies, Discussions) is the owner's operational work, not something built as features.
 
 ## Article 9: Verification gates
 1. Before any commit to `main`: `npm test` and `npm run build` pass.
@@ -109,6 +126,11 @@ hand-off reports, and do not block unrelated work. New and changed code must com
    in `AGENTS.md` §0 like every other role (cl. 5).
 8. **No self-review.** Review comes from a model family different from the author's (Art. 1.4). This holds
    for the specialist reviewer's own changes: the owner designates a reviewer from another family for them.
+9. **Proportionate review.** A review keeps to the scope its brief sets and ranks findings by what a learner
+   would meet (Art. 1.7). Preferences of style, naming or structure that change neither correctness nor what
+   a learner sees are not findings. A reviewer does not reopen settled choices, rebuild working code to taste,
+   or extend the work beyond the change under review; anything else it notices goes in one line under
+   "noticed, not reviewed".
 
 ## Article 11: Credit and provenance
 1. Commits carry co-author trailers for the agents that wrote them (`AGENTS.md` §5).
@@ -149,7 +171,8 @@ hand-off reports, and do not block unrelated work. New and changed code must com
 ---
 
 ## Ratification and amendments
-- **Ratified:** 2026-10-31 by the repository owner: v1.0, and v1.2 by merging #17. The v1.1 articles it builds on
+- **Ratified:** 2026-10-31 by the repository owner: v1.0, and v1.2 by merging #17. v1.3 is ratified by the
+  owner merging the pull request that carries it. The v1.1 articles it builds on
   (Art. 1.5, 9.3, 10.7, 10.8, 11.3) stand as part of v1.2.
 - **Proposed:** 2026-10-31 by DeepSeek (Hermes) at the owner's instruction (v1.1), and by Claude at the owner's
   instruction (v1.2). Merging the pull request that carries a version's text is that version's ratification; no
@@ -161,4 +184,5 @@ hand-off reports, and do not block unrelated work. New and changed code must com
 | v0.1 | 2026-10-31 | Draft by Claude for owner review. |
 | v1.0 | 2026-10-31 | Ratified by the owner after revisions (roles not models, transition clause, branch protection). |
 | v1.1 | 2026-10-31 | Proposed by DeepSeek: check independence (Art. 1.5), verified gate claims (Art. 9.3), verification & learner-experience role and no self-review (Art. 10.7–8), provenance without an account (Art. 11.3). |
+| v1.3 | 2026-11-07 | Proposed by Claude at the owner's instruction: external anchors first (Art. 1.6); materiality (Art. 1.7); open materials before writing (Art. 6.4); value before platform, community as operations (Art. 8.4); proportionate review (Art. 10.9). Ratified by merging its pull request. |
 | v1.2 | 2026-10-31 | Ratified (#17). Proposed by Claude: permission notice for AI without naming an age (Art. 3.5); links are conveniences, not integrations (Art. 8.3); ruleset wording (Art. 9.2); local courses are data (Art. 6.3); new Art. 12 on the three uses, what the project is not, no identity checks, local content and sharing. |

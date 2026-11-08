@@ -21,6 +21,9 @@ For each key experiment, write:
 - **Observe:** the exact setting to run and what to record.
 - **Explain:** a prompt that makes the learner reconcile the prediction with the result.
 
+Link the explanation instead of writing it: point to an open lecture, reading or video for the concept, and
+spend the words on what the learner does with the instrument (Art. 6.4).
+
 ## 3. Measurements, not readouts
 Point learners to quantities they measure themselves (clock, caliper, photogate, CSV). Never use a displayed
 value derived from the law under study as evidence for it (e.g. a displayed Kepler period).

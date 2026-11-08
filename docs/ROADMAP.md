@@ -5,6 +5,11 @@
 > `docs/ARCHITECTURE.md` describes what has shipped (Constitution Art. 4.1). What is still open is the owner's decisions
 > in §4 and the longer-term topics in [`OPEN_TOPICS.md`](OPEN_TOPICS.md). The owner may reorder or strike anything.
 > `CONSTITUTION.md` wins on any conflict.
+>
+> **Focus from 2026-11-07 (owner):** faculty first. New work is instruments, courses, guides and labs, anchored
+> on published worked problems and linking open materials (Art. 1.6, 6.4). The platform is frozen unless a
+> learner, a contributor or the owner asks for something (Art. 8.4). Findings are acted on only when a learner
+> would meet them (Art. 1.7).
 
 Read this before picking up work. It is the shared plan for every agent on this project, whatever model
 or tool it runs on.
@@ -190,7 +195,8 @@ conditions that have no slider (decided, §4 item 3), and ~~deriving the CSV uni
 ## 5. Out of scope
 
 Accounts, cloud sync, Google OAuth or any calendar integration, analytics, a backend, content moderation,
-identity verification, support for users' models, and new sandboxes until R2 is merged.
+identity verification, support for users' models, and new platform features that no learner, contributor or
+owner has asked for (Art. 8.4). New sandboxes are in scope again: R2 is merged.
 
 ## 6. Success without analytics
 
