@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Reviews a finished diff or branch with fresh eyes, without changing it. Use before a pull request is opened.
+description: Reviews a finished diff or branch with fresh eyes, without changing it. Use before a branch is merged into main (AGENTS.md §5a).
 tools: Read, Grep, Glob, Bash, PowerShell
 model: opus
 effort: high

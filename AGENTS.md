@@ -39,7 +39,7 @@ When the owner has a Claude Code session do the work, the session runs on Opus 5
 
 | Work | Who does it |
 |---|---|
-| Plan, write the brief, talk to the owner, open and merge pull requests | The Opus main session |
+| Plan, write the brief, talk to the owner, merge reviewed branches (§5a) | The Opus main session |
 | A change beyond a few lines, from a written brief on a named branch | `coder` (Sonnet 5.5) |
 | Long gate runs and long logs | `runner` (Haiku 5.5) |
 | A wide code search | `Explore` (Haiku 5.5) |
@@ -155,4 +155,27 @@ declare global {
   * DeepSeek (Hermes on a VPS): authored under its own `meeow-ai` account, `Co-Authored-By: DeepSeek V4 Flash <247033299+meeow-ai@users.noreply.github.com>`. That address is linked to a real account, so the credit does show up — and it is DeepSeek's own account, not another party's identity (Constitution Art. 11.3).
 * Do **not** use `Gemini <gemini@google.com>`: that address is not a GitHub account, so the credit never shows up (Batches 19–24 used it). Also not the `gemini-code-assist[bot]` app identity: use the `gemini-code-assist` user account above.
 * **Before committing:** `npm test` and `npm run build` must pass.
+
+### 5a. Branches and merging (owner, 2026-11-08)
+
+Claude and Gemini work in the one checkout, one agent at a time, on local branches. The owner stays in the loop:
+the owner assigns the task, a model from the other family reviews it, and nothing reaches GitHub until the owner
+says so.
+
+1. **Build.** Start from current `main` on `claude/<task>` or `gemini/<task>`. Commit locally. Never push the branch.
+2. **Review.** A session from the other family reads `git diff main...<branch>`, re-runs what it reports, and ranks
+   findings as Act, Record or Not a finding (`faculty-review`). The builder fixes them on the same branch; the
+   reviewer may fix a few lines of documentation itself.
+3. **Gates.** Run them on the branch before merging, since CI now runs only after the push: `npm test` and
+   `npm run build` always; `npm run check:bundle` and `npm run smoke` as well when code changes.
+4. **Merge.** `git switch main`, `git merge --squash <branch>`, one commit (`main` takes linear history only). Its
+   body says what changed, who built it, who reviewed it, each finding and how it was checked, and what was not
+   checked. It ends with both agents' trailers. This commit is the review record.
+5. **Push and clean up.** Only when the owner approves that change: `git push origin main`, then
+   `git branch -D <branch>`. Check that CI and the Pages deploy pass on the pushed commit; Pages deploys in
+   parallel with CI, so if CI fails, fix it on `main` at once.
+
+Changes to `CONSTITUTION.md` still go through a pull request, since merging that pull request is its ratification
+("Ratification and amendments"). Contributors outside the project also use pull requests. Never force-push, and never use a bare
+`git stash`.
 * **Hand-off:** After an audit or fix pass, add `temp/CODEBASE_AUDIT_PASS_N.md` (what changed, how it was verified, open items). `temp/` is gitignored, so these reports are local only.
