@@ -503,6 +503,63 @@ const CASES: Record<string, Case> = {
     r.near('speed at 0.37 T (vis-viva)', s.speed, Math.sqrt(mu * (2 / rr - 1 / a)), 1e-5);
     r.near('x at 0.37 T', s.x, rr * Math.cos(phi), 1e-5, 1e-6);
     r.near('y at 0.37 T', s.y, rr * Math.sin(phi), 1e-5, 1e-6);
+
+    // Anchor: OpenStax University Physics Vol. 1, Example 13.13 ("Orbit of Halley’s Comet").
+    // The book takes orbital period T = 75.3 yr and perihelion r_min = 0.586 AU, and derives semi-major axis
+    // a = (GM·T² / 4π²)^(1/3) = 17.832 AU in solar units (GM = 4π² AU³/yr²). It rounds a to 17.8 AU to find
+    // aphelion r_max = 2a - r_min = 35.0 AU.
+    // Here we launch at perihelion (r0 = 0.586 AU, vt = sqrt(GM(2/r0 - 1/a))) and step the engine for 80 yr at
+    // DT = 0.005, tracking only r = hypot(x, y) from telemetry (never reading orbital_period, semi_major_axis,
+    // aphelion or perihelion).
+    // Expected values & tolerances:
+    // - Measured orbital period (time of the next minimum of r): expect 75.3 yr (book's given). Re-run: 75.300 yr.
+    //   Tolerance: 0.05 yr.
+    // - Measured largest r (aphelion): expect 35.0 AU (book printed). Re-run: 35.078 AU. The book rounds a to 17.8
+    //   before doubling (2*17.8 - 0.586 = 35.014 AU vs unrounded 35.078 AU); tolerance: 0.1 AU.
+    const GM_solar = 4 * Math.PI * Math.PI;
+    const T_halley = 75.3;
+    const a_halley = Math.cbrt(T_halley * T_halley);
+    const r0_halley = 0.586;
+    const vt_halley = Math.sqrt(GM_solar * (2 / r0_halley - 1 / a_halley));
+
+    const registration = SIMULATION_CATALOG['kepler-orbits'];
+    const keplerEngine: any = (await registration.load()).createEngine();
+    keplerEngine.init({
+      ...registration.defaultParams,
+      centralMass: GM_solar,
+      gravitationalConstant: 1.0,
+      initialRadius: r0_halley,
+      initialTangentialVelocity: vt_halley,
+      initialRadialVelocity: 0.0,
+      orbitalInclination: 0.0,
+    });
+
+    let maxR = 0;
+    let passedAphelion = false;
+    let minR = Infinity;
+    let measuredPeriod = 0;
+    const totalSteps = Math.round(80 / DT);
+    for (let i = 0; i < totalSteps; i += 1) {
+      keplerEngine.step(DT);
+      const snap = keplerEngine.getTelemetrySnapshot() as Channels;
+      const r_now = Math.hypot(snap.x, snap.y);
+      if (r_now > maxR) {
+        maxR = r_now;
+      } else if (!passedAphelion && r_now < maxR - 1.0) {
+        passedAphelion = true;
+      }
+      if (passedAphelion) {
+        if (r_now < minR) {
+          minR = r_now;
+          measuredPeriod = snap.t;
+        } else if (r_now > minR && measuredPeriod > 0) {
+          break;
+        }
+      }
+    }
+
+    r.near('OpenStax Ex 13.13: Halley measured period (75.3 yr)', measuredPeriod, 75.3, 0, 0.05);
+    r.near('OpenStax Ex 13.13: Halley measured aphelion r_max (35.0 AU)', maxR, 35.0, 0, 0.1);
   },
 
   // No drag: x = v cosθ t, y = h + v sinθ t − ½ g t², range = v cosθ · t_f with t_f = (v sinθ + √(v² sin²θ + 2gh)) / g.
@@ -524,6 +581,21 @@ const CASES: Record<string, Case> = {
     const f = await run('projectile-drag', { launchSpeed: 5, launchAngle: 85, launchHeight: 40, mass: m, dragCoefficient: cd, crossSectionArea: A, airDensity: rho, gravity: gg }, 6);
     r.near('terminal speed', f.t.speed, vt, 0.01);
     r.near('drag force at terminal speed = weight', f.t.drag_force, m * gg, 0.02);
+
+    // Anchor: OpenStax University Physics Vol. 1, Example 4.7 ("A Fireworks Projectile Explodes High and Away").
+    // Conditions: v0 = 70.0 m/s, theta = 75.0 deg, y0 = 0 m, g = 9.80 m/s^2, vacuum (drag = 0, rho = 0).
+    // Printed answers: peak height y_max = 233 m, time to peak t_peak = 6.90 s, x at peak = 125 m. Range is not printed
+    // in the book; the closed form v0^2 sin(2theta)/g gives 250.0 m.
+    // Tolerances:
+    // - y_max: book rounding error is 0.25 m (exact 233.25 m rounded to 233 m); RK4 integrator error is < 1e-4 m. Tolerance: 0.35 m.
+    // - x at peak: book rounding is 0.01 m (exact 125.01 m rounded to 125 m); tolerance: 0.05 m.
+    // - range: closed-form 250.00 m; 200 Hz landing interpolation error is < 1e-4 m. Tolerance: 0.05 m.
+    const ex47 = { launchSpeed: 70.0, launchAngle: 75.0, launchHeight: 0.0, dragCoefficient: 0.0, airDensity: 0.0, gravity: 9.80 };
+    const ex47Peak = await run('projectile-drag', ex47, 6.90);
+    r.near('OpenStax Ex 4.7: x at peak (125 m)', ex47Peak.t.x, 125, 0, 0.05);
+    r.near('OpenStax Ex 4.7: y at peak (233 m)', ex47Peak.t.y, 233, 0, 0.35);
+    const ex47Landed = await run('projectile-drag', ex47, 14.0);
+    r.near('OpenStax Ex 4.7: closed-form range (250 m)', ex47Landed.t.range, 250, 0, 0.05);
   },
 
   // Series RLC. Free decay from q0 (source off): q = q0 e^{−αt}(cos ω_d t + (α/ω_d) sin ω_d t), α = R/2L.
@@ -704,6 +776,47 @@ const CASES: Record<string, Case> = {
     r.near('body 2 position after the impact', after.t.body2_x, 3.5 + v2 * hit + w2 * (after.t.t - hit), 1e-9);
     const walled = await run('conservation-momentum', { mass1: 2, mass2: 2, velocity1: -10, velocity2: 10, impactParameter: 0, restitution: 1 }, 0.5);
     r.near('body 1 position after the wall', walled.t.body1_x, -4.85 + 10 * (walled.t.t - 0.135), 1e-9);
+
+    // Anchor: OpenStax University Physics Vol. 1, Example 9.8 ("Ice Hockey 1").
+    // Equal mass pucks (15 g each, scaled to 2.0 kg), blue puck moving at v1 = 2.5 m/s strikes stationary red puck (v2 = 0 m/s).
+    // The book does not explicitly state the collision is elastic, but gives the red puck's final velocity as 2.5 m/s and asks
+    // for the blue puck's final velocity (0 m/s); restitution e = 1.0 reproduces this outcome.
+    // In engine: gap closes from x1=-3.5 to x2=+3.5 (dx = 6.3 m at closing speed 2.5 m/s -> impact at t = 2.52 s).
+    // At t = 2.70 s, 1 collision has occurred and 0 wall contacts.
+    // Tolerances: exact velocity swap, integrator error < 1e-12. Tolerance: 1e-9.
+    const ex98 = await run('conservation-momentum', {
+      mass1: 2.0,
+      mass2: 2.0,
+      velocity1: 2.5,
+      velocity2: 0.0,
+      impactParameter: 0.0,
+      restitution: 1.0,
+    }, 2.70);
+    if (ex98.t.collision_count !== 1 || ex98.t.wall_contacts !== 0) {
+      r.fail(`OpenStax Ex 9.8: expected 1 collision and 0 wall contacts at 2.70s, got ${ex98.t.collision_count} and ${ex98.t.wall_contacts}`);
+    }
+    r.near('OpenStax Ex 9.8: v1\' after impact (0 m/s)', ex98.t.body1_vx, 0.0, 0, 1e-9);
+    r.near('OpenStax Ex 9.8: v2\' after impact (2.5 m/s)', ex98.t.body2_vx, 2.5, 0, 1e-9);
+
+    // Anchor: OpenStax University Physics Vol. 1, Example 9.11 ("Ice Hockey 2").
+    // Unequal mass 1D elastic collision: m1 = 12 g, m2 = 15 g (mass ratio 1.2 : 1.5), v1 = 2.5 m/s, v2 = 0 m/s, e = 1.0.
+    // Printed answers: puck 1 rebounds at v1' = -0.28 m/s, puck 2 moves forward at v2' = 2.22 m/s.
+    // Analytical exact: v1' = (1.2 - 1.5)/2.7 * 2.5 = -0.2777... m/s, v2' = (2.4/2.7) * 2.5 = 2.222... m/s.
+    // Tolerances: book rounded both values to 2 decimal places (diff 0.0022 m/s). Integrator precision < 1e-12.
+    // Tolerance against book printed value: 0.003 m/s.
+    const ex911 = await run('conservation-momentum', {
+      mass1: 1.2,
+      mass2: 1.5,
+      velocity1: 2.5,
+      velocity2: 0.0,
+      impactParameter: 0.0,
+      restitution: 1.0,
+    }, 2.70);
+    if (ex911.t.collision_count !== 1 || ex911.t.wall_contacts !== 0) {
+      r.fail(`OpenStax Ex 9.11: expected 1 collision and 0 wall contacts at 2.70s, got ${ex911.t.collision_count} and ${ex911.t.wall_contacts}`);
+    }
+    r.near('OpenStax Ex 9.11: v1\' rebound (-0.28 m/s)', ex911.t.body1_vx, -0.28, 0, 0.003);
+    r.near('OpenStax Ex 9.11: v2\' forward (2.22 m/s)', ex911.t.body2_vx, 2.22, 0, 0.003);
 
     const table = async (overrides: Record<string, number>) => {
       const registration = SIMULATION_CATALOG['conservation-momentum'];

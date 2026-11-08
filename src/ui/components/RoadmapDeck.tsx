@@ -199,8 +199,20 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
         sandbox: 'kepler-orbits',
         params: { centralMass: 100.0, gravitationalConstant: 1.0, initialRadius: 5.0, initialTangentialVelocity: 7.0, initialRadialVelocity: 0.0, orbitalInclination: 0.0 },
       },
+      {
+        label: 'Kepler\'s Third Law in Solar Units (GM = 4π²)',
+        desc: 'In AU and years, solar orbits satisfy T²/a³ = 1. Measure the period T between two perihelion passages and compare with the semi-major axis.',
+        sandbox: 'kepler-orbits',
+        params: { centralMass: 39.4784, gravitationalConstant: 1.0, initialRadius: 5.0, initialTangentialVelocity: 2.0, initialRadialVelocity: 0.0, orbitalInclination: 0.0 },
+      },
     ],
     'projectile-drag': [
+      {
+        label: 'OpenStax Example 4.7: Fireworks Shell (Vacuum)',
+        desc: 'v₀ = 70 m/s, θ = 75°, C_d = 0. Peak height y_max = 233 m at t = 6.90 s, horizontal range R = 250 m.',
+        sandbox: 'projectile-drag',
+        params: { launchSpeed: 70.0, launchAngle: 75.0, launchHeight: 0.0, mass: 1.0, dragCoefficient: 0.0, crossSectionArea: 0.03, airDensity: 0.0, gravity: 9.80 },
+      },
       {
         label: 'Ideal Vacuum Parabola (C_d = 0)',
         desc: 'Zero aerodynamic drag: trajectory follows exact symmetric parabola R = (v₀² sin 2θ) / g.',
@@ -413,6 +425,18 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
       },
     ],
     'conservation-momentum': [
+      {
+        label: 'OpenStax Example 9.8: Ice Hockey Velocity Swap',
+        desc: 'Equal 2.0 kg pucks, v₁ = 2.5 m/s, v₂ = 0. Puck 1 halts completely (v₁\' = 0 m/s); puck 2 carries away all momentum (v₂\' = 2.5 m/s).',
+        sandbox: 'conservation-momentum',
+        params: { mass1: 2.0, mass2: 2.0, velocity1: 2.5, velocity2: 0.0, impactParameter: 0.0, restitution: 1.0 },
+      },
+      {
+        label: 'OpenStax Example 9.11: Unequal Mass Rebound',
+        desc: 'Mass ratio 4:5 (m₁ = 4.0 kg, m₂ = 5.0 kg), v₁ = 2.5 m/s, v₂ = 0. Incoming puck rebounds at v₁\' = -0.28 m/s; target propelled at v₂\' = 2.22 m/s.',
+        sandbox: 'conservation-momentum',
+        params: { mass1: 4.0, mass2: 5.0, velocity1: 2.5, velocity2: 0.0, impactParameter: 0.0, restitution: 1.0 },
+      },
       {
         label: 'Equal Mass Velocity Swap (e = 1.0)',
         desc: 'Identical 2.0 kg pucks in head-on elastic collision completely exchange velocities (v1 = 5 m/s, v2 = -3 m/s).',

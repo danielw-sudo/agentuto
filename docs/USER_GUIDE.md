@@ -188,6 +188,7 @@ The speaker button in the log's header turns on a soft two-note chime for each n
   * **Conic Sections:** With a purely tangential launch at $r_0$: $v_t = v_c = \sqrt{GM/r_0}$ gives a circle ($e = 0$); any other $v_t$ below $\sqrt{2GM/r_0}$ gives an ellipse ($r_0$ is aphelion if $v_t < v_c$, perihelion if $v_t > v_c$); $v_t = \sqrt{2GM/r_0}$ is the parabolic escape threshold, and faster launches are hyperbolic.
   * **Kepler's Second Law:** The radius vector sweeps equal areas in equal times. Watch the green velocity vector grow as the satellite whips through perihelion and shrink near aphelion, so that $r \times v_\perp$ stays constant.
   * **Kepler's Third Law:** For several orbits, **measure** the period $T$ yourself (the time between two successive perihelion passages, read from the clock or the Photogate) and note the semi-major axis $a$. Don't use the displayed period: it is calculated from Kepler's third law, so plotting it would only confirm the formula it came from. A plot of $T^2$ against $a^3$ is a straight line with slope $4\pi^2/GM$; equivalently, $\log T$ against $\log a$ has slope $3/2$.
+* **Read and watch:** [OpenStax University Physics Vol. 1 §13.5 (Kepler's Laws of Planetary Motion)](https://openstax.org/books/university-physics-volume-1/pages/13-5-keplers-laws-of-planetary-motion) and [MIT 8.01SC Week 3: Circular Motion Dynamics](https://ocw.mit.edu/courses/8-01sc-classical-mechanics-fall-2016/pages/week-3-circular-motion/).
 
 ### 9. Projectile Kinematics & Quadratic Air Drag (`projectile-drag` — MIT 8.01)
 * **Physical Concept:** 2D kinematics with atmospheric fluid resistance:
@@ -196,6 +197,7 @@ The speaker button in the log's header turns on a soft two-note chime for each n
   * **Vacuum vs. Air Drag Ghost Curve:** Compare the real atmospheric trajectory against the faint cyan dashed vacuum parabola ($C_d = 0$).
   * **Optimal Launch Angle Shift:** In a vacuum, $45^\circ$ maximizes horizontal range (from ground level). With drag the optimum drops below $45^\circ$, by an amount that depends on how strong drag is relative to weight: about $41^\circ$ with the default settings, around $35^\circ$ for a fast ($80$ m/s) 1 kg ball, and as low as about $25^\circ$ for a light, fast projectile. Find it yourself by sweeping the launch angle and recording the range.
   * **Terminal Velocity:** Drop from an elevated cliff to observe acceleration diminishing as drag force approaches weight ($v \to v_{\text{term}} = \sqrt{2mg / (C_d \rho A)}$).
+* **Read and watch:** [OpenStax University Physics Vol. 1 §4.3 (Projectile Motion)](https://openstax.org/books/university-physics-volume-1/pages/4-3-projectile-motion) and [MIT 8.01SC Week 1: Projectile Motion](https://ocw.mit.edu/courses/8-01sc-classical-mechanics-fall-2016/pages/week-1-kinematics/3-4-projectile-motion/).
 
 ### 10. LCR Electrical Oscillators & AC Resonance (`lcr-circuit` — MIT 8.02)
 * **Physical Concept:** Driven 2nd-order electrical circuits and phasor analysis:
@@ -256,6 +258,7 @@ The speaker button in the log's header turns on a soft two-note chime for each n
   * **Trapped pucks:** A light puck caught between a wall and a heavy one bounces many times, so the collision count can jump by hundreds. Each one is a real impact in this model.
   * **Long glancing runs:** Off-centre collisions amplify tiny differences, so after a few bounces the path cannot be predicted, here or on a real table.
   * **Isolated-system caveat:** The table walls exert external forces. Momentum and $\mathbf{V}_{\text{cm}}$ are conserved only until a puck touches a wall, so record your measurements before then.
+* **Read and watch:** [OpenStax University Physics Vol. 1 §9.4 (Types of Collisions)](https://openstax.org/books/university-physics-volume-1/pages/9-4-types-of-collisions) and [MIT 8.01SC Week 9: Collision Theory](https://ocw.mit.edu/courses/8-01sc-classical-mechanics-fall-2016/pages/week-9-collision-theory/).
 
 ### 17. RC & RL Transient Relaxation Circuits (`rc-rl-circuits` — MIT 8.02 / 18.03)
 * **Physical Concept:** First-order linear differential equations and time constants:
