@@ -355,8 +355,8 @@ export async function runCoreVerification(): Promise<boolean> {
     throw new Error(`Initial quantum norm not 1.0: got ${initNorm}`);
   }
 
-  // Evolve wavepacket through barrier (300 timesteps dt = 0.005)
-  for (let s = 0; s < 300; s++) {
+  // Evolve wavepacket through barrier (800 timesteps, dt = 0.005: 4 time units; the packet now starts 7 sigma clear of the barrier, about x = -6 here, so 300 steps are too few for it to arrive)
+  for (let s = 0; s < 800; s++) {
     qEngine.step(0.005);
   }
 

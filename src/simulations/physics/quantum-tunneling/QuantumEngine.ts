@@ -6,7 +6,7 @@ export interface QuantumParams extends Record<string, number> {
   barrierWidth: number;   // d in spatial units (0.2 to 2.5)
   barrierPosition: number;// x_barrier center (default 0.0)
   packetSigma: number;    // Gaussian spatial width sigma (0.5 to 2.0)
-  initialX: number;       // Wavepacket start position (default -5.0)
+  initialX: number;       // Wavepacket start: no closer than this (default -5.0); a wide barrier or packet starts it further left, 7 sigma clear of the barrier
 }
 
 export interface QuantumState extends SimulationState {
@@ -25,8 +25,10 @@ export interface QuantumState extends SimulationState {
   barrierWidth: number;
   waveNumber: number;     // k0 = sqrt(2*m*E)
   /**
-   * True once T can be read: the packet has reached the barrier and left it, and neither the reflected nor the
-   * transmitted part has reached the edge of the box (where it would bounce back and corrupt T and R).
+   * True once T can be read: the packet has reached the barrier and left it, almost nothing is inside the barrier,
+   * T has stopped changing (it moved by no more than 0.3 % of itself over the last 1.5 time units, and what is inside
+   * the barrier is under 5 % of T), and neither the reflected nor the transmitted part has reached the edge of the box
+   * (where it would bounce back and corrupt T and R).
    */
   settled: boolean;
   /** True from the moment any part of the packet reaches the edge of the box until the run is reset. */
@@ -35,6 +37,11 @@ export interface QuantumState extends SimulationState {
 
 const WALL_STRIP = 1.0;  // Width of the outer strips of the box
 const WALL_PROB = 3e-3;  // Probability in those strips that counts as having reached the wall
+const SAMPLE_DT = 0.05;              // Simulation time between samples of T
+const SETTLE_WINDOW = 1.5;           // T must have held steady over this much time
+const SETTLE_TOLERANCE = 0.003;      // ... to within this fraction of itself
+const SETTLE_INSIDE_FRACTION = 0.05; // ... with what is inside the barrier no more than this fraction of T
+const SETTLE_SAMPLES = Math.round(SETTLE_WINDOW / SAMPLE_DT) + 1; // 31: the newest and oldest are SETTLE_WINDOW apart
 
 // In normalized atomic units: hbar = 1, m = 1
 export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumState> {
@@ -44,15 +51,24 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
     barrierWidth: 1.0,
     barrierPosition: 0.0,
     packetSigma: 0.9,
-    initialX: -5.0,
+    initialX: -5.0, // No closer than this: see startX
   };
 
   private time: number = 0;
   private wallReached: boolean = false; // One-way within a run: after a bounce, T no longer means transmission
-  private readonly numGridPoints: number = 719;
-  private readonly xMin: number = -15.0;
-  private readonly xMax: number = 15.0;
+  private readonly numGridPoints: number = 3831; // Cell 80/3830 = 0.0209, with a grid point at x = 0
+  private readonly xMin: number = -40.0;
+  private readonly xMax: number = 40.0;
   private dx: number = 0;
+  private wallLowEnd: number = 0;    // Points 0 .. wallLowEnd - 1 are in the left strip
+  private wallHighStart: number = 0; // Points wallHighStart .. n - 1 are in the right strip
+
+  // T and the probability inside the barrier, sampled every SAMPLE_DT of simulation time into a fixed ring
+  private readonly ringT = new Float64Array(SETTLE_SAMPLES);
+  private readonly ringInside = new Float64Array(SETTLE_SAMPLES);
+  private ringHead: number = 0;  // Next slot to write (and, once full, the oldest sample)
+  private ringCount: number = 0;
+  private nextSample: number = 1; // Index k of the next sample, taken when time reaches k * SAMPLE_DT
 
   private gridX: number[] = [];
   private psiReal: number[] = [];
@@ -73,6 +89,14 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
     for (let i = 0; i < this.numGridPoints; i++) {
       this.gridX[i] = this.xMin + i * this.dx;
     }
+    // The outer strips, found with the same test the wall check uses, so the check can skip the middle of the box
+    const wallEdge = this.xMax - WALL_STRIP;
+    let low = 0;
+    while (low < this.numGridPoints && Math.abs(this.gridX[low]) > wallEdge) low++;
+    let high = this.numGridPoints;
+    while (high > low && Math.abs(this.gridX[high - 1]) > wallEdge) high--;
+    this.wallLowEnd = low;
+    this.wallHighStart = high;
     this.bReal = new Float64Array(this.numGridPoints);
     this.bImag = new Float64Array(this.numGridPoints);
     this.cPrimeR = new Float64Array(this.numGridPoints);
@@ -92,6 +116,9 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
     }
     this.time = 0;
     this.wallReached = false;
+    this.ringHead = 0;
+    this.ringCount = 0;
+    this.nextSample = 1;
     this.buildPotential();
     this.buildInitialWavepacket();
   }
@@ -131,6 +158,15 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
     return { ...this.params };
   }
 
+  /**
+   * Where the packet's centre starts: initialX, or further left if that is closer than 7 sigma to the barrier's left
+   * edge, so that at most 1.3e-12 of the packet is at or past the barrier at t = 0 whatever the sliders say.
+   */
+  private get startX(): number {
+    const { initialX, barrierPosition, barrierWidth, packetSigma } = this.params;
+    return Math.min(initialX, barrierPosition - (barrierWidth / 2 + 7 * packetSigma));
+  }
+
   private buildPotential(): void {
     const { barrierHeight, barrierWidth, barrierPosition } = this.params;
     const halfW = barrierWidth * 0.5;
@@ -151,7 +187,8 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
   }
 
   private buildInitialWavepacket(): void {
-    const { particleEnergy, packetSigma, initialX } = this.params;
+    const { particleEnergy, packetSigma } = this.params;
+    const initialX = this.startX;
     // In hbar = 1, m = 1 units, E = k^2 / 2 => k = sqrt(2*E)
     const k0 = Math.sqrt(2 * Math.max(0.1, particleEnergy));
     const s2 = packetSigma * packetSigma;
@@ -288,16 +325,43 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
 
     this.time += dt;
 
-    // Checked on every step, not when the state is read, so a bounce between two reads cannot be missed
+    // Checked on every step, not when the state is read, so a bounce between two reads cannot be missed. Only the
+    // points with |x| > xMax - WALL_STRIP count, and those are the two outer strips, so the middle is skipped.
     if (!this.wallReached) {
       let nearWall = 0;
-      for (let j = 0; j < n; j++) {
-        if (Math.abs(this.gridX[j]) > this.xMax - WALL_STRIP) {
-          nearWall += (this.psiReal[j] * this.psiReal[j] + this.psiImag[j] * this.psiImag[j]) * dx;
-        }
+      for (let j = 0; j < this.wallLowEnd; j++) {
+        nearWall += (this.psiReal[j] * this.psiReal[j] + this.psiImag[j] * this.psiImag[j]) * dx;
+      }
+      for (let j = this.wallHighStart; j < n; j++) {
+        nearWall += (this.psiReal[j] * this.psiReal[j] + this.psiImag[j] * this.psiImag[j]) * dx;
       }
       if (nearWall >= WALL_PROB) this.wallReached = true;
     }
+
+    // Sample T every SAMPLE_DT of simulation time, not every so many steps, so the window does not depend on dt (below SAMPLE_DT)
+    if (this.time >= this.nextSample * SAMPLE_DT) {
+      this.recordSample();
+      this.nextSample = Math.floor(this.time / SAMPLE_DT + 1e-9) + 1;
+    }
+  }
+
+  /** Puts T (probability right of the barrier, as in getState) and the probability inside it into the ring. */
+  private recordSample(): void {
+    const { barrierPosition, barrierWidth } = this.params;
+    const xLeft = barrierPosition - barrierWidth * 0.5;
+    const xRight = barrierPosition + barrierWidth * 0.5;
+    let trans = 0;
+    let inside = 0;
+    for (let i = 0; i < this.numGridPoints; i++) {
+      const x = this.gridX[i];
+      const p = (this.psiReal[i] * this.psiReal[i] + this.psiImag[i] * this.psiImag[i]) * this.dx;
+      if (x > xRight) trans += p;
+      else if (x >= xLeft) inside += p;
+    }
+    this.ringT[this.ringHead] = trans;
+    this.ringInside[this.ringHead] = inside;
+    this.ringHead = (this.ringHead + 1) % SETTLE_SAMPLES;
+    if (this.ringCount < SETTLE_SAMPLES) this.ringCount++;
   }
 
   getState(): QuantumState {
@@ -330,10 +394,23 @@ export class QuantumEngine implements SimulationEngine<QuantumParams, QuantumSta
     const k0 = Math.sqrt(2 * Math.max(0.1, this.params.particleEnergy));
 
     // Settled: the packet's centre has had time to reach the barrier and its leading and trailing edges to clear it,
-    // almost no probability is inside the barrier, and nothing has reached the outer strips of the box this run.
-    const arrival = (barrierPosition - this.params.initialX) / k0;
+    // almost no probability is inside the barrier, nothing has reached the outer strips of the box this run, and T
+    // has stopped changing. That last part is needed because the absolute limit on 'inside' passes whenever T is
+    // smaller than that limit, and T keeps rising after the packet's centre has passed. So T must hold within 0.3 %
+    // of itself over the last 1.5 time units (31 samples, 0.05 apart), with the inside probability no more than 5 %
+    // of T. It is a pure read of the ring: it is not latched, and the measured rule does not flicker.
+    const arrival = (barrierPosition - this.startX) / k0;
     const cleared = this.time > arrival + (barrierWidth + 4 * this.params.packetSigma) / k0;
-    const settled = cleared && inside < 3e-3 && !this.wallReached;
+    let steady = false;
+    if (this.ringCount === SETTLE_SAMPLES) {
+      const newest = (this.ringHead - 1 + SETTLE_SAMPLES) % SETTLE_SAMPLES;
+      const tNewest = this.ringT[newest];
+      const tOldest = this.ringT[this.ringHead];
+      steady =
+        Math.abs(tNewest - tOldest) <= SETTLE_TOLERANCE * tNewest &&
+        this.ringInside[newest] <= SETTLE_INSIDE_FRACTION * tNewest;
+    }
+    const settled = cleared && inside < 3e-3 && !this.wallReached && steady;
 
     return {
       time: this.time,
