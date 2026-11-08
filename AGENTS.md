@@ -26,12 +26,19 @@ comes first: instruments, courses, guides and labs that are correct where a lear
 
 | Role | Assigned to |
 |---|---|
-| Coder | Gemini 3.8 Flash (Antigravity IDE) |
+| Coder (default builder) | Gemini 3.8 Flash (Antigravity IDE). Gemini 4 Argon and Claude Opus 5.5 in Antigravity help when asked. |
 | First-pass reviewer | Gemini 4 Argon (Antigravity IDE) |
-| Specialist reviewer (faculty, second-pass code, UI/UX, escalation) | Claude Opus 5.5 (Claude Code) |
-| Verification & learner-experience reviewer (independent numeric re-checks, CI gate integrity, user-side review; Constitution Art. 10.7) | DeepSeek V4 Flash (Hermes, VPS; GitHub `meeow-ai`) |
+| Specialist reviewer (faculty, second-pass code, UI/UX, escalation) and merger of reviewed branches (§5a) | Claude Opus 5.5 (Claude Code) |
+| Verification & learner-experience reviewer (independent numeric re-checks, CI gate integrity, user-side review; Constitution Art. 10.7) | Meta Muse. It reads pushed `main` and may clone and test it on its own small Linux box. It files issues and comments in Discussions only: no commits, no pull requests. |
+| Fallback (any role, when the agents above are unavailable) | DeepSeek V4 Flash (Hermes, VPS; GitHub `meeow-ai`), when the owner calls on it |
 
 The owner updates this table when models change.
+
+* **Family is the model's, not the tool's.** Opus 5.5 in Antigravity is the Claude family. So a change it builds is
+  reviewed by Gemini. When both families write parts of one change, each part is reviewed by the other family
+  (Art. 1.4, 10.8).
+* **Muse's reports are inputs.** Like any review, re-run an issue or comment before acting on it, and rank it
+  as Act, Record or Not a finding (`faculty-review`).
 
 ### 0a. Model routing inside Claude Code
 
