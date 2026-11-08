@@ -14,6 +14,9 @@ description: Add a new interactive simulation (sandbox) to Agentuto the standard
   decay), second-order oscillators (spring, LCR, pendulum), central forces, and wave equations.
 - Write down: the governing equations with units, one analytical result you will test against, one cited
   reference, and the 2–4 measurements a learner should make.
+- **Find the open materials first (Art. 1.6, 6.4):** a published worked problem with its answer, to anchor the
+  check; the lecture, reading or video the guide will link; and an established lab activity to adapt, with
+  attribution. Record each with its source and licence in your pass report. Build only what they lack.
 
 ## 1. Engine (`src/simulations/physics/<id>/<Name>Engine.ts`)
 - Headless: no DOM, React or Three.js imports. Fixed-step `step(dt)`, `reset`, `getState`,

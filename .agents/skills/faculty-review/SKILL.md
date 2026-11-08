@@ -12,7 +12,21 @@ conditions* (Constitution Art. 1–2).
 - Engine `src/simulations/physics/<id>/*Engine.ts` and config `*Config.ts` (defaults, slider ranges, hints).
 - Its section in `docs/USER_GUIDE.md`, its presets in `src/ui/components/RoadmapDeck.tsx`, its quick
   prompts in `src/app/App.tsx`, and its concept nodes in `src/knowledge/seedData.ts`.
-- Its checks in `src/core/test/core.test.ts`.
+- Its checks in `src/core/test/core.test.ts` and its case in `src/core/test/closedForm.test.ts`.
+- Its known limits (the guide section, `docs/ARCHITECTURE.md`) and any owner decisions on it (`docs/ROADMAP.md`
+  §4). Settled ones are not reopened without new evidence that a learner meets them (Art. 1.7).
+
+## Scope and budget
+The brief sets what is under review. Stay inside it, and note anything else in one line under "noticed,
+not reviewed" (Art. 10.9). Stop when every claim in scope has a measured answer. A finer grid or more
+digits than a learner can read is not a reason to go on.
+
+## Anchor first (Art. 1.6)
+Before deriving anything yourself, find a published worked problem with its answer for this physics, in
+an open textbook (OpenStax and similar) or an open course's problem sets. Run the engine at that problem's
+conditions, converting units where the instrument uses scaled ones, and compare. Cite the source, with
+edition and problem number, in the check. Use your own closed form as well, never instead, and where no
+published answer exists, say so. Use the facts and numbers, and copy no text (Art. 6.4).
 
 ## Checklist
 1. **Equations:** the governing equation matches the code. Check sign conventions, factors of 2 and π,
@@ -48,6 +62,14 @@ console.log((e.getState() as any).impactDistance);
 For behaviour in the UI, use `window.__AGENTUTO_SIM__` under `npm run dev` (dev builds only).
 
 ## Output
+Rank each finding by what a learner meets (Art. 1.7):
+- **Act:** a number wrong beyond its shown digits or stated tolerance, a claim that does not hold, or an
+  explanation that misleads.
+- **Record:** smaller than that. Write it once as a known limit with its measured size, then close it.
+- **Not a finding:** a style, naming or structure preference that changes neither correctness nor what a
+  learner sees.
+
+Then:
 - Fix incorrect **documentation** directly (commit message lists each claim and how it was checked).
 - Code-level corrections (engine, presets, hints, prompts) go to the coder as items: file, the wrong
   statement, the measured truth, a suggested fix, and how to verify.

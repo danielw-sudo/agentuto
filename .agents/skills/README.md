@@ -1,6 +1,6 @@
 # Agentuto shared skills
 
-> **Status:** in force with `CONSTITUTION.md` v1.0 (ratified 2026-10-31).
+> **Status:** in force with `CONSTITUTION.md`, whichever version is ratified.
 
 Workspace skills shared by every agent on this project. Google Antigravity loads `.agents/skills/<name>/SKILL.md`
 natively. Claude Code and other agents: read the matching `SKILL.md` before starting a task of that kind
