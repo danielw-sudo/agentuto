@@ -9,7 +9,8 @@
 > **Focus from 2026-11-07 (owner):** faculty first. New work is instruments, courses, guides and labs, anchored
 > on published worked problems and linking open materials (Art. 1.6, 6.4). The platform is frozen unless a
 > learner, a contributor or the owner asks for something (Art. 8.4). Findings are acted on only when a learner
-> would meet them (Art. 1.7).
+> would meet them (Art. 1.7). [`COURSE_MAP.md`](COURSE_MAP.md) lists candidate courses with their open sources
+> and licences.
 
 Read this before picking up work. It is the shared plan for every agent on this project, whatever model
 or tool it runs on.
