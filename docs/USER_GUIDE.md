@@ -128,6 +128,7 @@ The speaker button in the log's header turns on a soft two-note chime for each n
   * **Pure Cyclotron Orbits:** Set $E_y = 0$, $B_z > 0$. Verify that the orbital radius satisfies $r = \frac{mv}{qB}$ and kinetic energy is strictly conserved.
   * **Velocity Selector Equilibrium:** Adjust $E_y$ and $B_z$ such that $v_x = E_y / B_z$. Observe that the net Lorentz force cancels to zero and the particle travels in a straight line undeflected.
   * **Cycloidal Drift Trajectories:** Set $E_y \ne 0$ with initial velocity below or above $E/B$ to observe trochoidal and cycloidal drift.
+* **Read and watch:** [OpenStax University Physics Vol. 2 §11.6 (The Hall Effect / Velocity Selector)](https://openstax.org/books/university-physics-volume-2/pages/11-6-the-hall-effect) and [MIT 8.02 Chapter 8: Magnetic Fields](https://ocw.mit.edu/courses/8-02-physics-ii-electricity-and-magnetism-spring-2007/resources/ch8magneti_field/).
 
 ### 2. Damped & Driven Harmonic Oscillator (`harmonic-oscillator` — MIT 18.03)
 * **Physical Concept:** Second-order linear ordinary differential equations:
@@ -154,6 +155,7 @@ The speaker button in the log's header turns on a soft two-note chime for each n
 * **What to Explore:**
   * **Eddy Current Braking:** Drop the oscillating bar magnet through the copper solenoid coil. Lower the coil resistance $R$ to observe rapid magnetic dissipation into Joule heat.
   * **Flux vs. EMF Phase Shift:** Notice that induced EMF is zero exactly when the magnet passes the coil center ($z = 0$, maximum flux), but peaks at the coil edges where $d\Phi/dz$ is steepest.
+* **Read and watch:** [OpenStax University Physics Vol. 2 §13.1 (Faraday's Law)](https://openstax.org/books/university-physics-volume-2/pages/13-1-faradays-law) and [MIT 8.02 Chapter 10: Faraday's Law of Induction](https://ocw.mit.edu/courses/8-02-physics-ii-electricity-and-magnetism-spring-2007/resources/cha10faraday_law/).
 
 ### 5. Maxwell-Boltzmann Kinetic Theory (`maxwell-boltzmann` — MIT 8.044)
 * **Units:** reduced units with $k_B = 1$: temperature is an energy per particle and pressure is a force per unit length (two dimensions). Every value is labelled *reduced*. The measured wall pressure runs above $NkT/A$ because the particles have size: 3 to 7 % at $N = 40$, about 7 % at the defaults, about 29 % at $N = 250$, $L_x = 3$ (less at high speed, where the fixed time step misses some collisions).
@@ -206,6 +208,7 @@ The speaker button in the log's header turns on a soft two-note chime for each n
   * **Resonance Condition:** Set $f = f_0 = \frac{1}{2\pi\sqrt{LC}}$. Observe that reactances cancel ($X_L = X_C$), impedance collapses to $Z = R$, and current reaches peak amplitude with zero phase lag ($\phi = 0^\circ$).
   * **Complex Phasor Diagram:** Watch the rotating vectors $\mathbf{V}_R$, $\mathbf{V}_L$, and $\mathbf{V}_C$ in the complex plane.
   * **Mobile Electron Current:** Observe glowing drift electrons circulating clockwise or counter-clockwise in phase with $i(t)$.
+* **Read and watch:** [OpenStax University Physics Vol. 2 §15.5 (Resonance in an AC Circuit)](https://openstax.org/books/university-physics-volume-2/pages/15-5-resonance-in-an-ac-circuit) and [MIT 8.02 Chapter 12: Alternating-Current Circuits](https://ocw.mit.edu/courses/8-02-physics-ii-electricity-and-magnetism-spring-2007/resources/cha12ac_circuits/).
 
 ---
 
@@ -247,6 +250,7 @@ The speaker button in the log's header turns on a soft two-note chime for each n
   * **Dipole Cancellation:** Enclosing both charges of an electric dipole yields strictly zero net flux ($\Phi_{\text{net}} = 0$).
   * **Monopole Flux Invariance:** Expanding the Gaussian sphere radius around an isolated charge leaves net flux invariant, as expected for an inverse-square field.
   * **Outside Neutrality:** Move the Gaussian surface outside all charges to observe that entering flux equals exiting flux.
+* **Read and watch:** [OpenStax University Physics Vol. 2 §6.2 (Explaining Gauss's Law)](https://openstax.org/books/university-physics-volume-2/pages/6-2-explaining-gausss-law) and [MIT 8.02 Chapter 4: Gauss's Law](https://ocw.mit.edu/courses/8-02-physics-ii-electricity-and-magnetism-spring-2007/resources/chapte4gauss_law/).
 
 ### 16. Linear Momentum & Center-of-Mass Invariance (`conservation-momentum` — MIT 8.01)
 * **Physical Concept:** Isolated system momentum invariance and kinetic energy partition:
@@ -267,6 +271,7 @@ The speaker button in the log's header turns on a soft two-note chime for each n
   * **The 63.2% Rule:** Monitor capacitor voltage $V_C(t)$ reaching exactly $V_0(1 - 1/e) \approx 63.2\%$ of supply voltage at $t = \tau$.
   * **50% Capacitive Energy Theorem:** Verify that during complete DC charging, exactly 50% of supplied energy is stored in the capacitor ($\frac{1}{2}CV^2$), and exactly 50% is dissipated as Ohmic heat in the resistor regardless of $R$.
   * **RL Inductor Back-EMF:** Observe the initial voltage spike across the inductor ($V_L = V_0$) resisting current onset, followed by exponential decay as current climbs to $V_0/R$. Choose $L = 500$ mH and $R = 10\ \Omega$ ($\tau = 50$ ms) to see it: Record keeps a sample every 20 to 25 ms, so a much shorter $\tau$ is correct but settles between samples, and the defaults have $\tau = 1$ ms.
+* **Read and watch:** [OpenStax University Physics Vol. 2 §10.5 (RC Circuits)](https://openstax.org/books/university-physics-volume-2/pages/10-5-rc-circuits) and [MIT 8.02 Chapter 7: Direct-Current Circuits](https://ocw.mit.edu/courses/8-02-physics-ii-electricity-and-magnetism-spring-2007/resources/chap7dc_circuits/).
 
 ---
 

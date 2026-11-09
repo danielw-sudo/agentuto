@@ -50,6 +50,12 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
     ],
     'lorentz-force': [
       {
+        label: 'OpenStax Example 11.8: Velocity Selector',
+        desc: 'Crossed fields with ratio E/B = 3.0 m/s (B_z = 2.0 T, E_y = 6.0 V/m; scaled 10⁻⁶ in speed). Charge passes undeflected; measure deflection when changing initial speed.',
+        sandbox: 'lorentz-force',
+        params: { charge: 1.0, mass: 1.0, magneticFieldZ: 2.0, electricFieldY: 6.0, initialSpeedX: 3.0, initialSpeedY: 0.0 },
+      },
+      {
         label: 'Pure Cyclotron Orbit',
         desc: 'E = 0, Bz = 2.0 T. Centripetal circular motion with radius r = mv/(qB).',
         sandbox: 'lorentz-force',
@@ -240,6 +246,12 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
     ],
     'lcr-circuit': [
       {
+        label: 'OpenStax Example 15.4: Resonance (L and C scaled, same f₀)',
+        desc: 'The book\'s circuit (4 Ω, 3 mH, 800 μF, 0.100 V) with L × 8 and C ÷ 8, which keeps LC and so f₀, and V₀ × 10. Sweep f to find where the current peaks, then compare with the book\'s f₀ and with V₀/R.',
+        sandbox: 'lcr-circuit',
+        params: { inductance: 24.0, capacitance: 100.0, resistance: 4.0, drivingVoltage: 1.0, drivingFrequency: 100.0, initialCharge: 0.0 },
+      },
+      {
         label: 'Pure Electrical Resonance (f = f₀)',
         desc: 'f = 159.15 Hz = 1/(2π√LC). XL = XC, net reactance X = 0, Z = R = 10 Ω, in-phase current (φ = 0°).',
         sandbox: 'lcr-circuit',
@@ -394,6 +406,12 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
     ],
     'gauss-flux': [
       {
+        label: 'Gauss\'s Law with a Charge Outside (after OpenStax Ex 6.5c)',
+        desc: 'q₁ = +2.0 nC enclosed at x = -1.5 m, q₂ = -2.0 nC outside the R = 1.0 m sphere at x = +1.5 m. The book\'s part (c) has two charges outside; only the enclosed charge counts, so the answer is the same. Measure the numerical flux against q₁/ε₀.',
+        sandbox: 'gauss-flux',
+        params: { charge1: 2.0, charge2: -2.0, chargeSeparation: 3.0, surfaceRadius: 1.0, surfaceCenterX: -1.5, surfaceCenterY: 0.0, surfaceType: 0 },
+      },
+      {
         label: 'Isolated Point Monopole (+2.0 nC)',
         desc: 'Spherical surface centered around a solitary positive charge demonstrates maximum radial outward flux Φ = q/ε₀.',
         sandbox: 'gauss-flux',
@@ -469,6 +487,12 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
       },
     ],
     'rc-rl-circuits': [
+      {
+        label: 'OpenStax Example 10.9: Windshield Wiper RC Timer',
+        desc: 'V₀ = 12 V, R = 558 Ω, C = 100 μF (scaled 100× in time from 10 mF). Measure the time required for capacitor voltage to reach the 10.0 V threshold.',
+        sandbox: 'rc-rl-circuits',
+        params: { circuitType: 0, resistance: 558.0, capacitance: 100.0, inductance: 100.0, sourceVoltage: 12.0, switchState: 1, squareWaveFreq: 0.5 },
+      },
       {
         label: 'Standard RC Charging (τ = 10 ms)',
         desc: 'R = 100 Ω, C = 100 μF yields time constant τ = 10 ms. Observe exponential voltage rise reaching 63.2% at t = τ.',
