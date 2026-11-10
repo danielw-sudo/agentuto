@@ -35,10 +35,12 @@ const SHIPPED = new Set(['.js', '.css', '.html']);
 //                  2026-11-01 (owner's decision) when site search, themes, community links and
 //                  the Inquiry Log's milestones brought it to the old ceiling; these
 //                  features load lazily, so the first-load budget below did not move.
+//   totalRaw       raised from 1,300,000 to 1,360,000 on 2026-11-09 (owner's decision) for signal-detection, the
+//                  first instrument outside physics; it loads lazily, and gzip and first load stayed in budget.
 const BUDGET = {
   firstLoadGzip: 110_000,
   totalGzip: 375_000,
-  totalRaw: 1_300_000,
+  totalRaw: 1_360_000,
   largestGzip: 185_000,
 };
 

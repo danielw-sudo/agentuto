@@ -524,6 +524,26 @@ export const RoadmapDeck: React.FC<RoadmapDeckProps> = React.memo(({
         params: { circuitType: 0, resistance: 200.0, capacitance: 200.0, inductance: 100.0, sourceVoltage: 15.0, switchState: 1, squareWaveFreq: 0.5 },
       },
     ],
+    'signal-detection': [
+      {
+        label: 'After WISE: Anita',
+        desc: 'Liberal observer with d′ = 1.81 and criterion c = 0.52. Run trials to measure H and FA, then compare your measured d′ with Bob.',
+        sandbox: 'signal-detection',
+        params: { dPrime: 1.81, criterion: 0.52, signalProbability: 0.5, trialRate: 20, seed: 12345 },
+      },
+      {
+        label: 'After WISE: Bob',
+        desc: 'Conservative observer with d′ = 1.81 and criterion c = 1.34. Compare your measured d′ with Anita to see if sensitivity changes with bias.',
+        sandbox: 'signal-detection',
+        params: { dPrime: 1.81, criterion: 1.34, signalProbability: 0.5, trialRate: 20, seed: 12345 },
+      },
+      {
+        label: 'No sensitivity',
+        desc: 'Zero sensitivity (d′ = 0). What does the measured ROC point do as you shift the criterion?',
+        sandbox: 'signal-detection',
+        params: { dPrime: 0.0, criterion: 0.0, signalProbability: 0.5, trialRate: 20, seed: 12345 },
+      },
+    ],
   };
 
   const handleGeneratePlaylist = async () => {

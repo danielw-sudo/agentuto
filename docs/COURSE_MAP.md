@@ -5,10 +5,11 @@ instruments that fit. Use it to pick the next course or module and its anchors (
 Shipped means the course is in `src/courses/courses.ts`; proposed means it is not built.
 
 **Licences.** Equations, laws and published numerical answers are facts: cite the source and problem number.
-Only CC BY (for example OpenStax *University Physics*; not OpenStax *Calculus*, which is CC BY-NC-SA), CC0 or
-MIT-licensed text may be adapted into this MIT-licensed repo, with attribution. Everything else (CC BY-NC-SA such
-as MIT OCW, NC, ND, free PDFs, lecture videos) is linked, never copied. Check a source's own licence page before
-adapting anything; labels below were checked on 2026-11-08 except where marked unverified.
+Only CC BY, CC0 or MIT-licensed text may be adapted into this MIT-licensed repo, with attribution. Everything else
+(CC BY-NC-SA such as MIT OCW, NC, ND, free PDFs, lecture videos) is linked, never copied. OpenStax licences differ
+by book and edition: *University Physics*, *Calculus* and *Psychology 2e* are CC BY-NC-SA 4.0 (OpenStax catalogue,
+checked 2026-11-09). Check a source's own licence page before adapting anything; labels below were checked on
+2026-11-08 except where marked unverified.
 
 | Course | Tracks | Status | Agentuto instruments |
 |---|---|---|---|
@@ -18,6 +19,7 @@ adapting anything; labels below were checked on 2026-11-08 except where marked u
 | [8.03 Vibrations, Waves & Optics](#803-vibrations-waves--optics) | PHYS, EE, MATH | Shipped | `standing-waves`, `doppler-shift`, `wave-optics` |
 | [8.04 Quantum Physics I](#804-quantum-physics-i) | PHYS, EE, CS, MATH | Shipped | `photoelectric-effect`, `quantum-tunneling` |
 | [8.044 Statistical Physics & Thermodynamics](#8044-statistical-physics--thermodynamics) | PHYS, EE, STAT, CS | Shipped | `maxwell-boltzmann`, `carnot-cycle` |
+| [9.00 Introduction to Psychology](#900-introduction-to-psychology) | PSYCH, CS, STAT, NLP | Shipped | `signal-detection` |
 | [18.01 / 18.02 Single & Multivariable Calculus](#1801--1802-single--multivariable-calculus) | CS, NLP, PHYS, MATH, STAT, EE | Proposed | `gauss-flux`, `faraday-induction`, `projectile-drag`, `kepler-orbits` |
 | [18.06 Linear Algebra & Matrix Methods](#1806-linear-algebra--matrix-methods) | CS, NLP, PHYS, MATH, STAT, EE | Proposed | `standing-waves`, `harmonic-oscillator` |
 | [18.05 / 6.041 Probability, Random Variables & Bayesian Inference](#1805--6041-probability-random-variables--bayesian-inference) | CS, NLP, PHYS, MATH, STAT, EE | Proposed | `maxwell-boltzmann`, `quantum-tunneling` |
@@ -39,7 +41,7 @@ adapting anything; labels below were checked on 2026-11-08 except where marked u
 - **Status:** Shipped (Shipped in Agentuto (#/course/8.01))
 - **Key result:** m r″ = F(r, v, t)
 - **Syllabus bridge:** AP Physics C: Mechanics · IB Physics HL
-- **Open texts:** [OpenStax University Physics Vol. 1](https://openstax.org/details/books/university-physics-volume-1) (CC BY 4.0) · [Dourmashkin MIT 8.01 Notes](https://ocw.mit.edu/courses/8-01sc-classical-mechanics-fall-2016/pages/online-textbook/) (CC BY-NC-SA 4.0)
+- **Open texts:** [OpenStax University Physics Vol. 1](https://openstax.org/details/books/university-physics-volume-1) (CC BY-NC-SA 4.0, link only) · [Dourmashkin MIT 8.01 Notes](https://ocw.mit.edu/courses/8-01sc-classical-mechanics-fall-2016/pages/online-textbook/) (CC BY-NC-SA 4.0)
 - **Courses:** [MIT 8.01SC (OCW)](https://ocw.mit.edu/courses/8-01sc-classical-mechanics-fall-2016/) · [Yale PHYS 200 (Shankar)](https://oyc.yale.edu/physics/phys-200)
 - **Agentuto fit:** Shipped with 3 instruments: projectile-drag, conservation-momentum, and kepler-orbits.
 
@@ -48,7 +50,7 @@ adapting anything; labels below were checked on 2026-11-08 except where marked u
 - **Status:** Shipped (Shipped in Agentuto (#/course/8.02))
 - **Key result:** ∇·E = ρ/ε₀,   ∮ E·dl = −dΦ_B/dt
 - **Syllabus bridge:** AP Physics C: E&M · IB Physics HL
-- **Open texts:** [OpenStax University Physics Vol. 2](https://openstax.org/details/books/university-physics-volume-2) (CC BY 4.0) · [MIT 8.02 Course Notes](https://ocw.mit.edu/courses/8-02-physics-ii-electricity-and-magnetism-spring-2007/pages/readings/) (CC BY-NC-SA 4.0)
+- **Open texts:** [OpenStax University Physics Vol. 2](https://openstax.org/details/books/university-physics-volume-2) (CC BY-NC-SA 4.0, link only) · [MIT 8.02 Course Notes](https://ocw.mit.edu/courses/8-02-physics-ii-electricity-and-magnetism-spring-2007/pages/readings/) (CC BY-NC-SA 4.0)
 - **Courses:** [MIT 8.02 (OCW)](https://ocw.mit.edu/courses/8-02-physics-ii-electricity-and-magnetism-spring-2019/) · [Yale PHYS 201 (Shankar)](https://oyc.yale.edu/physics/phys-201)
 - **Agentuto fit:** Shipped with 5 instruments: lorentz-force, faraday-induction, gauss-flux, lcr-circuit, and rc-rl-circuits.
 
@@ -57,7 +59,7 @@ adapting anything; labels below were checked on 2026-11-08 except where marked u
 - **Status:** Shipped (Shipped in Agentuto (#/course/8.03))
 - **Key result:** ∂²y/∂t² = v² ∂²y/∂x²
 - **Syllabus bridge:** AP Physics 2 / C · IB Physics HL (Wave Phenomena)
-- **Open texts:** [OpenStax University Physics Vol. 1 & 3](https://openstax.org/details/books/university-physics-volume-3) (CC BY 4.0) · [Georgi The Physics of Waves](https://www.people.fas.harvard.edu/~hgeorgi/new.htm) (Free Author PDF)
+- **Open texts:** [OpenStax University Physics Vol. 1 & 3](https://openstax.org/details/books/university-physics-volume-3) (CC BY-NC-SA 4.0, link only) · [Georgi The Physics of Waves](https://www.people.fas.harvard.edu/~hgeorgi/new.htm) (Free Author PDF)
 - **Courses:** [MIT 8.03SC (OCW)](https://ocw.mit.edu/courses/8-03sc-physics-iii-vibrations-and-waves-fall-2016/)
 - **Agentuto fit:** Shipped with 3 instruments: standing-waves, doppler-shift, and wave-optics.
 
@@ -66,7 +68,7 @@ adapting anything; labels below were checked on 2026-11-08 except where marked u
 - **Status:** Shipped (Shipped in Agentuto (#/course/8.04))
 - **Key result:** iℏ ∂ψ/∂t = −(ℏ²/2m) ∂²ψ/∂x² + V(x)ψ
 - **Syllabus bridge:** AP Physics 2 · IB Physics HL (Quantum & Nuclear)
-- **Open texts:** [OpenStax University Physics Vol. 3 (Ch. 6–7)](https://openstax.org/details/books/university-physics-volume-3) (CC BY 4.0) · [MIT 8.04 Lecture Notes & Problem Sets](https://ocw.mit.edu/courses/8-04-quantum-physics-i-spring-2016/pages/assignments/) (CC BY-NC-SA 4.0)
+- **Open texts:** [OpenStax University Physics Vol. 3 (Ch. 6–7)](https://openstax.org/details/books/university-physics-volume-3) (CC BY-NC-SA 4.0, link only) · [MIT 8.04 Lecture Notes & Problem Sets](https://ocw.mit.edu/courses/8-04-quantum-physics-i-spring-2016/pages/assignments/) (CC BY-NC-SA 4.0)
 - **Courses:** [MIT 8.04 (Zwiebach / Allan Adams OCW)](https://ocw.mit.edu/courses/8-04-quantum-physics-i-spring-2016/)
 - **Agentuto fit:** Shipped with 2 instruments: photoelectric-effect and quantum-tunneling.
 
@@ -75,9 +77,17 @@ adapting anything; labels below were checked on 2026-11-08 except where marked u
 - **Status:** Shipped (Shipped in Agentuto (#/course/8.044))
 - **Key result:** P V = N k_B T,   S = k_B ln Ω
 - **Syllabus bridge:** AP Physics 2 · IB Physics HL (Thermal Physics)
-- **Open texts:** [OpenStax University Physics Vol. 2 (Ch. 1–4)](https://openstax.org/details/books/university-physics-volume-2) (CC BY 4.0) · [Tong Statistical Physics Notes (Cambridge)](https://www.damtp.cam.ac.uk/user/tong/statphys.html) (Free Academic Notes)
+- **Open texts:** [OpenStax University Physics Vol. 2 (Ch. 1–4)](https://openstax.org/details/books/university-physics-volume-2) (CC BY-NC-SA 4.0, link only) · [Tong Statistical Physics Notes (Cambridge)](https://www.damtp.cam.ac.uk/user/tong/statphys.html) (Free Academic Notes)
 - **Courses:** [MIT 8.044 (OCW)](https://ocw.mit.edu/courses/8-044-statistical-physics-i-spring-2013/) · [Stanford Statistical Mechanics (Susskind)](https://theoreticalminimum.com/courses/statistical-mechanics/2013/spring)
 - **Agentuto fit:** Shipped with 2 instruments: maxwell-boltzmann and carnot-cycle.
+
+## 9.00 Introduction to Psychology
+
+- **Status:** Shipped (Shipped in Agentuto (#/course/9.00))
+- **Key result:** d′ = z(H) − z(FA),   c = −z(FA),   AUC = Φ(d′/√2)
+- **Syllabus bridge:** AP Psychology (Sensation & Perception)
+- **Open texts:** [OpenStax Psychology 2e](https://openstax.org/details/books/psychology-2e) (CC BY-NC-SA 4.0, link only) · [WISE: Signal Detection: d′ Defined](https://wise.cgu.edu/?p=2061) (© 2015 Claremont Graduate University, no licence stated: numbers cited, link only)
+- **Agentuto fit:** Shipped with 1 instrument: `signal-detection` (separating sensitivity d′ from criterion c; empirical ROC curve).
 
 ## 18.01 / 18.02 Single & Multivariable Calculus
 

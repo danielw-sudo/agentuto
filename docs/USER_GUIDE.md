@@ -119,7 +119,7 @@ The speaker button in the log's header turns on a soft two-note chime for each n
 
 ---
 
-## 3. The 17 Interactive Sandboxes
+## 3. The 18 Interactive Sandboxes
 
 ### 1. Lorentz Force in Crossed E & B Fields (`lorentz-force` — MIT 8.02)
 * **Physical Concept:** Classical (non-relativistic) charged-particle dynamics:
@@ -272,6 +272,16 @@ The speaker button in the log's header turns on a soft two-note chime for each n
   * **50% Capacitive Energy Theorem:** Verify that during complete DC charging, exactly 50% of supplied energy is stored in the capacitor ($\frac{1}{2}CV^2$), and exactly 50% is dissipated as Ohmic heat in the resistor regardless of $R$.
   * **RL Inductor Back-EMF:** Observe the initial voltage spike across the inductor ($V_L = V_0$) resisting current onset, followed by exponential decay as current climbs to $V_0/R$. Choose $L = 500$ mH and $R = 10\ \Omega$ ($\tau = 50$ ms) to see it: Record keeps a sample every 20 to 25 ms, so a much shorter $\tau$ is correct but settles between samples, and the defaults have $\tau = 1$ ms.
 * **Read and watch:** [OpenStax University Physics Vol. 2 §10.5 (RC Circuits)](https://openstax.org/books/university-physics-volume-2/pages/10-5-rc-circuits) and [MIT 8.02 Chapter 7: Direct-Current Circuits](https://ocw.mit.edu/courses/8-02-physics-ii-electricity-and-magnetism-spring-2007/resources/chap7dc_circuits/).
+
+### 18. Signal Detection Theory (`signal-detection` — MIT 9.00)
+* **Concept:** Psychophysics and statistical decision theory:
+  $$d' = z(H) - z(FA), \quad c = -z(FA), \quad H = \Phi(d' - c), \quad FA = \Phi(-c), \quad \text{AUC} = \Phi\left(\frac{d'}{\sqrt{2}}\right)$$
+* **What to Explore:**
+  * **Sensitivity vs. Decision Bias:** Set $d' = 1.81$ and shift criterion $c$ between liberal (e.g., $c = 0.52$, Anita) and conservative (e.g., $c = 1.34$, Bob) strategies. Hit and false-alarm rates both shift with the criterion, while the measured $d'$ stays the same within sampling error. At 20 trials/s, after 60 s nine runs in ten read between 1.68 and 1.99 at $c = 0.52$ (1.68 to 1.94 at $c = 1.34$), and after 300 s between 1.76 and 1.88, so let each block run a few minutes before comparing. The spread is wider at extreme criteria: 1.54 to 2.22 after 60 s at $c = 2.5$ (measured over 200 seeds).
+  * **Zero Sensitivity (Chance Diagonal):** Set $d' = 0$. Signal and noise distributions completely overlap; the measured hit and false-alarm rates agree within sampling error ($H approx FA$), so the operating point sits near the chance diagonal and settles onto it as the block grows.
+  * **Edge Rate Adjustments:** When finite runs produce empirical rates of exactly 0 or 1, the normal quantile $z$ is infinite. The estimator applies standard edge corrections, replacing 0 with $1/(2N)$ and 1 with $1 - 1/(2N)$ (where $N$ is that class's trial count) in the $d'$ and $c$ estimates. Early in a block this reads high: with no false alarms yet, 30 trials can show $d' approx 2.5$ for a set value of 1.81.
+  * **Classifier Evaluation:** The Receiver Operating Characteristic (ROC) curve and Area Under the Curve (AUC) are the same tools used in machine learning and natural language processing to evaluate binary classifiers independently of decision threshold.
+* **Read and watch:** [OpenStax Psychology 2e §5.1 (Sensation versus Perception)](https://openstax.org/books/psychology-2e/pages/5-1-sensation-versus-perception) and [WISE: Signal Detection: d′ Defined](https://wise.cgu.edu/?p=2061).
 
 ---
 

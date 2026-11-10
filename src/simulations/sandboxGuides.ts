@@ -435,4 +435,35 @@ export const SANDBOX_LAB_GUIDES: Record<string, SandboxGuideEntry> = {
       'Compare the time constant of an RC circuit (τ = RC) with an RL circuit (τ = L/R): why is R in the denominator for RL?',
     ],
   },
+  'signal-detection': {
+    labProtocol: [
+      'Set sensitivity d′ and decision criterion c to accumulate virtual yes/no detection trials at the chosen trial rate.',
+      'Observe hit rate H and false-alarm rate FA converge, and verify measured d′ = z(H) − z(FA) against the true set value.',
+      'Shift criterion c to start a new block: measured d′ stays the same within sampling error while the point moves along the ROC curve.',
+    ],
+    whatToExplore: [
+      {
+        title: 'Sensitivity vs. Decision Bias',
+        detail: 'Vary criterion c while holding d′ constant. Hits and false alarms both change with the observer\'s bias, but the measured d′ stays the same within sampling error. Let each block run a few minutes before comparing; the spread is wider at extreme criteria.',
+      },
+      {
+        title: 'Zero Sensitivity (Chance Diagonal)',
+        detail: 'Set d′ = 0. The signal and noise distributions completely coincide; the measured point sits near the chance diagonal H = FA wherever the criterion is, and closer to it as the block grows.',
+      },
+      {
+        title: 'Edge Rates Adjustment (Macmillan & Kaplan)',
+        detail: 'When empirical rates equal 0 or 1, normal quantile z is infinite; rates of 0 or 1 are replaced with 1/(2N) or 1 − 1/(2N) (N being that class\'s trial count) in the d′ and c estimates.',
+      },
+      {
+        title: 'ROC and Classifier Evaluation',
+        detail: 'Receiver Operating Characteristic (ROC) plots and Area Under the Curve (AUC = Φ(d′/√2)) quantify discriminability independently of decision threshold, matching classifier evaluation in machine learning.',
+      },
+    ],
+    quickPrompts: [
+      'Compare Anita and Bob\'s criteria and sensitivity: why do they share the same d′?',
+      'Why does sensitivity d′ stay constant when I shift the criterion c?',
+      'What does the diagonal on the ROC space represent?',
+      'How does the Area Under the Curve (AUC) relate to d′?',
+    ],
+  },
 };

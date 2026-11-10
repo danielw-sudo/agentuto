@@ -20,6 +20,7 @@ import { CarnotEngine, GAS_CONSTANT_R } from '../../simulations/physics/carnot-c
 import { GaussEngine, EPSILON_0 } from '../../simulations/physics/gauss-flux/GaussEngine';
 import { MomentumEngine } from '../../simulations/physics/conservation-momentum/MomentumEngine';
 import { TransientEngine } from '../../simulations/physics/rc-rl-circuits/TransientEngine';
+import { invNormalCdf, dPrimeFromCounts } from '../math/normalDistribution';
 import { globalKnowledgeGraph } from '../../knowledge/KnowledgeGraphClient';
 import { linearRegression, exponentialRegression } from '../math/regression';
 import { SIMULATION_CATALOG } from '../../simulations';
@@ -1158,6 +1159,33 @@ export async function runCoreVerification(): Promise<boolean> {
   }
 
   console.log(`✓ RC & RL Transient Circuits verified: RC charging at t=τ reached V_C = ${rcTauState.componentVoltage.toFixed(3)} V (exact 63.2% of 12V), verified 50% energy theorem (U_cap = ${rcSteadyState.storedEnergyMilliJoules.toFixed(2)} mJ vs E_heat = ${rcSteadyState.heatDissipatedMilliJoules.toFixed(2)} mJ), and RL inductive rise at t=τ reached I = ${rlTauState.currentMilliAmps.toFixed(2)} mA with back-EMF = ${rlTauState.componentVoltage.toFixed(2)} V`);
+
+  // Test 23b: Normal Quantile Φ⁻¹ (Acklam's algorithm) & SDT Estimator alone from counts
+  // Benchmark 1: Inverse normal CDF values within 1e-6
+  const z975 = invNormalCdf(0.975);
+  const z90 = invNormalCdf(0.9);
+  if (Math.abs(z975 - 1.959964) > 1e-6) {
+    throw new Error(`Φ⁻¹(0.975) expected 1.959964 within 1e-6, got ${z975}`);
+  }
+  if (Math.abs(z90 - 1.281552) > 1e-6) {
+    throw new Error(`Φ⁻¹(0.9) expected 1.281552 within 1e-6, got ${z90}`);
+  }
+
+  // Benchmark 2: Anchor (cite: WISE tutorial "Signal Detection: d′ Defined", Claremont Graduate University, https://wise.cgu.edu/?p=2061)
+  // Anita: 90/100 hits, 30/100 false alarms -> d′ = 1.8060 (±0.001)
+  const dAnita = dPrimeFromCounts(90, 100, 30, 100);
+  if (Math.abs(dAnita - 1.8060) > 0.001) {
+    throw new Error(`Anita d′ expected 1.8060 ± 0.001, got ${dAnita}`);
+  }
+  // Bob: 68/100 hits, 9/100 false alarms -> d′ = 1.8085 (±0.001)
+  const dBob = dPrimeFromCounts(68, 100, 9, 100);
+  if (Math.abs(dBob - 1.8085) > 0.001) {
+    throw new Error(`Bob d′ expected 1.8085 ± 0.001, got ${dBob}`);
+  }
+  if (Math.round(dAnita * 100) / 100 !== 1.81 || Math.round(dBob * 100) / 100 !== 1.81) {
+    throw new Error('Both Anita and Bob d′ must round to printed 1.81');
+  }
+  console.log(`✓ Normal distribution Φ⁻¹ and SDT Estimator verified: Φ⁻¹(0.975)=${z975.toFixed(6)}, Φ⁻¹(0.9)=${z90.toFixed(6)}, Anita d′=${dAnita.toFixed(4)}, Bob d′=${dBob.toFixed(4)} (both round to 1.81)`);
 
   // Test 24: Structural Pass 7 Verifications (O(1) Ring Buffer, Kepler Empirical Period, Momentum Wall Isolation, Dynamic Schema & Lab Guides)
   // 24A: O(1) Circular Ring Buffer wrap-around & chronological ordering

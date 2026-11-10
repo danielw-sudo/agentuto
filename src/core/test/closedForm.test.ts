@@ -1113,6 +1113,59 @@ const CASES: Record<string, Case> = {
     r.near('OpenStax Ex 10.9: capacitor voltage at t=0.10s (10.00 V)', ex109.t.v_component, 10.00, 0, 1e-4);
     r.near('OpenStax Ex 10.9: charging current at t=0.10s (3.584 mA)', ex109.t.current_mA, 3.5835, 0, 1e-3);
   },
+
+  // Anchor (cite: WISE tutorial "Signal Detection: d′ Defined", Claremont Graduate University, https://wise.cgu.edu/?p=2061)
+  // Two virtual observers with the same underlying sensitivity d′ but different decision criteria:
+  // - Anita: liberal bias (c = 0.5244), high hit rate and high false-alarm rate.
+  // - Bob: conservative bias (c = 1.3408), lower hit rate and low false-alarm rate.
+  // Each run simulates 800 s at 50 trials/s, yielding exactly 40,000 trials (~20,000 trials per class).
+  // Each tolerance is at least 3 standard errors at about 20 000 trials per class.
+  // SE(d′) ≈ 0.015, SE(H) ≤ 0.0033, SE(FA) ≤ 0.0032.
+  async 'signal-detection'(r) {
+    // 1. Observer Anita
+    const anita = await run(
+      'signal-detection',
+      {
+        dPrime: 1.8060,
+        criterion: 0.5244,
+        signalProbability: 0.5,
+        trialRate: 50,
+      },
+      800
+    );
+
+    if (anita.t.trials !== 40000) {
+      r.fail(`Anita: number of trials run must be exactly 40000, got ${anita.t.trials}`);
+    }
+
+    const anitaH = anita.t.hits / anita.t.signal_trials;
+    const anitaFA = anita.t.false_alarms / anita.t.noise_trials;
+    r.near('Anita: hit_rate (0.900 ± 0.01)', anitaH, 0.900, 0, 0.01);
+    r.near('Anita: fa_rate (0.300 ± 0.01)', anitaFA, 0.300, 0, 0.01);
+    r.near('Anita: d′ from counts (1.806 ± 0.05)', anita.t.d_prime_measured, 1.806, 0, 0.05);
+
+    // 2. Observer Bob
+    const bob = await run(
+      'signal-detection',
+      {
+        dPrime: 1.8085,
+        criterion: 1.3408,
+        signalProbability: 0.5,
+        trialRate: 50,
+      },
+      800
+    );
+
+    if (bob.t.trials !== 40000) {
+      r.fail(`Bob: number of trials run must be exactly 40000, got ${bob.t.trials}`);
+    }
+
+    const bobH = bob.t.hits / bob.t.signal_trials;
+    const bobFA = bob.t.false_alarms / bob.t.noise_trials;
+    r.near('Bob: hit_rate (0.680 ± 0.01)', bobH, 0.680, 0, 0.01);
+    r.near('Bob: fa_rate (0.090 ± 0.01)', bobFA, 0.090, 0, 0.01);
+    r.near('Bob: d′ from counts (1.809 ± 0.05)', bob.t.d_prime_measured, 1.809, 0, 0.05);
+  },
 };
 
 // Constants above are used by the cases that follow; referenced here so a case being written never hides an unused one.

@@ -17,6 +17,7 @@ import { CARNOT_METADATA, CARNOT_DEFAULT_PARAMS, CARNOT_PARAM_DESCRIPTORS } from
 import { GAUSS_METADATA, GAUSS_DEFAULT_PARAMS, GAUSS_PARAM_DESCRIPTORS } from './physics/gauss-flux/GaussConfig';
 import { MOMENTUM_METADATA, MOMENTUM_DEFAULT_PARAMS, MOMENTUM_PARAM_DESCRIPTORS } from './physics/conservation-momentum/MomentumConfig';
 import { TRANSIENT_METADATA, TRANSIENT_DEFAULT_PARAMS, TRANSIENT_PARAM_DESCRIPTORS } from './physics/rc-rl-circuits/TransientConfig';
+import { SIGNAL_DETECTION_METADATA, SIGNAL_DETECTION_DEFAULT_PARAMS, SIGNAL_DETECTION_PARAM_DESCRIPTORS } from './physics/signal-detection/SignalDetectionConfig';
 
 /**
  * Units of every numeric telemetry channel, per sandbox (Constitution Art. 5.1: the manifest is the
@@ -49,6 +50,7 @@ const TELEMETRY_UNITS = {
   'gauss-flux': { charge1_nC: 'nC', charge2_nC: 'nC', q_enclosed_nC: 'nC', flux_theoretical_N_m2_C: 'N·m²/C', flux_numerical_N_m2_C: 'N·m²/C', flux_error_pct: '%', q1_enclosed: 'dimensionless', q2_enclosed: 'dimensionless', surface_radius_m: 'm', surface_center_x: 'm', surface_center_y: 'm' },
   'conservation-momentum': { body1_x: 'm', body1_y: 'm', body2_x: 'm', body2_y: 'm', body1_vx: 'm/s', body1_vy: 'm/s', body2_vx: 'm/s', body2_vy: 'm/s', com_x: 'm', com_y: 'm', com_vx: 'm/s', com_vy: 'm/s', total_p_x: 'kg·m/s', total_p_y: 'kg·m/s', total_p_mag: 'kg·m/s', kinetic_energy_total_J: 'J', kinetic_energy_com_J: 'J', kinetic_energy_internal_J: 'J', collision_count: 'dimensionless', wall_contacts: 'dimensionless', is_isolated: 'dimensionless' },
   'rc-rl-circuits': { circuit_mode: 'dimensionless', tau_ms: 'ms', v_in: 'V', v_component: 'V', v_resistor: 'V', current_mA: 'mA', charge_uC: 'µC', stored_energy_mJ: 'mJ', heat_dissipated_mJ: 'mJ', relaxation_pct: '%' },
+  'signal-detection': { trials: 'dimensionless', signal_trials: 'dimensionless', noise_trials: 'dimensionless', hits: 'dimensionless', misses: 'dimensionless', false_alarms: 'dimensionless', correct_rejections: 'dimensionless', hit_rate: 'dimensionless', fa_rate: 'dimensionless', d_prime_measured: 'dimensionless', criterion_measured: 'dimensionless' },
 } satisfies Record<string, Record<string, string>>;
 
 /** What a sandbox needs to run. Loaded on demand, so the heavy engine and renderer code is not part of the first page. */
@@ -304,6 +306,18 @@ export const SIMULATION_CATALOG: Record<string, SimulationRegistration> = {
       import('./physics/rc-rl-circuits').then((m) => ({
         createEngine: () => new m.TransientEngine(),
         createRenderer: () => new m.TransientRenderer2D(),
+      })),
+  },
+  'signal-detection': {
+    ...SIGNAL_DETECTION_METADATA,
+    mode: '2D',
+    telemetryUnits: TELEMETRY_UNITS['signal-detection'],
+    defaultParams: SIGNAL_DETECTION_DEFAULT_PARAMS,
+    paramDescriptors: SIGNAL_DETECTION_PARAM_DESCRIPTORS,
+    load: () =>
+      import('./physics/signal-detection').then((m) => ({
+        createEngine: () => new m.SignalDetectionEngine(),
+        createRenderer: () => new m.SignalDetectionRenderer2D(),
       })),
   },
 };

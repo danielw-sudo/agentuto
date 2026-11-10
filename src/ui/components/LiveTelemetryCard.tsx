@@ -70,6 +70,8 @@ export function sparklineMetric(sandboxId: string, state: any): number {
       ? (state.totalMomentumMag ?? 0)
       : sandboxId === 'rc-rl-circuits'
       ? (state.componentVoltage ?? 0)
+      : sandboxId === 'signal-detection'
+      ? (state.dPrimeMeasured ?? 0)
       : (state.speed ?? 0)
   );
 }

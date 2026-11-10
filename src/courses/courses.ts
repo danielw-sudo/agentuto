@@ -105,6 +105,19 @@ export const COURSES: Course[] = [
       { sandboxId: 'lorenz-attractor', measure: 'how fast two nearby trajectories pull apart.' },
     ],
   },
+  {
+    id: '9.00',
+    title: 'Introduction to Psychology',
+    shortTitle: 'Psychology',
+    equation: 'd′ = z(H) − z(FA)',
+    lead: 'Psychophysics and sensory evaluation: separate perceptual sensitivity from decision bias in detection and classification.',
+    modules: [
+      {
+        sandboxId: 'signal-detection',
+        measure: 'the hit and false-alarm rates at several criteria, and d′, which stays put while the criterion moves.',
+      },
+    ],
+  },
 ];
 
 export function courseById(id: string): Course | undefined {
