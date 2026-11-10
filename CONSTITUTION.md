@@ -1,8 +1,8 @@
 # Agentuto Constitution
 
-> **Status:** v1.3 — **ratified** 2026-11-07 by the repository owner, whose instruction merged the pull request
-> carrying it (#60, proposed by Claude at the owner's instruction). It builds on v1.2, ratified 2026-10-31 (#17),
-> and adds Art. 1.6–1.7, 6.4, 8.4 and 10.9.
+> **Status:** v1.4 — **proposed** 2026-11-10 by Claude at the owner's instruction. It builds on v1.3, ratified
+> 2026-11-07 (#60), adds Art. 2.4 on tutorials, and amends Art. 1.2, 1.5, 1.6, 3.4, 6.3 and 6.4. Merging the pull
+> request that carries it ratifies it.
 
 This document holds the few rules that must stay true however the project grows. `AGENTS.md` says *how*
 agents work day to day; the skills in `.agents/skills/` say *how to do* specific tasks. When they conflict,
@@ -19,18 +19,19 @@ hand-off reports, and do not block unrelated work. New and changed code must com
 1. Correct science and mathematics take priority over features, speed and looks.
 2. Every sandbox states its governing equations with units and sign conventions, cites at least one
    reference (e.g. MIT OpenCourseWare notes or a standard textbook), and ships with an automated check
-   against an analytical or known result.
+   against an analytical or known result. A tutorial (Art. 2.4) cites at least one reference, and every
+   interactive result it shows has an automated check against a known result.
 3. Every quantitative claim in docs, presets, hints or tutor prompts must be **measured**: reproduced by a
    test or a recorded run of the engine, with the conditions stated. Claims that only hold in special cases
    must name those cases.
 4. A new or substantially changed sandbox gets an independent faculty review by a reviewer from a different
    model family than its author before it is listed as complete.
-5. **A check must fail when the physics is wrong.** Where a closed-form result exists, the verification
+5. **A check must fail when the science is wrong.** Where a closed-form result exists, the verification
    evaluates that closed form independently rather than reusing the engine's own constants, helpers or
    integration path. A test that recomputes the implementation from the same inputs, by the same route,
-   confirms the arithmetic but proves nothing about the physics.
-6. **External anchors first.** Where one exists, a sandbox's checks include at least one published worked
-   problem with its stated answer, from an open textbook or course, cited with its source. A closed form
+   confirms the arithmetic but proves nothing about the subject.
+6. **External anchors first.** Where one exists, the checks of a sandbox or a tutorial include at least one
+   published worked problem with its stated answer, from an open textbook or course, cited with its source. A closed form
    derived by a model adds to that anchor and does not replace it, because the engine and its check may then
    come from the same model family. A mismatch is investigated, not assumed to be the engine's fault.
 7. **Materiality.** A faculty finding needs action only when a learner would meet it: a number wrong beyond
@@ -44,6 +45,11 @@ hand-off reports, and do not block unrelated work. New and changed code must com
    law. Learners verify laws from measured quantities.
 3. The optional tutor is instructed not to hand out final answers. Docs describe this as an instruction to
    the model, never as a guarantee.
+4. **Tutorials.** A tutorial is a short interactive page on one idea, for a subject where a full instrument is
+   not needed. The learner acts on every step: sets something, predicts, tries and compares. A page that is
+   mostly prose explanation is a reading, and readings are linked (Art. 6.4), not written. Tutorials are built
+   inside the app from the shared kit and design tokens, load on demand, and pass the same gates as sandboxes.
+   They belong to courses the same way sandboxes do (Art. 6.3).
 
 ## Article 3: AI is optional; the audience is not defined
 1. Every simulation, instrument, notebook and export works fully without AI.
@@ -52,7 +58,9 @@ hand-off reports, and do not block unrelated work. New and changed code must com
 3. Docs and UI describe courses by **source and nature** (topic alignment) and never define, identify or target
    a particular user. The "AI Features & Disclaimer" text (README, user guide §5, and the in-app key
    dialog) stays in place.
-4. Course labels say "aligned with" and never imply affiliation with or endorsement by any institution.
+4. Course labels say "aligned with" and never imply affiliation with or endorsement by any institution. A course
+   carries topic-alignment tags: an MIT OpenCourseWare number where one exists, and a readable code from another
+   university whose subject and level a newcomer can guess. Each tag links to that course's public page.
 5. **Permission notice.** Wherever AI is offered, docs and UI say, without naming an age or a school level:
    Use only services you are allowed to use. If you need permission from a parent, teacher or institution to use an AI service, get it first, and follow the rules that apply to you: many schools, colleges and employers restrict generative AI.
    It is a notice, not a check; Agentuto verifies no one (Art. 12.3).
@@ -72,13 +80,13 @@ hand-off reports, and do not block unrelated work. New and changed code must com
    (plots, axes, vectors, fields, canvas and scene setup). Sandboxes compose them.
 2. A new shared primitive is extracted when a pattern already appears in at least two sandboxes, not
    speculatively.
-3. Courses are content (data) over shared sandboxes. A new course adds a new sandbox only when no existing one
-   can express the experiment. A course on a learner's own machine (Art. 12.4) is data in the same form.
+3. Courses are content (data) over shared sandboxes and tutorials. A course may consist of tutorials alone. A
+   new course adds a new sandbox only when no existing one can express the experiment. A course on a learner's own machine (Art. 12.4) is data in the same form.
 4. **Open materials before writing.** Equations, facts and published numerical answers are free to use and
    are cited. Lectures, readings and videos are linked, not rewritten. Established lab activities are adapted
    with attribution. Text, figures or worksheets are copied only under a licence compatible with this
    project's (Art. 11.2); otherwise they are linked. Agentuto's own work is what open materials lack: an
-   instrument on which the learner measures, records and fits.
+   instrument or tutorial on which the learner acts, measures, records and fits.
 
 ## Article 7: Design system
 1. Colours, type, spacing and motion come only from design tokens. Raw colour literals and ad-hoc font sizes
@@ -172,8 +180,8 @@ hand-off reports, and do not block unrelated work. New and changed code must com
 
 ## Ratification and amendments
 - **Ratified:** 2026-10-31 by the repository owner: v1.0, and v1.2 by merging #17. v1.3 on 2026-11-07 by
-  merging #60. The v1.1 articles it builds on
-  (Art. 1.5, 9.3, 10.7, 10.8, 11.3) stand as part of v1.2.
+  merging #60. v1.4 is proposed (2026-11-10) and is ratified by merging the pull request that carries it.
+  The v1.1 articles it builds on (Art. 1.5, 9.3, 10.7, 10.8, 11.3) stand as part of v1.2.
 - **Proposed:** 2026-10-31 by DeepSeek (Hermes) at the owner's instruction (v1.1), and by Claude at the owner's
   instruction (v1.2). Merging the pull request that carries a version's text is that version's ratification; no
   other step is required. A later proposal states in its header that it is proposed, and the pull request that
@@ -184,5 +192,6 @@ hand-off reports, and do not block unrelated work. New and changed code must com
 | v0.1 | 2026-10-31 | Draft by Claude for owner review. |
 | v1.0 | 2026-10-31 | Ratified by the owner after revisions (roles not models, transition clause, branch protection). |
 | v1.1 | 2026-10-31 | Proposed by DeepSeek: check independence (Art. 1.5), verified gate claims (Art. 9.3), verification & learner-experience role and no self-review (Art. 10.7–8), provenance without an account (Art. 11.3). |
+| v1.4 | 2026-11-10 | Proposed by Claude at the owner's instruction: tutorials as a second content type (Art. 2.4, 1.2, 6.3, 6.4); checks speak of the science, not only physics (Art. 1.5–1.6); course alignment tags (Art. 3.4). |
 | v1.3 | 2026-11-07 | Proposed by Claude at the owner's instruction: external anchors first (Art. 1.6); materiality (Art. 1.7); open materials before writing (Art. 6.4); value before platform, community as operations (Art. 8.4); proportionate review (Art. 10.9). Ratified (#60). |
 | v1.2 | 2026-10-31 | Ratified (#17). Proposed by Claude: permission notice for AI without naming an age (Art. 3.5); links are conveniences, not integrations (Art. 8.3); ruleset wording (Art. 9.2); local courses are data (Art. 6.3); new Art. 12 on the three uses, what the project is not, no identity checks, local content and sharing. |
