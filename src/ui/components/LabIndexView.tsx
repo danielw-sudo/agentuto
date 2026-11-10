@@ -34,7 +34,10 @@ const COURSE_FILTERS = [
   { id: 'ALL', label: 'All Modules', includes: (_sandboxId: string) => true },
   ...COURSES.map((course) => ({
     id: course.id,
-    label: `Aligned with ${course.id} (${course.shortTitle})`,
+    label:
+      course.tags && course.tags.length > 0
+        ? `${course.shortTitle} (${course.tags.map((t) => t.code).join(' · ')})`
+        : `${course.shortTitle} (Course ${course.id})`,
     includes: (sandboxId: string) => course.modules.some((m) => m.sandboxId === sandboxId),
   })),
 ];
@@ -543,8 +546,8 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
                 </p>
                 <p className="text-xs text-muted pt-2 border-t border-line">
                   Agentuto is an independent open-source project released under the MIT License. It is not affiliated
-                  with or endorsed by MIT, the College Board (AP), the International Baccalaureate (IB), Google, or
-                  Anthropic; course labels describe topic alignment only.
+                  with or endorsed by MIT, the University of Toronto, the College Board (AP), the International
+                  Baccalaureate (IB), Google, or Anthropic; course labels describe topic alignment only.
                 </p>
               </div>
             </div>

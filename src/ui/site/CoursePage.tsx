@@ -21,8 +21,26 @@ export const CoursePage: React.FC<CoursePageProps> = ({ course, webglAvailable }
 
       <div className="mt-8 flex flex-wrap items-end justify-between gap-x-12 gap-y-6">
         <div className="max-w-2xl flex-[1_1_30rem]">
-          <div className="flex flex-wrap items-center gap-3 font-mono text-[13px] tracking-wide text-accent">
-            <span>{course.local ? `Course ${course.id}` : `Aligned with ${course.id}`}</span>
+          <div className="flex flex-wrap items-center gap-2 font-mono text-[13px]">
+            {course.local || !course.tags ? (
+              <span className="tracking-wide text-accent">Course {course.id}</span>
+            ) : (
+              course.tags.map((tag, idx) => (
+                <React.Fragment key={tag.code}>
+                  {idx > 0 && <span className="text-muted" aria-hidden="true">·</span>}
+                  <a
+                    href={tag.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={`Aligned with ${tag.code}, ${tag.school} (opens the course page)`}
+                    aria-label={`Aligned with ${tag.code}, ${tag.school} (opens the course page)`}
+                    className={`rounded-md border border-line bg-card px-2 py-0.5 text-accent hover:border-accent ${focusRing}`}
+                  >
+                    {tag.code}
+                  </a>
+                </React.Fragment>
+              ))
+            )}
             {course.local && <LocalBadge />}
           </div>
           <h1 className="mt-3 font-display text-4xl font-medium leading-[1.08] tracking-tight sm:text-5xl">
@@ -31,7 +49,8 @@ export const CoursePage: React.FC<CoursePageProps> = ({ course, webglAvailable }
           <p className="mt-5 text-lg text-muted sm:text-xl">{course.lead}</p>
         </div>
         <p className="max-w-xs text-sm text-muted">
-          Topic alignment only. Agentuto is not affiliated with or endorsed by MIT or any institution.
+          Topic alignment only. Agentuto is not affiliated with or endorsed by MIT, the University of Toronto or any
+          institution.
         </p>
       </div>
 

@@ -236,6 +236,7 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
     return {
       concept_id: simRegistration.id,
       concept_title: simRegistration.title,
+      discipline: simRegistration.discipline,
       governing_ode: simRegistration.governingODE,
       active_parameters: params,
       telemetry_summary: {

@@ -47,8 +47,8 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
               Measure it. Don&rsquo;t just watch it.
             </h1>
             <p className="mt-7 text-lg leading-relaxed text-muted sm:text-xl">
-              {sandboxCount} open physics and mathematics instruments that run in your browser, record real data, and
-              ask you to predict before you measure.
+              {sandboxCount} open interactive science and mathematics instruments that run in your browser, record real
+              data, and ask you to predict before you measure.
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-3">
               <a
@@ -129,24 +129,46 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
             <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3">
               <h2 className="font-display text-3xl font-medium tracking-tight">Courses</h2>
               <p className="max-w-md text-sm text-muted">
-                Topics aligned with MIT OpenCourseWare and AP/IB syllabi. Not affiliated with or endorsed by any
-                institution.
+                Topics aligned with MIT OpenCourseWare, University of Toronto and AP/IB syllabi. Not affiliated with or
+                endorsed by any institution.
               </p>
             </div>
             <ul className="mt-12 grid list-none grid-cols-1 gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3">
               {COURSES.map((course) => (
                 <li key={course.id} className="flex">
-                  <a
-                    href={`#/course/${encodeURIComponent(course.id)}`}
-                    className={`flex min-h-64 w-full flex-col gap-5 rounded-2xl border border-line bg-card p-8 text-ink no-underline hover:border-accent ${focusRing}`}
-                  >
-                    <span className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-mono text-[13px] tracking-wide text-accent">
-                        {course.local ? `Course ${course.id}` : `Aligned with ${course.id}`}
-                      </span>
+                  {/* One card, one course link: the title's link is stretched over the card, and the tag chips sit
+                      above it so they open their own pages. */}
+                  <div className="relative flex min-h-64 w-full flex-col gap-5 rounded-2xl border border-line bg-card p-8 text-ink hover:border-accent">
+                    <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 font-mono text-[13px]">
+                      {course.local || !course.tags ? (
+                        <span className="text-accent">Course {course.id}</span>
+                      ) : (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {course.tags.map((tag, idx) => (
+                            <React.Fragment key={tag.code}>
+                              {idx > 0 && <span className="text-muted" aria-hidden="true">·</span>}
+                              <a
+                                href={tag.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                title={`Aligned with ${tag.code}, ${tag.school} (opens the course page)`}
+                                aria-label={`Aligned with ${tag.code}, ${tag.school} (opens the course page)`}
+                                className={`rounded-md border border-line bg-sunken px-2 py-0.5 text-accent hover:border-accent ${focusRing}`}
+                              >
+                                {tag.code}
+                              </a>
+                            </React.Fragment>
+                          ))}
+                        </div>
+                      )}
                       {course.local && <LocalBadge />}
-                    </span>
-                    <span className="font-display text-2xl font-medium leading-snug tracking-tight">{course.title}</span>
+                    </div>
+                    <a
+                      href={`#/course/${encodeURIComponent(course.id)}`}
+                      className={`font-display text-2xl font-medium leading-snug tracking-tight text-ink no-underline after:absolute after:inset-0 after:rounded-2xl ${focusRing}`}
+                    >
+                      {course.title}
+                    </a>
                     <span className="font-mono text-sm text-muted">{course.equation}</span>
                     <span className="mt-auto flex items-center justify-between text-sm text-muted">
                       <span>
@@ -154,7 +176,7 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
                       </span>
                       <span className="font-medium text-accent">Open &rarr;</span>
                     </span>
-                  </a>
+                  </div>
                 </li>
               ))}
             </ul>

@@ -24,12 +24,12 @@ export function buildSocraticSystemInstruction(context: SimulationTelemetryConte
     `Max Values: ${formatNumericRecord(context.telemetry_summary.max_values)}`,
   ].join('\n');
 
-  return `You are the Agentuto Socratic Tutor, a rigorous and encouraging physics and mathematics mentor. The material covers AP/IB through undergraduate level; match the depth of the learner's questions.
+  return `You are the Agentuto Socratic Tutor, a rigorous and encouraging mentor in ${context.discipline ?? 'science and mathematics'}. The material covers AP/IB through undergraduate level; match the depth of the learner's questions.
 You are pair-learning with a learner who is currently interacting with an active simulation.
 
 Current Simulation Context:
 - Concept: ${context.concept_title} (${context.concept_id})
-- Governing Differential Equation: ${context.governing_ode ?? 'N/A'}
+- Governing Equations: ${context.governing_ode ?? 'N/A'}
 - Active User Parameters: ${paramsFormatted}
 - Telemetry Summary:
 ${telemetryLines}

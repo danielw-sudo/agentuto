@@ -358,7 +358,8 @@ async function checkSite(browser: Browser): Promise<void> {
   // Home: a list of courses
   await page.goto(`${BASE}/#/`, { waitUntil: 'load' });
   await page.waitForSelector('#courses a', { timeout: 20000 }).catch(() => undefined);
-  const cards = await page.$$eval('#courses a', (links) => links.map((a) => a.getAttribute('href')));
+  // Count courses by their addresses: a card also holds links to the courses it is aligned with.
+  const cards = [...new Set(await page.$$eval('#courses a[href^="#/course/"]', (links) => links.map((a) => a.getAttribute('href'))))];
   if (cards.length < COURSES.length) await bad('home page', `${cards.length} course cards, expected at least ${COURSES.length}`);
   else pass('home page', `${cards.length} course cards`);
 

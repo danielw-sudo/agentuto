@@ -37,9 +37,12 @@ const SHIPPED = new Set(['.js', '.css', '.html']);
 //                  features load lazily, so the first-load budget below did not move.
 //   totalRaw       raised from 1,300,000 to 1,360,000 on 2026-11-09 (owner's decision) for signal-detection, the
 //                  first instrument outside physics; it loads lazily, and gzip and first load stayed in budget.
+//   firstLoadGzip  raised from 110,000 to 112,000 and totalGzip from 375,000 to 378,000 on 2026-11-10 (owner's
+//                  decision) for the course alignment tags (Constitution Art. 3.4): seven courses carry two linked
+//                  tags each on the home page, which is in the first load.
 const BUDGET = {
-  firstLoadGzip: 110_000,
-  totalGzip: 375_000,
+  firstLoadGzip: 112_000,
+  totalGzip: 378_000,
   totalRaw: 1_360_000,
   largestGzip: 185_000,
 };

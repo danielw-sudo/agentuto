@@ -8,6 +8,7 @@ export interface ChatMessage {
 export interface SimulationTelemetryContext {
   concept_id: string;
   concept_title: string;
+  discipline?: string;
   governing_ode?: string;
   active_parameters: Record<string, number>;
   telemetry_summary: {

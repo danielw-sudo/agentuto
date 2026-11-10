@@ -74,6 +74,7 @@ export function buildSearchIndex(): SearchEntry[] {
   const entries: SearchEntry[] = [];
 
   for (const course of COURSES) {
+    const tagCodes = (course.tags ?? []).map((t) => t.code).join(' ');
     entries.push({
       kind: 'course',
       title: course.title,
@@ -83,6 +84,7 @@ export function buildSearchIndex(): SearchEntry[] {
       fields: [
         { text: course.title, weight: 10 },
         { text: course.id, weight: 8 },
+        ...(tagCodes ? [{ text: tagCodes, weight: 8 }] : []),
         { text: course.equation, weight: 4 },
         { text: course.lead, weight: 2 },
       ],

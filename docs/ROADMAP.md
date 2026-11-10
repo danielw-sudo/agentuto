@@ -21,7 +21,7 @@ or tool it runs on.
 
 > **Use it, extend it privately, share it if you're proud of it.**
 
-A small library of verified physics and mathematics instruments that run offline, produce real data, and
+A small library of verified interactive science and mathematics instruments that run offline, produce real data, and
 that your own AI can extend privately. The GitHub Pages site is a demo, not a service: no accounts, no
 backend, no analytics, no support promise (Art. 8.1).
 

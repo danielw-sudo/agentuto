@@ -47,6 +47,14 @@ export function runSearchVerification(): void {
     throw new Error('"flux" did not find the Gauss flux instrument near the top');
   }
 
+  // Tag codes are searchable: PSY100 and PHY151 find their courses.
+  if (!search(index, 'PSY100').some((r) => r.entry.href === '#/course/9.00')) {
+    throw new Error('"PSY100" did not find course 9.00');
+  }
+  if (!search(index, 'PHY151').some((r) => r.entry.href === '#/course/8.01')) {
+    throw new Error('"PHY151" did not find course 8.01');
+  }
+
   // Every extra word narrows: two names from different instruments find nothing in common.
   const twoNames = `${words0(sandboxes[0].title)} ${words0(sandboxes[sandboxes.length - 1].title)}`;
   if (search(index, twoNames).length !== 0) {

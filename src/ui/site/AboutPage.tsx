@@ -28,7 +28,7 @@ export const AboutPage: React.FC = () => (
     <main className="mx-auto max-w-3xl px-6 pb-20 pt-12 sm:px-8 sm:pt-16">
       <h1 className="font-display text-4xl font-medium leading-tight tracking-tight sm:text-5xl">About Agentuto</h1>
       <p className="mt-6 text-lg text-muted">
-        Agentuto is an open-source, local-first set of interactive physics and mathematics instruments. You set the
+        Agentuto is an open-source, local-first set of interactive science and mathematics instruments. You set the
         parameters, predict, measure and explain. It runs in your browser, keeps your work on your own device, and has no
         backend, accounts or analytics.
       </p>
@@ -51,8 +51,8 @@ export const AboutPage: React.FC = () => (
         <Section title="Licence and independence">
           <p>
             Agentuto is released under the MIT licence. It is an independent project and is not affiliated with or
-            endorsed by MIT, the College Board (AP), the International Baccalaureate (IB), Google or Anthropic. Course
-            labels such as &ldquo;Aligned with 8.02&rdquo; describe topic alignment only.
+            endorsed by MIT, the University of Toronto, the College Board (AP), the International Baccalaureate (IB),
+            Google or Anthropic. Course tags such as PSY100H1 &middot; 9.00 describe topic alignment only.
           </p>
         </Section>
 

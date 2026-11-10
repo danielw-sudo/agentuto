@@ -2,9 +2,9 @@
 
 **Use it. Extend it privately. Share it if you're proud of it.**
 
-A small library of physics and mathematics instruments that run in your browser, record real data, and ask you
-to predict before you measure. Seventeen sandboxes across mechanics, electromagnetism, waves, thermodynamics,
-quantum mechanics and circuits; every engine runs headless and is checked against a closed-form result. Local-first:
+A small library of interactive science and mathematics instruments that run in your browser, record real data, and ask you
+to predict before you measure. Eighteen sandboxes across mechanics, electromagnetism, waves, thermodynamics,
+quantum mechanics, circuits and psychology; every engine runs headless and is checked against a closed-form result. Local-first:
 no account, no backend, no tracking. The [demo site](https://danielw-sudo.github.io/agentuto/) is a demonstration,
 not a service.
 
@@ -17,8 +17,8 @@ not a service.
 Agentuto provides the software, the docs and the checks. It does not provide or support any AI service, and it
 takes no responsibility for the models, accounts or institutional rules of the people who use it.
 
-MIT · React 19 + TypeScript + Vite + Three.js / Canvas2D · topic alignment with MIT OCW 8.01–8.044 and
-18.03, and with AP/IB syllabi (alignment only — see the disclaimer at the end).
+MIT · React 19 + TypeScript + Vite + Three.js / Canvas2D · topic alignment with MIT OCW 8.01–8.044,
+9.00 and 18.03, University of Toronto, and with AP/IB syllabi (alignment only — see the disclaimer at the end).
 
 ---
 
@@ -46,13 +46,13 @@ npm run check:bundle # payload budget
 
 `npm run verify` runs the last three in sequence. Node ≥ 20, npm ≥ 10.
 
-**No GPU needed.** Twelve of the seventeen sandboxes draw to a 2D canvas and run on the CPU. The five
+**No GPU needed.** Thirteen of the eighteen sandboxes draw to a 2D canvas and run on the CPU. The five
 Three.js ones need WebGL; when a machine cannot provide it, the app opens on a 2D sandbox, badges the 3D
 entries `needs WebGL`, and explains the limitation instead of showing an empty viewport. Nothing else —
 sliders, telemetry, instruments, notebook, regression, CSV export — depends on the GPU. See
 [`docs/USER_GUIDE.md` §6](docs/USER_GUIDE.md) for the two lists and what you will see.
 
-## The seventeen sandboxes
+## The eighteen sandboxes
 
 | Sandbox | What you can measure | Mode |
 |---|---|---|
@@ -73,8 +73,9 @@ sliders, telemetry, instruments, notebook, regression, CSV export — depends on
 | `gauss-flux` | numerical surface flux, dipole cancellation | 3D |
 | `conservation-momentum` | elastic and inelastic collisions, centre of mass | 2D |
 | `rc-rl-circuits` | time constants `τ = RC`, `τ = L/R`, 63.2 % rise | 2D |
+| `signal-detection` | hit and false-alarm rates, sensitivity d′, decision criterion c | 2D |
 
-Five of these are Three.js scenes and need WebGL; the other twelve draw to a 2D canvas and run on a
+Five of these are Three.js scenes and need WebGL; the other thirteen draw to a 2D canvas and run on a
 machine with no GPU at all. When WebGL is unavailable the app opens on a 2D sandbox, marks the 3D ones
 in the catalogue, and says what is missing instead of showing an empty viewport.
 
@@ -136,7 +137,7 @@ border.
 
 **AI is optional.** All simulations, instruments, the lab notebook and CSV export work fully without any AI. Optional AI features connect to a third-party provider using your own account and API key, and your use is governed by that provider's terms, including age and regional requirements, which vary by provider and location. Use only services you are allowed to use. If you need permission from a parent, teacher or institution to use an AI service, get it first, and follow the rules that apply to you: many schools, colleges and employers restrict generative AI.
 
-Agentuto is an independent open-source project. It is not affiliated with or endorsed by MIT, the College Board (AP), the International Baccalaureate, Google or Anthropic; course labels describe topic alignment only. Simulations are educational models: verify important results independently.
+Agentuto is an independent open-source project. It is not affiliated with or endorsed by MIT, the University of Toronto, the College Board (AP), the International Baccalaureate, Google or Anthropic; course labels describe topic alignment only. Simulations are educational models: verify important results independently.
 
 ## License
 

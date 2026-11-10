@@ -1,5 +1,40 @@
 import { SIMULATION_CATALOG } from '../../simulations';
 import { COURSES, courseById, coursesOfSandbox } from '../../courses/courses';
+import { buildSocraticSystemInstruction } from '../../ai/prompts/socraticTutor';
+
+export function runTutorPromptVerification(): void {
+  const dummySummary = {
+    duration_s: 1.0,
+    sample_count: 10,
+    min_values: {},
+    max_values: {},
+    latest_values: {},
+  };
+  const psychPrompt = buildSocraticSystemInstruction({
+    concept_id: 'signal-detection',
+    concept_title: 'Signal Detection Theory',
+    discipline: 'Psychology',
+    active_parameters: {},
+    telemetry_summary: dummySummary,
+  });
+  if (!psychPrompt.includes('mentor in Psychology')) {
+    throw new Error('buildSocraticSystemInstruction with discipline "Psychology" must contain "mentor in Psychology"');
+  }
+  if (psychPrompt.toLowerCase().includes('physics')) {
+    throw new Error('buildSocraticSystemInstruction with discipline "Psychology" must not contain "physics"');
+  }
+
+  const defaultPrompt = buildSocraticSystemInstruction({
+    concept_id: 'test',
+    concept_title: 'Test',
+    active_parameters: {},
+    telemetry_summary: dummySummary,
+  });
+  if (!defaultPrompt.includes('mentor in science and mathematics')) {
+    throw new Error('buildSocraticSystemInstruction without discipline must contain "mentor in science and mathematics"');
+  }
+  console.log('✓ Socratic tutor prompt verified: discipline specialization and non-physics wording');
+}
 
 /**
  * Course checks (roadmap R4a). Courses are data over sandboxes; the one way that can go wrong without
@@ -43,6 +78,28 @@ export function runCoursesVerification(): void {
     }
   }
 
+  // Course tags check (Constitution Art. 3.4)
+  const allTagCodes = new Set<string>();
+  for (const course of COURSES) {
+    if (course.local) continue;
+    if (!course.tags || course.tags.length !== 2) {
+      throw new Error(`course "${course.id}" must have exactly 2 tags, got ${course.tags?.length ?? 0}`);
+    }
+    const mitTag = course.tags.find((t) => t.school === 'MIT OpenCourseWare');
+    if (!mitTag) {
+      throw new Error(`course "${course.id}" is missing an MIT OpenCourseWare tag`);
+    }
+    for (const tag of course.tags) {
+      if (!tag.url.startsWith('https://')) {
+        throw new Error(`course "${course.id}" tag "${tag.code}" URL must start with https://, got "${tag.url}"`);
+      }
+      if (allTagCodes.has(tag.code)) {
+        throw new Error(`tag code "${tag.code}" in course "${course.id}" is duplicated across courses`);
+      }
+      allTagCodes.add(tag.code);
+    }
+  }
+
   // Nothing falls through: every sandbox is reachable from at least one course.
   const orphans = sandboxIds.filter((id) => coursesOfSandbox(id).length === 0);
   if (orphans.length > 0) throw new Error(`sandboxes in no course: ${orphans.join(', ')}`);
@@ -55,4 +112,6 @@ export function runCoursesVerification(): void {
   console.log(
     `✓ Courses verified: ${COURSES.length} courses cover all ${sandboxIds.length} sandboxes, each course lists exactly the sandboxes whose own curriculum names it, and ${shared.join(', ')} appear${shared.length === 1 ? 's' : ''} in more than one`
   );
+
+  runTutorPromptVerification();
 }
