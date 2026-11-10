@@ -1,8 +1,8 @@
 # Agentuto Constitution
 
-> **Status:** v1.4 — **proposed** 2026-11-10 by Claude at the owner's instruction. It builds on v1.3, ratified
-> 2026-11-07 (#60), adds Art. 2.4 on tutorials, and amends Art. 1.2, 1.5, 1.6, 3.4, 6.3 and 6.4. Merging the pull
-> request that carries it ratifies it.
+> **Status:** v1.4 — **ratified** 2026-11-10 by the repository owner, who merged the pull request carrying it
+> (#64, proposed by Claude at the owner's instruction). It builds on v1.3, ratified 2026-11-07 (#60), adds Art. 2.4
+> on tutorials, and amends Art. 1.2, 1.5, 1.6, 3.4, 6.3 and 6.4.
 
 This document holds the few rules that must stay true however the project grows. `AGENTS.md` says *how*
 agents work day to day; the skills in `.agents/skills/` say *how to do* specific tasks. When they conflict,
@@ -180,7 +180,7 @@ hand-off reports, and do not block unrelated work. New and changed code must com
 
 ## Ratification and amendments
 - **Ratified:** 2026-10-31 by the repository owner: v1.0, and v1.2 by merging #17. v1.3 on 2026-11-07 by
-  merging #60. v1.4 is proposed (2026-11-10) and is ratified by merging the pull request that carries it.
+  merging #60. v1.4 on 2026-11-10 by merging #64.
   The v1.1 articles it builds on (Art. 1.5, 9.3, 10.7, 10.8, 11.3) stand as part of v1.2.
 - **Proposed:** 2026-10-31 by DeepSeek (Hermes) at the owner's instruction (v1.1), and by Claude at the owner's
   instruction (v1.2). Merging the pull request that carries a version's text is that version's ratification; no
@@ -192,6 +192,6 @@ hand-off reports, and do not block unrelated work. New and changed code must com
 | v0.1 | 2026-10-31 | Draft by Claude for owner review. |
 | v1.0 | 2026-10-31 | Ratified by the owner after revisions (roles not models, transition clause, branch protection). |
 | v1.1 | 2026-10-31 | Proposed by DeepSeek: check independence (Art. 1.5), verified gate claims (Art. 9.3), verification & learner-experience role and no self-review (Art. 10.7–8), provenance without an account (Art. 11.3). |
-| v1.4 | 2026-11-10 | Proposed by Claude at the owner's instruction: tutorials as a second content type (Art. 2.4, 1.2, 6.3, 6.4); checks speak of the science, not only physics (Art. 1.5–1.6); course alignment tags (Art. 3.4). |
+| v1.4 | 2026-11-10 | Proposed by Claude at the owner's instruction: tutorials as a second content type (Art. 2.4, 1.2, 6.3, 6.4); checks speak of the science, not only physics (Art. 1.5–1.6); course alignment tags (Art. 3.4). Ratified (#64). |
 | v1.3 | 2026-11-07 | Proposed by Claude at the owner's instruction: external anchors first (Art. 1.6); materiality (Art. 1.7); open materials before writing (Art. 6.4); value before platform, community as operations (Art. 8.4); proportionate review (Art. 10.9). Ratified (#60). |
 | v1.2 | 2026-10-31 | Ratified (#17). Proposed by Claude: permission notice for AI without naming an age (Art. 3.5); links are conveniences, not integrations (Art. 8.3); ruleset wording (Art. 9.2); local courses are data (Art. 6.3); new Art. 12 on the three uses, what the project is not, no identity checks, local content and sharing. |
