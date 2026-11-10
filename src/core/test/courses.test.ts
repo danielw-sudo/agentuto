@@ -1,5 +1,5 @@
 import { SIMULATION_CATALOG } from '../../simulations';
-import { COURSES, courseById, coursesOfSandbox } from '../../courses/courses';
+import { COURSES, SUBJECTS, courseById, coursesOfSandbox } from '../../courses/courses';
 import { buildSocraticSystemInstruction } from '../../ai/prompts/socraticTutor';
 
 export function runTutorPromptVerification(): void {
@@ -100,6 +100,15 @@ export function runCoursesVerification(): void {
     }
   }
 
+  // Every non-local course has a subject from SUBJECTS
+  const validSubjectIds = new Set(SUBJECTS.map((s) => s.id));
+  for (const course of COURSES) {
+    if (course.local) continue;
+    if (!course.subject || !validSubjectIds.has(course.subject)) {
+      throw new Error(`course "${course.id}" has invalid or missing subject "${course.subject}"`);
+    }
+  }
+
   // Nothing falls through: every sandbox is reachable from at least one course.
   const orphans = sandboxIds.filter((id) => coursesOfSandbox(id).length === 0);
   if (orphans.length > 0) throw new Error(`sandboxes in no course: ${orphans.join(', ')}`);
@@ -110,7 +119,7 @@ export function runCoursesVerification(): void {
 
   const shared = sandboxIds.filter((id) => coursesOfSandbox(id).length > 1);
   console.log(
-    `✓ Courses verified: ${COURSES.length} courses cover all ${sandboxIds.length} sandboxes, each course lists exactly the sandboxes whose own curriculum names it, and ${shared.join(', ')} appear${shared.length === 1 ? 's' : ''} in more than one`
+    `✓ Courses verified: ${COURSES.length} courses cover all ${sandboxIds.length} sandboxes, each course lists exactly the sandboxes whose own curriculum names it, non-local courses have valid subjects, and ${shared.join(', ')} appear${shared.length === 1 ? 's' : ''} in more than one`
   );
 
   runTutorPromptVerification();

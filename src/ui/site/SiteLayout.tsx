@@ -1,7 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SiteSearch } from './SiteSearch';
 import { COMMUNITY } from '../../community';
 import { ThemeToggle } from './ThemeToggle';
+
+const IconMenu: React.FC<{ open: boolean }> = ({ open }) => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+    {open ? <path d="M 4 4 L 16 16 M 16 4 L 4 16" /> : <path d="M 3 5 L 17 5 M 3 10 L 17 10 M 3 15 L 17 15" />}
+  </svg>
+);
 
 /** Shared by every link and button on the site pages, so keyboard focus is always visible. */
 export const focusRing =
@@ -36,6 +42,8 @@ interface SiteLayoutProps {
  * (the workspace is made inert while a page is open). Header and footer carry nothing but links.
  */
 export const SiteLayout: React.FC<SiteLayoutProps> = ({ current, label, children }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   useEffect(() => {
     const previous = document.title;
     document.title = label;
@@ -60,8 +68,20 @@ export const SiteLayout: React.FC<SiteLayoutProps> = ({ current, label, children
           </span>
           Agentuto
         </a>
-        <ThemeToggle className="order-2 ml-auto sm:order-5 sm:ml-0" />
-        <nav aria-label="Main" className="order-3 flex flex-wrap gap-x-7 text-[15px]">
+        <div className="order-2 ml-auto flex items-center gap-1 sm:order-5 sm:ml-0">
+          <ThemeToggle />
+          <button
+            type="button"
+            aria-label="Menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className={`inline-flex size-11 items-center justify-center rounded-lg text-muted hover:bg-sunken hover:text-ink sm:hidden ${focusRing}`}
+          >
+            <IconMenu open={mobileMenuOpen} />
+          </button>
+        </div>
+        <nav aria-label="Main" className="order-3 hidden flex-wrap gap-x-7 text-[15px] sm:flex">
           {NAV.map((item) => {
             const active = item.page === current;
             return (
@@ -78,6 +98,23 @@ export const SiteLayout: React.FC<SiteLayoutProps> = ({ current, label, children
             );
           })}
         </nav>
+        {mobileMenuOpen && (
+          <nav id="mobile-nav" aria-label="Mobile Main" className="order-3 flex w-full flex-col border-t border-line pt-2 pb-1 sm:hidden">
+            {NAV.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                aria-current={item.page === current ? 'page' : undefined}
+                className={`flex min-h-11 items-center px-2 text-base no-underline hover:underline ${focusRing} ${
+                  item.page === current ? 'font-medium text-ink' : 'text-muted'
+                }`}
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
+        )}
         <div className="order-4 w-full sm:ml-auto sm:w-80 lg:w-96">
           <SiteSearch />
         </div>

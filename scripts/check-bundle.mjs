@@ -40,9 +40,11 @@ const SHIPPED = new Set(['.js', '.css', '.html']);
 //   firstLoadGzip  raised from 110,000 to 112,000 and totalGzip from 375,000 to 378,000 on 2026-11-10 (owner's
 //                  decision) for the course alignment tags (Constitution Art. 3.4): seven courses carry two linked
 //                  tags each on the home page, which is in the first load.
+//   totalGzip      raised from 378,000 to 385,000 on 2026-11-10 (owner's decision) for the Campus look (subjects,
+//                  their colours and the instruments page grouped by subject), leaving room for the first tutorial.
 const BUDGET = {
   firstLoadGzip: 112_000,
-  totalGzip: 378_000,
+  totalGzip: 385_000,
   totalRaw: 1_360_000,
   largestGzip: 185_000,
 };

@@ -18,6 +18,20 @@ export interface CourseModule {
   measure: string;
 }
 
+export type SubjectId = 'physics' | 'mathematics' | 'psychology';
+
+export interface Subject {
+  id: SubjectId;
+  name: string;
+  token: string;
+}
+
+export const SUBJECTS: readonly Subject[] = [
+  { id: 'physics', name: 'Physics', token: 'subject-physics' },
+  { id: 'mathematics', name: 'Mathematics', token: 'subject-mathematics' },
+  { id: 'psychology', name: 'Psychology', token: 'subject-psychology' },
+];
+
 export interface Course {
   /** The alignment code, used in addresses: `#/course/8.02`. */
   id: string;
@@ -30,6 +44,8 @@ export interface Course {
   modules: CourseModule[];
   /** True for a course read from `local/courses.ts`: unreviewed, shown as such. */
   local?: boolean;
+  /** Subject area for campus grouping. Local courses may omit it. */
+  subject?: SubjectId;
   /** Topic-alignment labels shown on the card: one MIT code where one exists, and one readable code from another
    *  university whose subject letters and level a newcomer can guess (PSY100H1: psychology, first year). Each links
    *  to the course's public page. Alignment only (Art. 3.4). */
@@ -39,6 +55,7 @@ export interface Course {
 export const COURSES: Course[] = [
   {
     id: '8.01',
+    subject: 'physics',
     title: 'Mechanics',
     shortTitle: 'Mechanics',
     equation: 'm a = F',
@@ -55,6 +72,7 @@ export const COURSES: Course[] = [
   },
   {
     id: '8.02',
+    subject: 'physics',
     title: 'Electricity & Magnetism',
     shortTitle: 'E&M',
     equation: '∇·E = ρ/ε₀',
@@ -73,6 +91,7 @@ export const COURSES: Course[] = [
   },
   {
     id: '8.03',
+    subject: 'physics',
     title: 'Waves & Optics',
     shortTitle: 'Waves & Optics',
     equation: '∂²y/∂t² = v² ∂²y/∂x²',
@@ -89,6 +108,7 @@ export const COURSES: Course[] = [
   },
   {
     id: '8.04',
+    subject: 'physics',
     title: 'Quantum Physics',
     shortTitle: 'Quantum',
     equation: 'iħ ∂ψ/∂t = Hψ',
@@ -104,6 +124,7 @@ export const COURSES: Course[] = [
   },
   {
     id: '8.044',
+    subject: 'physics',
     title: 'Thermodynamics',
     shortTitle: 'Thermodynamics',
     equation: 'η = 1 − T_C / T_H',
@@ -119,6 +140,7 @@ export const COURSES: Course[] = [
   },
   {
     id: '18.03',
+    subject: 'mathematics',
     title: 'Differential Equations',
     shortTitle: 'Diff. Eq.',
     equation: 'm x″ + b x′ + k x = F',
@@ -135,6 +157,7 @@ export const COURSES: Course[] = [
   },
   {
     id: '9.00',
+    subject: 'psychology',
     title: 'Introduction to Psychology',
     shortTitle: 'Psychology',
     equation: 'd′ = z(H) − z(FA)',
@@ -159,4 +182,10 @@ export function courseById(id: string): Course | undefined {
 /** Courses that list a sandbox, in course order. */
 export function coursesOfSandbox(sandboxId: string): Course[] {
   return COURSES.filter((course) => course.modules.some((m) => m.sandboxId === sandboxId));
+}
+
+/** Subject of the first course that lists the sandbox (Constitution Art. 3.4). */
+export function subjectOfSandbox(sandboxId: string): SubjectId {
+  const first = COURSES.find((c) => c.modules.some((m) => m.sandboxId === sandboxId));
+  return first?.subject ?? 'physics';
 }

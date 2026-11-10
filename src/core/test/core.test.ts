@@ -43,6 +43,7 @@ import { runSliderExtremesVerification } from './sliderExtremes.test';
 import { runLocalModulesVerification } from './localModules.test';
 import { runModuleCheckVerification } from './moduleCheck.test';
 import { runExportModuleVerification } from './exportModule.test';
+import { runFormulaVerification } from './formula.test';
 
 export async function runCoreVerification(): Promise<boolean> {
   console.log('🧪 Running Core Engine Verification Suite...\n');
@@ -1347,6 +1348,9 @@ export async function runCoreVerification(): Promise<boolean> {
 
   // Test 39: share path (roadmap R5) — a finished module becomes exactly the edits a PR needs; the rest is refused.
   await runExportModuleVerification();
+
+  // Test 40: formula formatting (brief Campus) — sub and sup parsed for instruments list.
+  runFormulaVerification();
 
   console.log('\n🎉 ALL CORE ENGINE CONTRACTS VERIFIED SUCCESSFULLY!');
   return true;

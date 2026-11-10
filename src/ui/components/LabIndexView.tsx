@@ -13,9 +13,11 @@ import {
 } from 'lucide-react';
 import { SIMULATION_CATALOG, SimulationId, SimulationRegistration } from '../../simulations';
 import { guideOf } from '../../simulations/sandboxGuides';
-import { COURSES } from '../../courses/courses';
+import { COURSES, SUBJECTS, subjectOfSandbox } from '../../courses/courses';
+import type { SubjectId } from '../../courses/courses';
 import { LocalBadge } from '../site/LocalBadge';
 import { SiteLayout } from '../site/SiteLayout';
+import { formatFormula } from '../formula';
 
 export interface LabIndexViewProps {
   isOpen: boolean;
@@ -28,19 +30,40 @@ export interface LabIndexViewProps {
   webglAvailable?: boolean;
 }
 
-// Derived from the course data (Art. 5.2: no hand-kept list beside the manifest). The old chips matched
-// substrings of each sandbox's curriculum text, so "8.03" also caught every "18.03" sandbox.
-const COURSE_FILTERS = [
-  { id: 'ALL', label: 'All Modules', includes: (_sandboxId: string) => true },
-  ...COURSES.map((course) => ({
-    id: course.id,
-    label:
-      course.tags && course.tags.length > 0
-        ? `${course.shortTitle} (${course.tags.map((t) => t.code).join(' · ')})`
-        : `${course.shortTitle} (Course ${course.id})`,
-    includes: (sandboxId: string) => course.modules.some((m) => m.sandboxId === sandboxId),
-  })),
-];
+type SubjectFilter = 'ALL' | SubjectId;
+
+/** Order sandboxes according to COURSES order and module order, then any unlisted sandboxes. */
+function getOrderedSimulations(allSims: SimulationRegistration[]): SimulationRegistration[] {
+  const seen = new Set<string>();
+  const ordered: SimulationRegistration[] = [];
+  for (const c of COURSES) {
+    for (const m of c.modules) {
+      if (!seen.has(m.sandboxId) && SIMULATION_CATALOG[m.sandboxId]) {
+        seen.add(m.sandboxId);
+        ordered.push(SIMULATION_CATALOG[m.sandboxId]);
+      }
+    }
+  }
+  for (const s of allSims) if (!seen.has(s.id)) ordered.push(s);
+  return ordered;
+}
+
+/** Get the measure string from the first course that lists the sandbox. */
+function getMeasureForSandbox(sandboxId: string): string | undefined {
+  for (const c of COURSES) {
+    const m = c.modules.find((mod) => mod.sandboxId === sandboxId);
+    if (m?.measure) return m.measure;
+  }
+}
+
+/** Build tag label: first course tags + "· also <other>" when in multiple courses. */
+function getTagLabelForSandbox(sandboxId: string): string | undefined {
+  const list = COURSES.filter((c) => c.modules.some((m) => m.sandboxId === sandboxId));
+  if (!list.length) return undefined;
+  const first = list[0];
+  const tags = first.tags ? first.tags.map((t) => t.code).join(' · ') : first.id;
+  return list.length > 1 ? `${tags} · also ${list.slice(1).map((c) => c.id).join(', ')}` : tags;
+}
 
 export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
   isOpen,
@@ -50,28 +73,31 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
   onSelectSandbox,
   webglAvailable = true,
 }) => {
-  const [courseFilter, setCourseFilter] = useState<string>('ALL');
+  const [selectedSubject, setSelectedSubject] = useState<SubjectFilter>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const allSimulations = useMemo(() => Object.values(SIMULATION_CATALOG), []);
+  const allSimulations = useMemo(() => getOrderedSimulations(Object.values(SIMULATION_CATALOG)), []);
   const activeSim = resumeSandboxId ? SIMULATION_CATALOG[resumeSandboxId] : undefined;
 
   const filteredSimulations = useMemo(() => {
-    const activeFilterObj = COURSE_FILTERS.find((f) => f.id === courseFilter) ?? COURSE_FILTERS[0];
     const q = searchQuery.trim().toLowerCase();
 
     return allSimulations.filter((sim) => {
-      if (!activeFilterObj.includes(sim.id)) return false;
+      if (selectedSubject !== 'ALL' && subjectOfSandbox(sim.id) !== selectedSubject) {
+        return false;
+      }
       if (!q) return true;
+
       return (
         sim.title.toLowerCase().includes(q) ||
         sim.id.toLowerCase().includes(q) ||
         sim.curriculum.toLowerCase().includes(q) ||
         sim.description.toLowerCase().includes(q) ||
-        sim.formattedODE.toLowerCase().includes(q)
+        sim.formattedODE.toLowerCase().includes(q) ||
+        COURSES.some((c) => c.modules.some((m) => m.sandboxId === sim.id) && c.tags?.some((t) => t.code.toLowerCase().includes(q)))
       );
     });
-  }, [allSimulations, courseFilter, searchQuery]);
+  }, [allSimulations, selectedSubject, searchQuery]);
 
   if (!isOpen) return null;
 
@@ -91,7 +117,7 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
             </h1>
             <p className="mt-4 text-lg text-muted">
               {isCatalog
-                ? `All ${allSimulations.length} instruments, with a filter by course. Topic alignment only: Agentuto is not affiliated with or endorsed by any institution.`
+                ? `All ${allSimulations.length} instruments, grouped by subject. Topic alignment only: Agentuto is not affiliated with or endorsed by any institution.`
                 : 'How to run Agentuto, how to drive an instrument, and what each one lets you measure.'}
             </p>
           </div>
@@ -107,147 +133,249 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
 
         {activeTab === 'catalog' ? (
           /* ================================================================
-             TAB 1: MODULE CATALOG (17 CANONICAL SANDBOXES)
+             TAB 1: MODULE CATALOG (GROUPED BY SUBJECT)
              ================================================================ */
-          <section className="space-y-6" aria-label="Simulation Module Directory">
-            {/* Search and Course Alignment Filter Bar */}
+          <section className="space-y-8" aria-label="Simulation Module Directory">
+            {/* Subject Filters and Search Bar */}
             <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
-              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter modules by course alignment">
-                {COURSE_FILTERS.map((f) => (
-                  <button
-                    key={f.id}
-                    onClick={() => setCourseFilter(f.id)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
-                      courseFilter === f.id
-                        ? 'bg-accent-soft border-accent text-ink'
-                        : 'bg-card border-line text-muted hover:text-ink hover:border-muted'
-                    }`}
-                  >
-                    {f.label}
-                  </button>
-                ))}
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Filter modules by subject">
+                {/* All subjects pill */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedSubject('ALL')}
+                  aria-pressed={selectedSubject === 'ALL'}
+                  className={`min-h-11 px-4 py-2 rounded-xl text-sm font-medium border flex items-center gap-2 cursor-pointer transition-colors ${
+                    selectedSubject === 'ALL'
+                      ? 'bg-sunken border-accent text-ink font-semibold'
+                      : 'bg-card border-line text-muted hover:text-ink hover:border-muted'
+                  }`}
+                >
+                  <span>All subjects</span>
+                  <span className="font-mono text-xs opacity-80">({allSimulations.length})</span>
+                </button>
+
+                {/* Per-subject pills */}
+                {SUBJECTS.map((s) => {
+                  const count = allSimulations.filter((sim) => subjectOfSandbox(sim.id) === s.id).length;
+                  const isSelected = selectedSubject === s.id;
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setSelectedSubject(s.id)}
+                      aria-pressed={isSelected}
+                      style={
+                        isSelected
+                          ? {
+                              backgroundColor: `var(--subject-${s.id}-soft)`,
+                              borderColor: `var(--subject-${s.id})`,
+                              color: `var(--subject-${s.id})`,
+                            }
+                          : undefined
+                      }
+                      className={`min-h-11 px-4 py-2 rounded-xl text-sm font-medium border flex items-center gap-2 cursor-pointer transition-colors ${
+                        isSelected
+                          ? 'font-semibold'
+                          : 'bg-card border-line text-muted hover:text-ink hover:border-muted'
+                      }`}
+                    >
+                      <span
+                        className="size-2 rounded-full shrink-0"
+                        style={{ backgroundColor: `var(--subject-${s.id})` }}
+                        aria-hidden="true"
+                      />
+                      <span>{s.name}</span>
+                      <span className="font-mono text-xs opacity-80">({count})</span>
+                    </button>
+                  );
+                })}
               </div>
 
+              {/* Text Search Bar */}
               <div className="relative min-w-[240px]">
                 <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Filter these instruments"
-                  aria-label="Filter modules by keyword"
-                  className="w-full bg-card border border-line rounded-xl pl-9 pr-3 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-accent"
+                  placeholder="Filter by name or code"
+                  aria-label="Filter modules by keyword or course code"
+                  className="w-full min-h-11 bg-card border border-line rounded-xl pl-9 pr-3 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-accent"
                 />
               </div>
             </div>
 
-            {/* Module Cards Grid - Clean, Compact 3-Column Benchmarked Layout */}
+            {/* Empty Search Results */}
             {filteredSimulations.length === 0 ? (
               <div className="rounded-2xl bg-card border border-line p-8 text-center space-y-2">
-                <p className="text-base text-ink font-medium">No modules match your current filter.</p>
+                <p className="text-base text-ink font-medium">No instruments match your current filter.</p>
                 <button
+                  type="button"
                   onClick={() => {
-                    setCourseFilter('ALL');
+                    setSelectedSubject('ALL');
                     setSearchQuery('');
                   }}
-                  className="text-sm text-accent hover:text-accent underline cursor-pointer"
+                  className="text-sm text-accent hover:underline cursor-pointer"
                 >
                   Reset filters
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredSimulations.map((sim: SimulationRegistration) => {
-                  const catalogIndex = allSimulations.findIndex((s) => s.id === sim.id) + 1;
-                  const isCurrent = sim.id === resumeSandboxId;
+              /* Grouped by Subject Sections */
+              <div className="space-y-12">
+                {[
+                  ...SUBJECTS.map((subj) => ({
+                    id: subj.id,
+                    name: subj.name,
+                    color: `var(--subject-${subj.id})`,
+                    softColor: `var(--subject-${subj.id}-soft)`,
+                    sims: filteredSimulations.filter((sim) => subjectOfSandbox(sim.id) === subj.id),
+                  })),
+                  {
+                    id: 'local',
+                    name: 'Your instruments',
+                    color: undefined,
+                    softColor: undefined,
+                    sims: filteredSimulations.filter((sim) => !subjectOfSandbox(sim.id)),
+                  },
+                ]
+                  .filter((group) => group.sims.length > 0)
+                  .map((group) => (
+                    <section key={group.id} aria-labelledby={`subject-${group.id}-heading`} className="space-y-4">
+                      {/* Section Heading */}
+                      <div className="flex items-baseline gap-2.5">
+                        <h2
+                          id={`subject-${group.id}-heading`}
+                          className="font-display text-2xl font-medium tracking-tight text-ink"
+                          style={group.color ? { color: group.color } : undefined}
+                        >
+                          {group.name}
+                        </h2>
+                        <span className="font-mono text-sm text-muted">
+                          ({group.sims.length})
+                        </span>
+                      </div>
 
-                  return (
-                    <article
-                      key={sim.id}
-                      className={`rounded-xl border p-4 flex flex-col justify-between gap-3 transition-all hover:shadow-xl ${
-                        isCurrent
-                          ? 'bg-card border-accent ring-1 ring-accent'
-                          : 'bg-card border-line hover:border-muted hover:bg-sunken'
-                      }`}
-                    >
-                      <div className="space-y-2.5">
-                        {/* Top Metadata Badges */}
-                        <div className="flex items-center justify-between gap-1.5 flex-wrap">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-mono font-semibold px-1.5 py-0.5 rounded bg-sunken text-ink">
-                              #{String(catalogIndex).padStart(2, '0')}
-                            </span>
-                            <span
-                              className={`text-xs font-mono font-semibold px-1.5 py-0.5 rounded border ${
-                                sim.mode === '3D'
-                                  ? 'bg-accent-soft text-accent border-accent'
-                                  : 'bg-sky-100 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border-sky-600/40 dark:border-sky-500/30'
+                      {/* Cards Grid */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {group.sims.map((sim: SimulationRegistration) => {
+                          const catalogIndex = allSimulations.findIndex((s) => s.id === sim.id) + 1;
+                          const isCurrent = sim.id === resumeSandboxId;
+                          const tagLabel = getTagLabelForSandbox(sim.id);
+                          const measure = getMeasureForSandbox(sim.id);
+
+                          return (
+                            <article
+                              key={sim.id}
+                              className={`rounded-xl border p-5 flex flex-col justify-between gap-4 transition-all hover:shadow-xl ${
+                                isCurrent
+                                  ? 'bg-card border-accent ring-1 ring-accent'
+                                  : 'bg-card border-line hover:border-muted hover:bg-sunken'
                               }`}
                             >
-                              {sim.mode}
-                            </span>
-                            {sim.local && <LocalBadge variant="dark" />}
-                            {sim.mode === '3D' && !webglAvailable && (
-                              <span className="text-xs font-mono font-semibold px-1.5 py-0.5 rounded border bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-600/40 dark:border-amber-500/30">
-                                needs WebGL
-                              </span>
-                            )}
-                          </div>
+                              <div className="space-y-3">
+                                {/* Top Badges Row */}
+                                <div className="flex items-center justify-between gap-1.5 flex-wrap">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs font-mono font-semibold px-1.5 py-0.5 rounded bg-sunken text-ink">
+                                      #{String(catalogIndex).padStart(2, '0')}
+                                    </span>
+                                    <span className="text-xs font-mono font-semibold px-1.5 py-0.5 rounded border border-line bg-sunken text-ink">
+                                      {sim.mode}
+                                    </span>
+                                    {sim.local && <LocalBadge variant="dark" />}
+                                    {sim.mode === '3D' && !webglAvailable && (
+                                      <span
+                                        className="text-xs font-mono font-semibold px-1.5 py-0.5 rounded border"
+                                        style={{
+                                          borderColor: 'var(--field-e)',
+                                          backgroundColor: 'var(--sunken)',
+                                          color: 'var(--field-e)',
+                                        }}
+                                      >
+                                        needs WebGL
+                                      </span>
+                                    )}
+                                  </div>
 
-                          {isCurrent ? (
-                            <span className="text-xs font-mono text-emerald-700 dark:text-emerald-300 font-medium flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                              Active
-                            </span>
-                          ) : (
-                            <span className="text-xs font-mono text-muted">
-                              {sim.curriculum.split(' ')[0]}
-                            </span>
-                          )}
-                        </div>
+                                  {/* Right side: course tag chip and active indicator */}
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    {tagLabel && (
+                                      <span
+                                        className="text-xs font-mono font-medium px-2 py-0.5 rounded-md"
+                                        style={
+                                          group.softColor
+                                            ? {
+                                                backgroundColor: group.softColor,
+                                                color: group.color,
+                                              }
+                                            : undefined
+                                        }
+                                      >
+                                        {tagLabel}
+                                      </span>
+                                    )}
+                                    {isCurrent && (
+                                      <span className="text-xs font-mono text-accent font-medium flex items-center gap-1">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                                        Active
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
 
-                        {/* Title */}
-                        <h3 className="text-sm font-semibold text-ink leading-snug line-clamp-1" title={sim.title}>
-                          {sim.title}
-                        </h3>
+                                {/* Full Title (wraps, no clamp) */}
+                                <h3 className="text-base font-semibold text-ink leading-snug break-words">
+                                  {sim.title}
+                                </h3>
 
-                        {/* Compact Governing ODE Formula Pill */}
-                        <div className="bg-paper border border-line rounded-lg px-2.5 py-1.5 font-mono text-xs text-accent overflow-x-auto whitespace-nowrap">
-                          {sim.formattedODE}
-                        </div>
+                                {/* Formula Pill (display font italic, 16-18px, wraps) */}
+                                <div className="bg-paper border border-line rounded-lg px-3 py-2 font-display italic text-[17px] leading-relaxed text-ink whitespace-normal break-words">
+                                  {formatFormula(sim.formattedODE)}
+                                </div>
 
-                        {/* Description (2 lines clamped) */}
-                        <p className="text-xs text-ink leading-relaxed line-clamp-2">
-                          {sim.description}
-                        </p>
+                                {/* Description: "You measure ..." unclamped */}
+                                <p className="text-sm text-muted leading-relaxed">
+                                  {measure ? (
+                                    <>
+                                      <strong className="font-semibold text-ink">You measure</strong> {formatFormula(measure)}
+                                    </>
+                                  ) : (
+                                    sim.description
+                                  )}
+                                </p>
+                              </div>
 
+                              {/* Card Bottom Actions */}
+                              <div className="flex items-center justify-between gap-2 pt-3 border-t border-line">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    onTabChange('guide');
+                                    setTimeout(() => {
+                                      document.getElementById(`guide-${sim.id}`)?.scrollIntoView({ behavior: 'smooth' });
+                                    }, 50);
+                                  }}
+                                  className="text-xs text-muted hover:text-ink underline cursor-pointer"
+                                >
+                                  Manual
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleLaunch(sim.id)}
+                                  className="min-h-11 px-4 rounded-lg bg-accent hover:opacity-90 text-on-accent text-xs font-semibold flex items-center gap-1.5 transition-opacity cursor-pointer"
+                                >
+                                  <span>Open</span>
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </article>
+                          );
+                        })}
                       </div>
-
-                      {/* Card Bottom Actions */}
-                      <div className="flex items-center justify-between gap-2 pt-2 border-t border-line">
-                        <button
-                          onClick={() => {
-                            onTabChange('guide');
-                            setTimeout(() => {
-                              document.getElementById(`guide-${sim.id}`)?.scrollIntoView({ behavior: 'smooth' });
-                            }, 50);
-                          }}
-                          className="text-xs text-muted hover:text-ink underline cursor-pointer"
-                        >
-                          Manual
-                        </button>
-
-                        <button
-                          onClick={() => handleLaunch(sim.id)}
-                          className="px-3 py-1.5 rounded-lg bg-accent hover:opacity-90 text-on-accent text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
-                        >
-                          <span>Open</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </article>
-                  );
-                })}
+                    </section>
+                  ))}
               </div>
             )}
           </section>
@@ -435,7 +563,7 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
               </div>
             </div>
 
-            {/* Section 4: Complete 17-Sandbox Reference Manual */}
+            {/* Section 4: Complete Reference Guide */}
             <div id="manual-modules" className="space-y-4">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <h2 className="text-lg font-semibold text-ink flex items-center gap-2">
@@ -473,6 +601,7 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
                         </div>
 
                         <button
+                          type="button"
                           onClick={() => handleLaunch(sim.id)}
                           className="self-start sm:self-center shrink-0 px-3.5 py-1.5 rounded-xl bg-accent hover:opacity-90 text-on-accent text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
                         >

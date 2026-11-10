@@ -1,7 +1,8 @@
 /**
- * The learner's colour-scheme choice for the site pages: follow the operating system (auto), or force light, dark or
- * high contrast. Kept in this browser only. It is applied as `data-theme` on <html>, which the token sheet
- * (src/styles/globals.css) already understands; "auto" removes the attribute so the OS preference decides.
+ * The learner's colour-scheme choice for the site pages: light by default, with options to follow the operating
+ * system (auto), or force dark or high contrast. Kept in this browser only. It is applied as `data-theme` on <html>,
+ * which the token sheet (src/styles/globals.css) already understands; "auto" removes the attribute so the OS
+ * preference decides, while "light" sets data-theme="light".
  * The instrument screens stay dark whatever is chosen (high contrast is dark too and applies there), because their drawings are made for a dark ground.
  *
  * Plain functions over a storage-shaped object and an element-shaped object, so the rules are checked in Node.
@@ -21,16 +22,17 @@ interface ThemeRoot {
   removeAttribute(name: string): void;
 }
 
-/** Anything that is not exactly one of the three words means auto: a stored value from a future version must not break the page. */
+/** Anything that is not exactly one of the four words means light: a stored value from a future version defaults to light. */
 export function parseTheme(raw: unknown): ThemePreference {
-  return raw === 'light' || raw === 'dark' || raw === 'contrast' ? raw : 'auto';
+  return raw === 'light' || raw === 'dark' || raw === 'contrast' || raw === 'auto' ? raw : 'light';
 }
 
 export function loadTheme(storage: ThemeStorage | null | undefined): ThemePreference {
   try {
-    return parseTheme(storage?.getItem(THEME_STORAGE_KEY));
+    const raw = storage?.getItem(THEME_STORAGE_KEY);
+    return raw ? parseTheme(raw) : 'light';
   } catch {
-    return 'auto';
+    return 'light';
   }
 }
 

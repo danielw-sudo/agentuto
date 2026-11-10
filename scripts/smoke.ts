@@ -363,6 +363,13 @@ async function checkSite(browser: Browser): Promise<void> {
   if (cards.length < COURSES.length) await bad('home page', `${cards.length} course cards, expected at least ${COURSES.length}`);
   else pass('home page', `${cards.length} course cards`);
 
+  // Home page shows one subject group per subject in use
+  const subjectGroups = await page.$$eval('[data-subject-group]', (els) => els.map((el) => el.getAttribute('data-subject-group')));
+  const expectedSubjects = [...new Set(COURSES.map((c) => c.subject).filter(Boolean))];
+  const missingSubjects = expectedSubjects.filter((s) => !subjectGroups.includes(s));
+  if (missingSubjects.length > 0) await bad('home subject groups', `missing groups for: ${missingSubjects.join(', ')}`);
+  else pass('home subject groups', `${subjectGroups.length} subject groups: ${subjectGroups.join(', ')}`);
+
   // The activity card stays away until there is an entry, then shows the learner's own streak
   await page.waitForNetworkIdle({ idleTime: 500, timeout: 20000 }).catch(() => undefined); // the card is a lazy chunk
   if (await page.$('section[aria-label="Your inquiry log"]')) await bad('activity card', 'shown on a visit with no entries');
@@ -380,8 +387,8 @@ async function checkSite(browser: Browser): Promise<void> {
     await page.evaluate(() => localStorage.removeItem('agentuto.inquiry-log.v1'));
   }
 
-  // The theme toggle: an icon button at the top right. With the system set to dark, Light changes the page's own
-  // colours, survives a reload, and Auto hands control back.
+  // The theme toggle: an icon button at the top right. Light is the default; with the system set to dark,
+  // Auto hands control to the system, Light overrides it, survives a reload, and high contrast reaches instruments.
   {
     const paper = () => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--paper').trim());
     const choice = () => page.$eval('button[data-theme-toggle]', (b) => b.getAttribute('data-choice') ?? '').catch(() => 'no toggle');
@@ -394,14 +401,14 @@ async function checkSite(browser: Browser): Promise<void> {
     }).catch(() => null);
     await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'dark' }]);
     const start = await paper();
+    await choose('auto');
+    const auto = await paper();
     await choose('light');
     const light = await paper();
     await page.reload({ waitUntil: 'load' });
     await page.waitForSelector('button[data-theme-toggle]', { timeout: 20000 }).catch(() => undefined);
     const afterReload = await paper();
     const stillLight = await choice();
-    await choose('auto');
-    const auto = await paper();
     await choose('contrast');
     const contrastPaper = await paper();
     await page.goto(`${BASE}/#/sandbox/harmonic-oscillator`, { waitUntil: 'load' });
@@ -409,11 +416,10 @@ async function checkSite(browser: Browser): Promise<void> {
     const inInstrument = await page.evaluate(() => getComputedStyle(document.querySelector('main') as Element).getPropertyValue('--paper').trim());
     await page.evaluate(() => localStorage.removeItem('agentuto.theme.v1'));
     if (!placement || placement.top > 80 || placement.right > 120) await bad('theme toggle', 'not at the top right: ' + JSON.stringify(placement));
-    else if (start !== '#0d1015' || light !== '#f7f6f2') await bad('theme toggle', `system dark gave ${start}, Light gave ${light}`);
+    else if (start !== '#f7f6f2' || auto !== '#0d1015' || light !== '#f7f6f2') await bad('theme toggle', `default light gave ${start}, Auto under dark system gave ${auto}, Light gave ${light}`);
     else if (afterReload !== '#f7f6f2' || stillLight !== 'light') await bad('theme toggle', `after a reload: ${afterReload}, choice "${stillLight}"`);
-    else if (auto !== start) await bad('theme toggle', `Auto gave ${auto}, expected ${start}`);
     else if (!/^#000(000)?$/.test(contrastPaper) || !/^#000(000)?$/.test(inInstrument)) await bad('theme toggle', `high contrast gave ${contrastPaper} on the page and ${inInstrument} on an instrument screen, expected #000000 on both`);
-    else pass('theme toggle', 'top-right icon; Light overrides a dark system, is remembered across a reload, Auto returns to the system choice, high contrast reaches the instrument screens too');
+    else pass('theme toggle', 'top-right icon; Light by default, Auto follows the system, survives reload, high contrast reaches the instrument screens too');
   }
 
   // Community links are on every page, point at the project, and open outside the app (this is a plain localhost server)
@@ -473,6 +479,13 @@ async function checkSite(browser: Browser): Promise<void> {
   const articles = await page.$$eval('[data-site-page="instruments"] article', (items) => items.length);
   if (articles < upstream) await bad('instruments page', `${articles} instruments, expected at least ${upstream}`);
   else pass('instruments page', `${articles} instruments`);
+
+  // The instruments page shows no "AP" or "MIT" corner labels
+  const apMitFound = await page.$$eval('[data-site-page="instruments"] article *', (els) => {
+    return els.some((el) => el.children.length === 0 && (el.textContent?.trim() === 'AP' || el.textContent?.trim() === 'MIT'));
+  });
+  if (apMitFound) await bad('instruments corner labels', 'found "AP" or "MIT" corner labels');
+  else pass('instruments corner labels', 'no "AP" or "MIT" corner labels');
 
   // The guide's jump links scroll within the page; a bare "#section" would be read as a new address and leave it
   await page.goto(`${BASE}/#/guide`, { waitUntil: 'load' });
@@ -539,6 +552,18 @@ async function checkPhone(browser: Browser, webgl: boolean): Promise<void> {
       await snapshotOnFailure(page, `phone-${label}`);
     } else {
       pass(`phone ${label}`, 'no sideways scroll at 390 px');
+    }
+    if (label === 'home') {
+      const scrollHeight = await page.evaluate(() => {
+        const pageEl = document.querySelector('[data-site-page]');
+        return pageEl?.scrollHeight ?? document.documentElement.scrollHeight;
+      });
+      if (scrollHeight >= 3200) {
+        fail('phone home height', `total scroll height is ${scrollHeight} px, expected under 3200 px`);
+        await snapshotOnFailure(page, 'phone-home-height');
+      } else {
+        pass('phone home height', `${scrollHeight} px (under 3200 px budget)`);
+      }
     }
   }
 

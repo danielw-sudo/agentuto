@@ -49,7 +49,26 @@ export async function runTokensVerification(): Promise<void> {
   const contrastTheme = declarations(blockAfter(css, '[data-theme="contrast"],'));
   const darkPreferred = declarations(blockAfter(blockAfter(css, '@media (prefers-color-scheme: dark)'), ':root:not([data-theme="light"])'));
 
-  const required = ['paper', 'card', 'sunken', 'ink', 'muted', 'line', 'accent', 'on-accent', 'accent-soft', 'field-e', 'field-b', 'velocity'];
+  const required = [
+    'paper',
+    'card',
+    'sunken',
+    'ink',
+    'muted',
+    'line',
+    'accent',
+    'on-accent',
+    'accent-soft',
+    'field-e',
+    'field-b',
+    'velocity',
+    'subject-physics',
+    'subject-physics-soft',
+    'subject-mathematics',
+    'subject-mathematics-soft',
+    'subject-psychology',
+    'subject-psychology-soft',
+  ];
   for (const [name, palette] of [['light', light], ['dark', darkExplicit], ['dark (OS preference)', darkPreferred], ['high contrast', contrastTheme]] as const) {
     const missing = required.filter((key) => !palette[key]);
     if (missing.length > 0) throw new Error(`${name} theme is missing tokens: ${missing.join(', ')}`);
@@ -79,6 +98,11 @@ export async function runTokensVerification(): Promise<void> {
     need('on-accent', 'accent', 4.5);
     need('accent', 'accent-soft', 4.5);
     need('ink', 'accent-soft', 4.5);
+    for (const s of ['physics', 'mathematics', 'psychology']) {
+      need(`subject-${s}`, 'card', 4.5);
+      need(`subject-${s}`, 'paper', 4.5);
+      need(`subject-${s}`, `subject-${s}-soft`, 4.5);
+    }
     for (const graphic of ['field-e', 'field-b', 'velocity']) need(graphic, 'card', 3);
     if (strict) {
       need('line', 'paper', 3); // a border you can see

@@ -21,6 +21,12 @@
   --field-e: #b45309;
   --field-b: #0f766e;
   --velocity: #2347b8;
+  --subject-physics: #2347b8;
+  --subject-physics-soft: #e4e9f8;
+  --subject-mathematics: #a14b08;
+  --subject-mathematics-soft: #fbeee2;
+  --subject-psychology: #0b6e5b;
+  --subject-psychology-soft: #e2f3ee;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -37,6 +43,12 @@
     --field-e: #f2a65a;
     --field-b: #4fd1c5;
     --velocity: #8fa6ff;
+    --subject-physics: #8fa6ff;
+    --subject-physics-soft: #1b2440;
+    --subject-mathematics: #f2a65a;
+    --subject-mathematics-soft: #2e1f10;
+    --subject-psychology: #4fd1b0;
+    --subject-psychology-soft: #0f2a24;
   }
 }
 
@@ -54,6 +66,12 @@
   --field-e: #f2a65a;
   --field-b: #4fd1c5;
   --velocity: #8fa6ff;
+  --subject-physics: #8fa6ff;
+  --subject-physics-soft: #1b2440;
+  --subject-mathematics: #f2a65a;
+  --subject-mathematics-soft: #2e1f10;
+  --subject-psychology: #4fd1b0;
+  --subject-psychology-soft: #0f2a24;
 }
 
 /* High contrast: a black ground, white text and a yellow accent, text held to 7:1 (WCAG AAA) rather than 4.5:1, with
@@ -74,6 +92,12 @@
   --field-e: #ffb347;
   --field-b: #2f8cff;
   --velocity: #ffe14d;
+  --subject-physics: #ffe14d;
+  --subject-physics-soft: #2e2800;
+  --subject-mathematics: #ffb347;
+  --subject-mathematics-soft: #2e2000;
+  --subject-psychology: #5ff0c8;
+  --subject-psychology-soft: #00261c;
 }
 
 /* Utilities `bg-paper text-ink border-line text-accent font-display …` read the tokens above. System
@@ -92,6 +116,12 @@
   --color-field-e: var(--field-e);
   --color-field-b: var(--field-b);
   --color-velocity: var(--velocity);
+  --color-subject-physics: var(--subject-physics);
+  --color-subject-physics-soft: var(--subject-physics-soft);
+  --color-subject-mathematics: var(--subject-mathematics);
+  --color-subject-mathematics-soft: var(--subject-mathematics-soft);
+  --color-subject-psychology: var(--subject-psychology);
+  --color-subject-psychology-soft: var(--subject-psychology-soft);
   --font-display: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
 }
 

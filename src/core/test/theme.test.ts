@@ -17,21 +17,22 @@ function element() {
 export function runThemeVerification(): void {
   if (THEME_CHOICES.join(',') !== 'auto,light,dark,contrast') throw new Error('the four choices should be auto, light, dark, contrast in that order');
 
-  // Parsing: exactly the three words, nothing else gets through as a theme.
-  for (const [raw, want] of [['light', 'light'], ['dark', 'dark'], ['contrast', 'contrast'], ['auto', 'auto'], ['Light', 'auto'], ['', 'auto'], [null, 'auto'], [undefined, 'auto'], [3, 'auto'], ['purple', 'auto']] as const) {
+  // Parsing: exactly the four words, anything else defaults to light.
+  for (const [raw, want] of [['light', 'light'], ['dark', 'dark'], ['contrast', 'contrast'], ['auto', 'auto'], ['Light', 'light'], ['', 'light'], [null, 'light'], [undefined, 'light'], [3, 'light'], ['purple', 'light']] as const) {
     if (parseTheme(raw) !== want) throw new Error(`parseTheme(${JSON.stringify(raw)}) should be ${want}`);
   }
 
-  // Round trip through storage, and a stored value from elsewhere falls back to auto.
+  // Round trip through storage, and a stored value from elsewhere falls back to light.
   for (const choice of THEME_CHOICES) {
     const store = memory();
     if (!saveTheme(store, choice)) throw new Error(`saving ${choice} reported failure on working storage`);
     if (loadTheme(store) !== choice) throw new Error(`${choice} did not come back after saving`);
   }
-  if (loadTheme(memory('solarized')) !== 'auto') throw new Error('an unknown stored value should read as auto');
-  if (loadTheme(null) !== 'auto' || loadTheme(undefined) !== 'auto') throw new Error('no storage should read as auto');
+  if (loadTheme(memory()) !== 'light') throw new Error('an empty store should read as light');
+  if (loadTheme(memory('solarized')) !== 'light') throw new Error('an unknown stored value should read as light');
+  if (loadTheme(null) !== 'light' || loadTheme(undefined) !== 'light') throw new Error('no storage should read as light');
 
-  // A browser that blocks storage: reading says auto, writing says it failed, nothing throws.
+  // A browser that blocks storage: reading says light, writing says it failed, nothing throws.
   const blocked = {
     getItem: () => {
       throw new Error('blocked');
@@ -40,7 +41,7 @@ export function runThemeVerification(): void {
       throw new Error('blocked');
     },
   };
-  if (loadTheme(blocked) !== 'auto') throw new Error('blocked storage should read as auto');
+  if (loadTheme(blocked) !== 'light') throw new Error('blocked storage should read as light');
   if (saveTheme(blocked, 'dark') !== false) throw new Error('a blocked write should report false');
   if (saveTheme(null, 'dark') !== false) throw new Error('no storage should report false');
 
