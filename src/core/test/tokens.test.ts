@@ -68,6 +68,8 @@ export async function runTokensVerification(): Promise<void> {
     'subject-mathematics-soft',
     'subject-psychology',
     'subject-psychology-soft',
+    'subject-computing',
+    'subject-computing-soft',
   ];
   for (const [name, palette] of [['light', light], ['dark', darkExplicit], ['dark (OS preference)', darkPreferred], ['high contrast', contrastTheme]] as const) {
     const missing = required.filter((key) => !palette[key]);
@@ -98,7 +100,7 @@ export async function runTokensVerification(): Promise<void> {
     need('on-accent', 'accent', 4.5);
     need('accent', 'accent-soft', 4.5);
     need('ink', 'accent-soft', 4.5);
-    for (const s of ['physics', 'mathematics', 'psychology']) {
+    for (const s of ['physics', 'mathematics', 'psychology', 'computing']) {
       need(`subject-${s}`, 'card', 4.5);
       need(`subject-${s}`, 'paper', 4.5);
       need(`subject-${s}`, `subject-${s}-soft`, 4.5);

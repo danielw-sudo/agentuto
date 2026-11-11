@@ -44,6 +44,7 @@ import { runLocalModulesVerification } from './localModules.test';
 import { runModuleCheckVerification } from './moduleCheck.test';
 import { runExportModuleVerification } from './exportModule.test';
 import { runFormulaVerification } from './formula.test';
+import { runEntropyVerification } from './entropy.test';
 
 export async function runCoreVerification(): Promise<boolean> {
   console.log('🧪 Running Core Engine Verification Suite...\n');
@@ -1351,6 +1352,9 @@ export async function runCoreVerification(): Promise<boolean> {
 
   // Test 40: formula formatting (brief Campus) — sub and sup parsed for instruments list.
   runFormulaVerification();
+
+  // Test 41: Shannon entropy and Huffman coding (brief Tutorial Entropy, Art. 2.4).
+  runEntropyVerification();
 
   console.log('\n🎉 ALL CORE ENGINE CONTRACTS VERIFIED SUCCESSFULLY!');
   return true;

@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { SIMULATION_CATALOG } from '../../simulations';
 import { COURSES, SUBJECTS } from '../../courses/courses';
-import type { SubjectId } from '../../courses/courses';
+import type { CourseModule, SubjectId } from '../../courses/courses';
 import { localReport } from '../../simulations/loadLocal';
 import { COMMUNITY } from '../../community';
 import { LocalBadge } from './LocalBadge';
@@ -21,6 +21,19 @@ const STEPS = [
   { n: '03', title: 'Explain', body: 'Say what you found in your own words. Agentuto never hands you the answer.' },
 ];
 
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+/** "3 instruments", "1 tutorial", or "2 instruments, 1 tutorial". */
+function countSummary(nInstruments: number, nTutorials: number): string {
+  if (!nTutorials) return plural(nInstruments, 'instrument');
+  return nInstruments ? `${plural(nInstruments, 'instrument')}, ${plural(nTutorials, 'tutorial')}` : plural(nTutorials, 'tutorial');
+}
+
+function moduleCountSummary(modules: readonly CourseModule[]): string {
+  const nTutorials = modules.filter((m) => 'tutorialId' in m).length;
+  return countSummary(modules.length - nTutorials, nTutorials);
+}
+
 function subjectIcon(id: SubjectId): React.ReactNode {
   if (id === 'physics') {
     return (
@@ -36,6 +49,15 @@ function subjectIcon(id: SubjectId): React.ReactNode {
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <line x1="2" y1="15" x2="18" y2="15" />
         <path d="M 3 14 C 6 14, 7 5, 10 5 C 13 5, 14 14, 17 14" />
+      </svg>
+    );
+  }
+  if (id === 'computing') {
+    return (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <polyline points="6 6 2 10 6 14" />
+        <polyline points="14 6 18 10 14 14" />
+        <line x1="11" y1="4" x2="9" y2="16" />
       </svg>
     );
   }
@@ -55,7 +77,7 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
     <SiteLayout current="home" label="Courses · Agentuto">
       <main>
         {/* Hero Section */}
-        <section className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-16 gap-y-6 sm:gap-y-12 px-6 py-8 sm:px-8 sm:py-20">
+        <section className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-16 gap-y-6 sm:gap-y-12 px-6 py-6 sm:px-8 sm:py-20">
           <div className="min-w-0 flex-[1_1_28rem] max-w-xl">
             <p className="mb-4 text-xs font-semibold tracking-wider uppercase text-muted sm:text-sm">
               {SUBJECTS.map((s) => s.name).join(' · ')}
@@ -210,7 +232,7 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
 
         {/* Courses Section - Grouped by Subject */}
         <section id="courses" className="scroll-mt-4 border-t border-line bg-sunken">
-          <div className="mx-auto max-w-6xl px-6 py-8 sm:px-8 sm:py-20">
+          <div className="mx-auto max-w-6xl px-6 py-6 sm:px-8 sm:py-20">
             <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3">
               <h2 className="font-display text-3xl font-medium tracking-tight">Courses</h2>
               <p className="max-w-md text-sm text-muted">
@@ -220,7 +242,7 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
             </div>
 
             {/* Subjects share rows: a large subject spans the full width, small ones sit side by side. */}
-            <div className="mt-6 space-y-6 sm:mt-12 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 sm:space-y-0 lg:grid-cols-3">
+            <div className="mt-4 space-y-3 sm:mt-12 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-14 sm:space-y-0 lg:grid-cols-3">
               {[
                 ...SUBJECTS.map((subj) => ({
                   id: subj.id,
@@ -242,8 +264,16 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
                 .filter((group) => group.courses.length > 0)
                 .map((group) => {
                   const distinctInstruments = new Set(
-                    group.courses.flatMap((c) => c.modules.map((m) => m.sandboxId))
+                    group.courses.flatMap((c) =>
+                      c.modules
+                        .filter((m): m is { sandboxId: string; measure: string } => 'sandboxId' in m)
+                        .map((m) => m.sandboxId)
+                    )
                   ).size;
+                  const groupSummary = countSummary(
+                    distinctInstruments,
+                    group.courses.flatMap((c) => c.modules.filter((m) => 'tutorialId' in m)).length,
+                  );
                   const nCourses = group.courses.length;
                   const span = nCourses > 2 ? 'sm:col-span-2 lg:col-span-3' : nCourses === 2 ? 'sm:col-span-2' : '';
                   const cols = nCourses > 2 ? 'sm:grid-cols-2 lg:grid-cols-3' : nCourses === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-1';
@@ -264,7 +294,7 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
                         <div>
                           <h3 className="font-display text-xl font-medium tracking-tight text-ink">{group.name}</h3>
                           <p className="text-xs text-muted">
-                            {nCourses} course{nCourses === 1 ? '' : 's'} · {distinctInstruments} instrument{distinctInstruments === 1 ? '' : 's'}
+                            {nCourses} course{nCourses === 1 ? '' : 's'} · {groupSummary}
                           </p>
                         </div>
                       </div>
@@ -327,7 +357,7 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
                               {/* Footer */}
                               <span className="mt-auto flex items-center justify-between text-sm text-muted pt-2 border-t border-line/60">
                                 <span>
-                                  {course.modules.length} instrument{course.modules.length === 1 ? '' : 's'}
+                                  {moduleCountSummary(course.modules)}
                                 </span>
                                 <span
                                   className="font-medium"
@@ -345,7 +375,7 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
                       <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-card sm:hidden">
                         {group.courses.map((course) => {
                           const tagCodes = course.tags ? course.tags.map((t) => t.code) : [`Course ${course.id}`];
-                          const metaLine = [...tagCodes, `${course.modules.length} instrument${course.modules.length === 1 ? '' : 's'}`].join(' · ');
+                          const metaLine = [...tagCodes, moduleCountSummary(course.modules)].join(' · ');
 
                           return (
                             <a
@@ -383,7 +413,7 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
           <ActivityCard />
         </Suspense>
 
-        <section className="mx-auto max-w-6xl px-6 py-8 sm:px-8 sm:py-20">
+        <section className="mx-auto max-w-6xl px-6 py-6 sm:px-8 sm:py-20">
           <h2 className="font-display text-3xl font-medium tracking-tight">One loop in every instrument</h2>
           <ol className="mt-6 sm:mt-12 grid list-none grid-cols-1 gap-5 p-0 md:grid-cols-3 md:gap-12">
             {STEPS.map((step) => (
@@ -397,7 +427,7 @@ export const HomePage: React.FC<HomePageProps> = ({ resumeSandboxId }) => {
         </section>
 
         <section className="border-t border-line">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-6 sm:gap-8 px-6 py-8 sm:px-8 sm:py-20">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-6 sm:gap-8 px-6 py-6 sm:px-8 sm:py-20">
             <div className="max-w-2xl flex-[1_1_28rem]">
               <h2 className="font-display text-3xl font-medium tracking-tight">
                 Use it. Extend it privately. Share it if you&rsquo;re proud of it.

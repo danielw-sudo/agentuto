@@ -1,5 +1,6 @@
 import { SIMULATION_CATALOG } from '../../simulations';
 import { COURSES, courseById } from '../../courses/courses';
+import { TUTORIAL_REGISTRY } from '../../tutorials/registry';
 import { HOME_ROUTE, parseRoute, routeToHash } from '../../app/routes';
 import type { Route, RouteTargets } from '../../app/routes';
 
@@ -11,13 +12,16 @@ export function runRoutesVerification(): void {
   const targets: RouteTargets = {
     isSandbox: (id) => Object.prototype.hasOwnProperty.call(SIMULATION_CATALOG, id),
     isCourse: (id) => courseById(id) !== undefined,
+    isTutorial: (id) => Object.prototype.hasOwnProperty.call(TUTORIAL_REGISTRY, id),
   };
   const ids = Object.keys(SIMULATION_CATALOG);
+  const tutorialIds = Object.keys(TUTORIAL_REGISTRY);
 
-  // Every sandbox, every course and every fixed page survive a trip through the address bar unchanged.
+  // Every sandbox, every course, every tutorial and every fixed page survive a trip through the address bar unchanged.
   const routes: Route[] = [
     ...ids.map((id): Route => ({ view: 'sandbox', id })),
     ...COURSES.map((course): Route => ({ view: 'course', id: course.id })),
+    ...tutorialIds.map((id): Route => ({ view: 'tutorial', id })),
     { view: 'home' },
     { view: 'about' },
     { view: 'index', tab: 'catalog' },
@@ -35,6 +39,7 @@ export function runRoutesVerification(): void {
     '', '#', '#/', '#/nonsense',
     '#/sandbox/', '#/sandbox/not-a-sandbox', '#/sandbox/%E0%A4%A', '#/sandbox/a/b',
     '#/course/', '#/course/9.99', '#/course/%E0%A4%A', '#/course/8.02/extra',
+    '#/tutorial/', '#/tutorial/not-a-tutorial', '#/tutorial/%E0%A4%A', '#/tutorial/shannon-entropy/extra',
   ];
   for (const stray of strays) {
     const route = parseRoute(stray, targets);
@@ -43,20 +48,24 @@ export function runRoutesVerification(): void {
     }
   }
 
-  // A trailing slash is the same page, and a prototype property name is neither a sandbox nor a course.
+  // A trailing slash is the same page, and a prototype property name is neither a sandbox nor a course nor a tutorial.
   const slashed = parseRoute(`#/sandbox/${ids[0]}/`, targets);
   if (slashed.view !== 'sandbox' || slashed.id !== ids[0]) {
     throw new Error(`a trailing slash changed the page: ${JSON.stringify(slashed)}`);
   }
-  for (const hash of ['#/sandbox/constructor', '#/course/constructor', '#/course/__proto__']) {
+  for (const hash of ['#/sandbox/constructor', '#/course/constructor', '#/course/__proto__', '#/tutorial/constructor']) {
     if (parseRoute(hash, targets).view !== 'home') throw new Error(`"${hash}" was accepted as a page`);
   }
-  // Courses and sandboxes are different namespaces: a course code is not a sandbox id.
-  if (parseRoute('#/sandbox/8.02', targets).view !== 'home' || parseRoute(`#/course/${ids[0]}`, targets).view !== 'home') {
+  // Courses, sandboxes and tutorials are different namespaces.
+  if (
+    parseRoute('#/sandbox/8.02', targets).view !== 'home' ||
+    parseRoute(`#/course/${ids[0]}`, targets).view !== 'home' ||
+    parseRoute('#/tutorial/8.02', targets).view !== 'home'
+  ) {
     throw new Error('a course code was taken for a sandbox id, or the reverse');
   }
 
   console.log(
-    `✓ Addresses verified: ${ids.length} sandboxes, ${COURSES.length} courses and 4 fixed pages round-trip through the URL, and ${strays.length} malformed or unknown addresses open the home page`
+    `✓ Addresses verified: ${ids.length} sandboxes, ${COURSES.length} courses, ${tutorialIds.length} tutorials and 4 fixed pages round-trip through the URL, and ${strays.length} malformed or unknown addresses open the home page`
   );
 }

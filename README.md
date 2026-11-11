@@ -17,8 +17,8 @@ not a service.
 Agentuto provides the software, the docs and the checks. It does not provide or support any AI service, and it
 takes no responsibility for the models, accounts or institutional rules of the people who use it.
 
-MIT · React 19 + TypeScript + Vite + Three.js / Canvas2D · topic alignment with MIT OCW 8.01–8.044,
-9.00 and 18.03, University of Toronto, and with AP/IB syllabi (alignment only — see the disclaimer at the end).
+MIT · React 19 + TypeScript + Vite + Three.js / Canvas2D · topic alignment with MIT OCW 6.050J, 8.01–8.044,
+9.00 and 18.03, University of Toronto (including CSC310H1), and with AP/IB syllabi (alignment only — see the disclaimer at the end).
 
 ---
 

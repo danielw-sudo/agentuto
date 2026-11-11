@@ -1,6 +1,7 @@
 import { SIMULATION_CATALOG } from '../../simulations';
 import { COURSES, SUBJECTS, courseById, coursesOfSandbox } from '../../courses/courses';
 import { buildSocraticSystemInstruction } from '../../ai/prompts/socraticTutor';
+import { TUTORIAL_REGISTRY } from '../../tutorials/registry';
 
 export function runTutorPromptVerification(): void {
   const dummySummary = {
@@ -58,12 +59,18 @@ export function runCoursesVerification(): void {
     if (codes.has(course.id)) throw new Error(`course "${course.id}" is listed twice`);
     codes.add(course.id);
 
-    const listed = course.modules.map((m) => m.sandboxId);
+    const sandboxModules = course.modules.filter((m): m is { sandboxId: string; measure: string } => 'sandboxId' in m);
+    const listed = sandboxModules.map((m) => m.sandboxId);
     if (new Set(listed).size !== listed.length) throw new Error(`course "${course.id}" lists a sandbox twice`);
 
     for (const m of course.modules) {
-      if (!SIMULATION_CATALOG[m.sandboxId]) throw new Error(`course "${course.id}" lists unknown sandbox "${m.sandboxId}"`);
-      if (m.measure.trim().length < 20) throw new Error(`course "${course.id}" gives no usable "measure" line for "${m.sandboxId}"`);
+      if ('sandboxId' in m) {
+        if (!SIMULATION_CATALOG[m.sandboxId]) throw new Error(`course "${course.id}" lists unknown sandbox "${m.sandboxId}"`);
+        if (m.measure.trim().length < 20) throw new Error(`course "${course.id}" gives no usable "measure" line for "${m.sandboxId}"`);
+      } else if ('tutorialId' in m) {
+        if (!TUTORIAL_REGISTRY[m.tutorialId]) throw new Error(`course "${course.id}" lists unknown tutorial "${m.tutorialId}"`);
+        if (m.measure.trim().length < 20) throw new Error(`course "${course.id}" gives no usable "measure" line for "${m.tutorialId}"`);
+      }
     }
 
     const expected = sandboxIds.filter((id) => claims(SIMULATION_CATALOG[id].curriculum, course.id)).sort();
@@ -115,6 +122,17 @@ export function runCoursesVerification(): void {
 
   if (courseById('8.02')?.modules.length !== 5 || courseById('nonsense') !== undefined) {
     throw new Error('courseById does not find a course by its code, or invents one');
+  }
+
+  if (courseById('6.050J')?.subject !== 'computing') {
+    throw new Error('course "6.050J" subject should be computing');
+  }
+
+  // Every tutorial in the registry is listed by at least one course
+  const tutorialIds = Object.keys(TUTORIAL_REGISTRY);
+  for (const tid of tutorialIds) {
+    const listingCourses = COURSES.filter((c) => c.modules.some((m) => 'tutorialId' in m && m.tutorialId === tid));
+    if (listingCourses.length === 0) throw new Error(`tutorial "${tid}" is in no course`);
   }
 
   const shared = sandboxIds.filter((id) => coursesOfSandbox(id).length > 1);

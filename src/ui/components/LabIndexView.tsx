@@ -38,7 +38,7 @@ function getOrderedSimulations(allSims: SimulationRegistration[]): SimulationReg
   const ordered: SimulationRegistration[] = [];
   for (const c of COURSES) {
     for (const m of c.modules) {
-      if (!seen.has(m.sandboxId) && SIMULATION_CATALOG[m.sandboxId]) {
+      if ('sandboxId' in m && !seen.has(m.sandboxId) && SIMULATION_CATALOG[m.sandboxId]) {
         seen.add(m.sandboxId);
         ordered.push(SIMULATION_CATALOG[m.sandboxId]);
       }
@@ -51,14 +51,14 @@ function getOrderedSimulations(allSims: SimulationRegistration[]): SimulationReg
 /** Get the measure string from the first course that lists the sandbox. */
 function getMeasureForSandbox(sandboxId: string): string | undefined {
   for (const c of COURSES) {
-    const m = c.modules.find((mod) => mod.sandboxId === sandboxId);
+    const m = c.modules.find((mod) => 'sandboxId' in mod && mod.sandboxId === sandboxId);
     if (m?.measure) return m.measure;
   }
 }
 
 /** Build tag label: first course tags + "· also <other>" when in multiple courses. */
 function getTagLabelForSandbox(sandboxId: string): string | undefined {
-  const list = COURSES.filter((c) => c.modules.some((m) => m.sandboxId === sandboxId));
+  const list = COURSES.filter((c) => c.modules.some((m) => 'sandboxId' in m && m.sandboxId === sandboxId));
   if (!list.length) return undefined;
   const first = list[0];
   const tags = first.tags ? first.tags.map((t) => t.code).join(' · ') : first.id;
@@ -94,7 +94,7 @@ export const LabIndexView: React.FC<LabIndexViewProps> = React.memo(({
         sim.curriculum.toLowerCase().includes(q) ||
         sim.description.toLowerCase().includes(q) ||
         sim.formattedODE.toLowerCase().includes(q) ||
-        COURSES.some((c) => c.modules.some((m) => m.sandboxId === sim.id) && c.tags?.some((t) => t.code.toLowerCase().includes(q)))
+        COURSES.some((c) => c.modules.some((m) => 'sandboxId' in m && m.sandboxId === sim.id) && c.tags?.some((t) => t.code.toLowerCase().includes(q)))
       );
     });
   }, [allSimulations, selectedSubject, searchQuery]);

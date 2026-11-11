@@ -1,8 +1,10 @@
 import React from 'react';
 import { SIMULATION_CATALOG } from '../../simulations';
 import { Course, coursesOfSandbox } from '../../courses/courses';
+import { TUTORIAL_REGISTRY } from '../../tutorials/registry';
 import { LocalBadge } from './LocalBadge';
 import { SiteLayout, focusRing } from './SiteLayout';
+import { formatFormula } from '../formula';
 
 interface CoursePageProps {
   course: Course;
@@ -56,6 +58,35 @@ export const CoursePage: React.FC<CoursePageProps> = ({ course, webglAvailable }
 
       <ol className="mt-14 list-none border-t border-line p-0">
         {course.modules.map((module, index) => {
+          if ('tutorialId' in module) {
+            const tutorial = TUTORIAL_REGISTRY[module.tutorialId];
+            const title = tutorial ? tutorial.title : module.tutorialId;
+            return (
+              <li key={module.tutorialId} className="border-b border-line">
+                <a
+                  href={`#/tutorial/${encodeURIComponent(module.tutorialId)}`}
+                  className={`grid grid-cols-[2.5rem_minmax(0,1fr)] items-start gap-x-4 gap-y-3 px-2 py-8 text-ink no-underline hover:bg-sunken md:grid-cols-[3.5rem_minmax(0,1.2fr)_minmax(0,1fr)_6rem] md:items-center md:gap-x-8 ${focusRing}`}
+                >
+                  <span className="font-mono text-sm text-muted">{String(index + 1).padStart(2, '0')}</span>
+                  <span className="min-w-0">
+                    <span className="block font-display text-2xl font-medium leading-snug tracking-tight">{title}</span>
+                    <span className="mt-2 block font-mono text-sm text-muted">{formatFormula(course.equation)}</span>
+                  </span>
+                  <span className="col-start-2 text-[15px] text-muted md:col-start-auto">
+                    <span className="font-medium text-ink">You measure </span>
+                    {module.measure}
+                  </span>
+                  <span className="col-start-2 flex items-center gap-3 md:col-start-auto md:justify-self-end">
+                    <span className="rounded-md border border-line px-2 py-0.5 font-mono text-[13px] text-muted">
+                      Tutorial
+                    </span>
+                    <span className="text-accent" aria-hidden="true">&rarr;</span>
+                  </span>
+                </a>
+              </li>
+            );
+          }
+
           const sandbox = SIMULATION_CATALOG[module.sandboxId];
           const elsewhere = coursesOfSandbox(module.sandboxId).filter((c) => c.id !== course.id);
           const blocked = sandbox.mode === '3D' && !webglAvailable;

@@ -69,7 +69,7 @@ export function runCommunityVerification(): void {
   if (demoLink() !== DEMO) throw new Error('demoLink() with no id should be the demo address');
   for (const id of Object.keys(SIMULATION_CATALOG)) {
     const hash = new URL(demoLink(id)).hash;
-    const route = parseRoute(hash, { isSandbox: (s) => s in SIMULATION_CATALOG, isCourse: () => false });
+    const route = parseRoute(hash, { isSandbox: (s) => s in SIMULATION_CATALOG, isCourse: () => false, isTutorial: () => false });
     if (route.view !== 'sandbox' || route.id !== id) throw new Error(`demoLink(${id}) opens ${JSON.stringify(route)}, not that instrument`);
   }
 

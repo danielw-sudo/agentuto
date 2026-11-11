@@ -27,6 +27,8 @@
   --subject-mathematics-soft: #fbeee2;
   --subject-psychology: #0b6e5b;
   --subject-psychology-soft: #e2f3ee;
+  --subject-computing: #6a3fa8;
+  --subject-computing-soft: #efe8f8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -49,6 +51,8 @@
     --subject-mathematics-soft: #2e1f10;
     --subject-psychology: #4fd1b0;
     --subject-psychology-soft: #0f2a24;
+    --subject-computing: #c4a6f5;
+    --subject-computing-soft: #251c36;
   }
 }
 
@@ -72,6 +76,8 @@
   --subject-mathematics-soft: #2e1f10;
   --subject-psychology: #4fd1b0;
   --subject-psychology-soft: #0f2a24;
+  --subject-computing: #c4a6f5;
+  --subject-computing-soft: #251c36;
 }
 
 /* High contrast: a black ground, white text and a yellow accent, text held to 7:1 (WCAG AAA) rather than 4.5:1, with
@@ -98,6 +104,8 @@
   --subject-mathematics-soft: #2e2000;
   --subject-psychology: #5ff0c8;
   --subject-psychology-soft: #00261c;
+  --subject-computing: #e4b8ff;
+  --subject-computing-soft: #24102e;
 }
 
 /* Utilities `bg-paper text-ink border-line text-accent font-display …` read the tokens above. System
@@ -122,6 +130,8 @@
   --color-subject-mathematics-soft: var(--subject-mathematics-soft);
   --color-subject-psychology: var(--subject-psychology);
   --color-subject-psychology-soft: var(--subject-psychology-soft);
+  --color-subject-computing: var(--subject-computing);
+  --color-subject-computing-soft: var(--subject-computing-soft);
   --font-display: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
 }
 

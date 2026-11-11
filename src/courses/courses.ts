@@ -12,13 +12,18 @@
  * The `measure` lines are descriptions of what to do, not quantitative claims, but they are new text and
  * wait for a faculty read (Art. 1.4).
  */
-export interface CourseModule {
-  sandboxId: string;
-  /** Completes "You measure …". Written for this course: the same sandbox may be used differently in another. */
-  measure: string;
-}
+export type CourseModule =
+  | {
+      sandboxId: string;
+      /** Completes "You measure …". Written for this course: the same sandbox may be used differently in another. */
+      measure: string;
+    }
+  | {
+      tutorialId: string;
+      measure: string;
+    };
 
-export type SubjectId = 'physics' | 'mathematics' | 'psychology';
+export type SubjectId = 'physics' | 'mathematics' | 'psychology' | 'computing';
 
 export interface Subject {
   id: SubjectId;
@@ -30,6 +35,7 @@ export const SUBJECTS: readonly Subject[] = [
   { id: 'physics', name: 'Physics', token: 'subject-physics' },
   { id: 'mathematics', name: 'Mathematics', token: 'subject-mathematics' },
   { id: 'psychology', name: 'Psychology', token: 'subject-psychology' },
+  { id: 'computing', name: 'Computing', token: 'subject-computing' },
 ];
 
 export interface Course {
@@ -173,6 +179,24 @@ export const COURSES: Course[] = [
       },
     ],
   },
+  {
+    id: '6.050J',
+    subject: 'computing',
+    title: 'Information and Entropy',
+    shortTitle: 'Information',
+    equation: 'H = −Σ p log_2 p',
+    lead: 'How much a message can be compressed: count the letters, measure the bits a code spends on each, and meet the limit no code can beat.',
+    tags: [
+      { code: 'CSC310H1', school: 'University of Toronto', url: 'https://artsci.calendar.utoronto.ca/course/csc310h1' },
+      { code: '6.050J', school: 'MIT OpenCourseWare', url: 'https://ocw.mit.edu/courses/6-050j-information-and-entropy-spring-2008/' },
+    ],
+    modules: [
+      {
+        tutorialId: 'shannon-entropy',
+        measure: 'the bits per letter a code spends on real text, and how close it comes to the entropy.',
+      },
+    ],
+  },
 ];
 
 export function courseById(id: string): Course | undefined {
@@ -181,11 +205,11 @@ export function courseById(id: string): Course | undefined {
 
 /** Courses that list a sandbox, in course order. */
 export function coursesOfSandbox(sandboxId: string): Course[] {
-  return COURSES.filter((course) => course.modules.some((m) => m.sandboxId === sandboxId));
+  return COURSES.filter((course) => course.modules.some((m) => 'sandboxId' in m && m.sandboxId === sandboxId));
 }
 
 /** Subject of the first course that lists the sandbox (Constitution Art. 3.4). */
 export function subjectOfSandbox(sandboxId: string): SubjectId {
-  const first = COURSES.find((c) => c.modules.some((m) => m.sandboxId === sandboxId));
+  const first = COURSES.find((c) => c.modules.some((m) => 'sandboxId' in m && m.sandboxId === sandboxId));
   return first?.subject ?? 'physics';
 }

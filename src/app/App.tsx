@@ -13,6 +13,9 @@ const SandboxWorkspace = lazy(() => import('./SandboxWorkspace').then((m) => ({ 
 const LabIndexView = lazy(() => import('../ui/components/LabIndexView').then((m) => ({ default: m.LabIndexView })));
 const CoursePage = lazy(() => import('../ui/site/CoursePage').then((m) => ({ default: m.CoursePage })));
 const AboutPage = lazy(() => import('../ui/site/AboutPage').then((m) => ({ default: m.AboutPage })));
+const ShannonEntropyTutorial = lazy(() =>
+  import('../tutorials/shannon-entropy/ShannonEntropyTutorial').then((m) => ({ default: m.ShannonEntropyTutorial }))
+);
 
 interface LoadedSandbox {
   id: SimulationId;
@@ -86,6 +89,7 @@ export const App: React.FC = () => {
       {route.view === 'home' && <HomePage resumeSandboxId={loaded?.id ?? null} />}
       {route.view === 'course' && course && <CoursePage course={course} webglAvailable={webglAvailable} />}
       {route.view === 'about' && <AboutPage />}
+      {route.view === 'tutorial' && route.id === 'shannon-entropy' && <ShannonEntropyTutorial />}
 
       {route.view === 'index' && (
       <LabIndexView

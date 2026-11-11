@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { SIMULATION_CATALOG } from '../simulations';
 import { courseById } from '../courses/courses';
+import { TUTORIAL_REGISTRY } from '../tutorials/registry';
 import { Route, RouteTargets, parseRoute, routeToHash } from './routes';
 
 const targets: RouteTargets = {
   isSandbox: (id) => Object.prototype.hasOwnProperty.call(SIMULATION_CATALOG, id),
   isCourse: (id) => courseById(id) !== undefined,
+  isTutorial: (id) => Object.prototype.hasOwnProperty.call(TUTORIAL_REGISTRY, id),
 };
 
 const readRoute = (): Route => parseRoute(window.location.hash, targets);

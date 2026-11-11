@@ -12,19 +12,22 @@
  *   #/instruments      every instrument, with filters
  *   #/guide            user guide
  *   #/sandbox/<id>     one sandbox
+ *   #/tutorial/<id>    one tutorial
  */
 export type Route =
   | { view: 'home' }
   | { view: 'course'; id: string }
   | { view: 'about' }
   | { view: 'index'; tab: 'catalog' | 'guide' }
-  | { view: 'sandbox'; id: string };
+  | { view: 'sandbox'; id: string }
+  | { view: 'tutorial'; id: string };
 
 export const HOME_ROUTE: Route = { view: 'home' };
 
 export interface RouteTargets {
   isSandbox: (id: string) => boolean;
   isCourse: (id: string) => boolean;
+  isTutorial: (id: string) => boolean;
 }
 
 function decode(segment: string): string | null {
@@ -53,6 +56,12 @@ export function parseRoute(hash: string, targets: RouteTargets): Route {
     if (id !== null && targets.isCourse(id)) return { view: 'course', id };
   }
 
+  const tutorial = /^tutorial\/([^/]+)$/.exec(path);
+  if (tutorial) {
+    const id = decode(tutorial[1]);
+    if (id !== null && targets.isTutorial(id)) return { view: 'tutorial', id };
+  }
+
   return HOME_ROUTE;
 }
 
@@ -62,6 +71,8 @@ export function routeToHash(route: Route): string {
       return `#/sandbox/${encodeURIComponent(route.id)}`;
     case 'course':
       return `#/course/${encodeURIComponent(route.id)}`;
+    case 'tutorial':
+      return `#/tutorial/${encodeURIComponent(route.id)}`;
     case 'about':
       return '#/about';
     case 'index':

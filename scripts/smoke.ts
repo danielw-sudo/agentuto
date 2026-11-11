@@ -537,6 +537,86 @@ async function checkSite(browser: Browser): Promise<void> {
   await page.close();
 }
 
+async function checkTutorial(browser: Browser): Promise<void> {
+  for (const width of [1440, 390]) {
+    const page = await browser.newPage();
+    await page.setViewport({ width, height: width === 390 ? 844 : 900, isMobile: width === 390, hasTouch: width === 390 });
+    const problems: string[] = [];
+    watch(page, problems);
+
+    await page.goto(`${BASE}/#/tutorial/shannon-entropy`, { waitUntil: 'load' });
+    await page.waitForSelector('h1', { timeout: 20000 }).catch(() => undefined);
+
+    const theme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+    if (theme !== 'light') {
+      fail(`tutorial @ ${width}px`, `expected data-theme="light", got "${theme}"`);
+    } else {
+      pass(`tutorial @ ${width}px`, 'data-theme is light');
+    }
+
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+    if (overflow) {
+      fail(`tutorial @ ${width}px`, 'scrolls horizontally');
+    } else {
+      pass(`tutorial @ ${width}px`, 'no horizontal scroll');
+    }
+
+    // Step 1: set p = 0.1 and check readout is 0.47
+    await page.evaluate(() => {
+      const slider = document.querySelector('#step1-slider') as HTMLInputElement | null;
+      if (slider) {
+        const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+        setter?.call(slider, '0.1');
+        slider.dispatchEvent(new Event('input', { bubbles: true }));
+        slider.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+    const step1H = await page.$eval('[data-testid="step1-h"]', (el) => el.textContent?.trim()).catch(() => '');
+    if (step1H !== '0.47') {
+      fail(`tutorial @ ${width}px step 1`, `expected 0.47, got "${step1H}"`);
+    } else {
+      pass(`tutorial @ ${width}px step 1`, 'readout at p = 0.1 is 0.47');
+    }
+
+    // Step 3: set text = "abracadabra" and check H is 2.04 and L is 2.09
+    await page.evaluate(() => {
+      const textarea = document.querySelector('#user-text-input') as HTMLTextAreaElement | null;
+      if (textarea) {
+        const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
+        setter?.call(textarea, 'abracadabra');
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        textarea.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+    const step3H = await page.$eval('[data-testid="step3-h"]', (el) => el.textContent?.trim()).catch(() => '');
+    const step3L = await page.$eval('[data-testid="step3-l"]', (el) => el.textContent?.trim()).catch(() => '');
+    if (step3H !== '2.04' || step3L !== '2.09') {
+      fail(`tutorial @ ${width}px step 3`, `expected H 2.04 and L 2.09, got H "${step3H}" and L "${step3L}"`);
+    } else {
+      pass(`tutorial @ ${width}px step 3`, 'readout for "abracadabra" is H 2.04 and L 2.09');
+    }
+
+    // Step 4: Huffman on 27 equal symbols is 130/27 = 4.81 bits (review A1: the page once said 4.78).
+    const uniformL = await page.$eval('[data-testid="uniform27-l"]', (el) => el.textContent?.trim()).catch(() => '');
+    if (uniformL !== '4.81') fail(`tutorial @ ${width}px step 4`, `uniform 27-symbol L should read 4.81, got "${uniformL}"`);
+    else pass(`tutorial @ ${width}px step 4`, 'uniform 27-symbol Huffman L reads 4.81');
+
+    // Step 2: the draw's own entropy is shown, and the measured L never falls below it.
+    const drawH = Number(await page.$eval('[data-testid="step2-draw-h"]', (el) => el.textContent).catch(() => 'NaN'));
+    const drawL = Number(await page.$eval('[data-testid="step2-l"]', (el) => el.textContent).catch(() => 'NaN'));
+    if (!(drawL >= drawH)) fail(`tutorial @ ${width}px step 2`, `measured L ${drawL} should be at least the draw's H ${drawH}`);
+    else pass(`tutorial @ ${width}px step 2`, `measured L ${drawL} ≥ the draw's entropy ${drawH}`);
+
+    if (problems.length > 0) {
+      fail(`tutorial @ ${width}px console`, problems.slice(0, 5).join('; '));
+    } else {
+      pass(`tutorial @ ${width}px console`, 'no console errors');
+    }
+
+    await page.close();
+  }
+}
+
 async function checkPhone(browser: Browser, webgl: boolean): Promise<void> {
   const page = await browser.newPage();
   await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
@@ -627,6 +707,8 @@ async function main(): Promise<void> {
     if (!only) {
       console.log('\nSite');
       await checkSite(browser);
+      console.log('\nTutorial');
+      await checkTutorial(browser);
       console.log('\nPhone');
       await checkPhone(browser, webgl);
     }

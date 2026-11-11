@@ -78,7 +78,9 @@ export function buildSearchIndex(): SearchEntry[] {
     entries.push({
       kind: 'course',
       title: course.title,
-      detail: `${course.local ? 'Course' : 'Aligned with'} ${course.id} · ${course.modules.length} instruments`,
+      detail: `${course.local ? 'Course' : 'Aligned with'} ${course.id} · ${course.modules.length} ${
+        course.modules.some((m) => 'tutorialId' in m) ? 'tutorial' : 'instrument'
+      }${course.modules.length === 1 ? '' : 's'}`,
       href: `#/course/${encodeURIComponent(course.id)}`,
       local: course.local,
       fields: [
@@ -95,7 +97,9 @@ export function buildSearchIndex(): SearchEntry[] {
     const guide = guideOf(sandbox);
     const inCourses = coursesOfSandbox(sandbox.id);
     const measures = inCourses.flatMap((course) =>
-      course.modules.filter((m) => m.sandboxId === sandbox.id).map((m) => m.measure),
+      course.modules
+        .filter((m): m is { sandboxId: string; measure: string } => 'sandboxId' in m && m.sandboxId === sandbox.id)
+        .map((m) => m.measure),
     );
     entries.push({
       kind: 'instrument',

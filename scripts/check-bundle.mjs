@@ -42,9 +42,13 @@ const SHIPPED = new Set(['.js', '.css', '.html']);
 //                  tags each on the home page, which is in the first load.
 //   totalGzip      raised from 378,000 to 385,000 on 2026-11-10 (owner's decision) for the Campus look (subjects,
 //                  their colours and the instruments page grouped by subject), leaving room for the first tutorial.
+//   firstLoadGzip  raised from 112,000 to 113,000 on 2026-11-10 (owner's decision) for the first tutorial (6.050J, Art. 2.4):
+//                  the Computing subject colours, the course entry, the tutorial route and its registry are in the first load.
+//   totalGzip      raised from 385,000 to 387,000 on 2026-11-10 (owner's decision) for the same tutorial: its own chunk loads
+//                  on demand and shows each draw's entropy next to the measured code length.
 const BUDGET = {
-  firstLoadGzip: 112_000,
-  totalGzip: 385_000,
+  firstLoadGzip: 113_000,
+  totalGzip: 387_000,
   totalRaw: 1_360_000,
   largestGzip: 185_000,
 };
