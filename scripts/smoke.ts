@@ -21,6 +21,7 @@ import puppeteer from 'puppeteer-core';
 import type { Browser, Page } from 'puppeteer-core';
 import { SIMULATION_CATALOG } from '../src/simulations';
 import { COURSES } from '../src/courses/courses';
+import { photogateReading } from '../src/app/photogate';
 
 const root = resolve(import.meta.dirname ?? '.', '..');
 const PORT = Number(process.env.SMOKE_PORT ?? 4179);
@@ -156,7 +157,11 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
     // Press everything a learner can press, as the reset above: a control no check presses can stay broken unseen.
     // Every slider goes to both ends and back, then each button in turn; each is followed by a look at the page.
     await page.evaluate('window.__name = (fn) => fn'); // tsx wraps named functions in a helper the page does not have
-    const pressed = await page.evaluate(async (id) => {
+    // Whether the Photogate is offered here is the app's own rule (src/app/photogate.ts, held by the suite): the page is checked to follow it.
+    const gateEngine: any = (await sim.load()).createEngine();
+    gateEngine.init({ ...sim.defaultParams });
+    const gateOffered = photogateReading(id, gateEngine.getState(), sim.defaultParams) !== null;
+    const pressed = await page.evaluate(async ({ id, gateOffered }) => {
       const found: string[] = [];
       const pause = () => new Promise((resolve) => setTimeout(resolve, 40));
       const look = async (what: string) => {
@@ -232,10 +237,13 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
         if (caliper) found.push('the Caliper did not close');
       }
 
-      // Photogate: the gate runs from -4 to 4 m and starts at 0.
-      await press(/^Toggle Virtual Photogate/);
+      // Photogate: the gate runs from -4 to 4 m and starts at 0. An instrument with nothing for it to read does not offer it.
+      if (gateOffered) await press(/^Toggle Virtual Photogate/);
+      else if (document.querySelector('button[title="Toggle Virtual Photogate"]')) found.push('the Photogate is offered, and the instrument has nothing for it to read');
       let gate = panelOf('Close Photogate');
-      if (!gate) found.push('the Photogate did not open');
+      if (!gateOffered) {
+        if (gate) found.push('the Photogate is open, and the instrument has nothing for it to read');
+      } else if (!gate) found.push('the Photogate did not open');
       else {
         reads(gate, '0.00 m', 'the Photogate at its default position');
         await moveTo(gate, 4, 'the Photogate position');
@@ -298,7 +306,7 @@ async function checkSandbox(browser: Browser, id: string, webgl: boolean): Promi
         if (gate) found.push('the Photogate did not close');
       }
       return found;
-    }, id);
+    }, { id, gateOffered });
     problems.push(...pressed);
     // Feedback from inside the instrument opens a bug report already titled with the instrument's id.
     const feedback = await page.$eval('a[data-community="feedback"]', (el) => (el as HTMLAnchorElement).href).catch(() => '');

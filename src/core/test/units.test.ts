@@ -3,6 +3,9 @@ import { join } from 'node:path';
 import { SIMULATION_CATALOG } from '../../simulations';
 import { guideOf } from '../../simulations/sandboxGuides';
 import { formatTelemetryToCSV } from '../telemetry/csvExporter';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { UnavailableViewport } from '../../ui/components/UnavailableViewport';
 
 /**
  * Unit honesty (ROADMAP §4 item 6). Three instruments run in scaled units. What a learner must be able to rely on:
@@ -65,6 +68,30 @@ export async function runUnitsExportVerification(): Promise<void> {
   for (const math of guideText.match(/\$[^$\n]+\$/g) ?? []) {
     if (/(^|[^\\a-zA-Z])(hbar|mathrm|sqrt|times|frac|kappa|propto|sigma|lambda)\b/.test(math)) throw new Error(`docs/USER_GUIDE.md: a formula has lost a backslash: ${math}`);
   }
+
+  // The user guide and the README say how many sandboxes need no GPU: the numbers are the catalogue's, in words up to twenty.
+  const shipped = Object.values(SIMULATION_CATALOG).filter((sim) => !sim.local);
+  const twoD = shipped.filter((sim) => sim.mode !== '3D').length;
+  const words = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'];
+  const spell = (n: number): string => words[n] ?? String(n);
+  for (const [file, text] of [['docs/USER_GUIDE.md', guideText], ['README.md', readFileSync('README.md', 'utf8')]] as const) {
+    const said = /(\S+) of the (\S+) sandboxes draw to a (?:plain )?2D/i.exec(text);
+    if (!said) throw new Error(`${file} no longer says "N of the M sandboxes draw to a 2D canvas"`);
+    if (said[1].toLowerCase() !== spell(twoD) || said[2].toLowerCase() !== spell(shipped.length)) {
+      throw new Error(`${file} says "${said[1]} of the ${said[2]} sandboxes" draw to a 2D canvas; the catalogue has ${twoD} of ${shipped.length}`);
+    }
+  }
+
+  // The panel shown to a machine without WebGL takes the same two numbers from the catalogue, not from its own words.
+  const panel = readFileSync(join('src', 'ui', 'components', 'UnavailableViewport.tsx'), 'utf8');
+  if (!panel.includes('SIMULATION_CATALOG') || /\b(?:twelve|thirteen|seventeen|eighteen)\b/i.test(panel)) throw new Error('src/ui/components/UnavailableViewport.tsx spells a sandbox count instead of counting the catalogue');
+  // And the sentence it draws carries the right two: every sandbox in the catalogue, and those that are not 3D.
+  const all = Object.values(SIMULATION_CATALOG);
+  const drawn = renderToStaticMarkup(
+    createElement(UnavailableViewport, { reason: 'r', sandboxTitle: 't', alternatives: [], onSelectSandbox: () => undefined }),
+  ).replace(/<!--.*?-->/g, '');
+  const wanted = `${all.filter((sim) => sim.mode !== '3D').length} of the ${all.length} sandboxes draw to a 2D canvas`;
+  if (!drawn.includes(wanted)) throw new Error(`the no-WebGL panel should say "${wanted}"; it draws: ${drawn.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()}`);
 
   console.log(`✓ Unit text verified: the ${REDUCED.length} reduced instruments' canvases and guides carry no SI units, all ${Object.keys(SIMULATION_CATALOG).length} CSV exports name each column's unit from the manifest, and the user guide's formulas are intact`);
 }

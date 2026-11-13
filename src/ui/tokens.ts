@@ -3,7 +3,7 @@
  * Grounded in Constitution Art. 7 and .agents/skills/design-system/SKILL.md
  * 
  * Provides single source of truth for:
- * 1. Semantic physical quantity colors (consistent across all 17 sandboxes)
+ * 1. Semantic physical quantity colors (consistent across all sandboxes)
  * 2. Typography scale (Body >= 14px, Labels >= 12px)
  * 3. UI chrome surfaces, borders, and state accents
  */

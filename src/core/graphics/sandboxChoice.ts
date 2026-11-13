@@ -13,7 +13,7 @@ export interface SandboxModeEntry {
  * Returns the sandbox to open on load.
  *
  * With WebGL the preferred sandbox is used as-is. Without it, a preferred 3D sandbox is replaced by
- * the first 2D sandbox in catalogue order — twelve of seventeen need no GPU, so a visitor without
+ * the first 2D sandbox in catalogue order — most sandboxes need no GPU, so a visitor without
  * WebGL still lands on something that runs instead of on an error panel.
  */
 export function chooseInitialSandbox<T extends SandboxModeEntry>(

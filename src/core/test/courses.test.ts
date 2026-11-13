@@ -1,5 +1,5 @@
 import { SIMULATION_CATALOG } from '../../simulations';
-import { COURSES, SUBJECTS, courseById, coursesOfSandbox } from '../../courses/courses';
+import { COURSES, SUBJECTS, courseById, coursesOfSandbox, subjectOfSandbox } from '../../courses/courses';
 import { buildSocraticSystemInstruction } from '../../ai/prompts/socraticTutor';
 import { TUTORIAL_REGISTRY } from '../../tutorials/registry';
 
@@ -133,6 +133,17 @@ export function runCoursesVerification(): void {
   for (const tid of tutorialIds) {
     const listingCourses = COURSES.filter((c) => c.modules.some((m) => 'tutorialId' in m && m.tutorialId === tid));
     if (listingCourses.length === 0) throw new Error(`tutorial "${tid}" is in no course`);
+  }
+
+  // A sandbox takes the subject of the first course that lists it, and one no course lists has none (it is not filed under Physics).
+  const expectedSubjects: [string, string | undefined][] = [
+    ['signal-detection', 'psychology'],
+    ['harmonic-oscillator', 'mathematics'],
+    ['rc-rl-circuits', 'physics'],
+    ['no-such-instrument', undefined],
+  ];
+  for (const [sandboxId, subject] of expectedSubjects) {
+    if (subjectOfSandbox(sandboxId) !== subject) throw new Error(`subjectOfSandbox("${sandboxId}") is ${subjectOfSandbox(sandboxId)}, expected ${subject}`);
   }
 
   const shared = sandboxIds.filter((id) => coursesOfSandbox(id).length > 1);

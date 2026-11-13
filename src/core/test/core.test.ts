@@ -45,6 +45,8 @@ import { runModuleCheckVerification } from './moduleCheck.test';
 import { runExportModuleVerification } from './exportModule.test';
 import { runFormulaVerification } from './formula.test';
 import { runEntropyVerification } from './entropy.test';
+import { runPhotogateVerification } from './photogate.test';
+import { runAppShellVerification } from './appShell.test';
 
 export async function runCoreVerification(): Promise<boolean> {
   console.log('🧪 Running Core Engine Verification Suite...\n');
@@ -1355,6 +1357,10 @@ export async function runCoreVerification(): Promise<boolean> {
 
   // Test 41: Shannon entropy and Huffman coding (brief Tutorial Entropy, Art. 2.4).
   runEntropyVerification();
+
+  // Test 42: the photogate reads only where an instrument has a position and a speed; the shell opens tutorials through the registry.
+  await runPhotogateVerification();
+  await runAppShellVerification();
 
   console.log('\n🎉 ALL CORE ENGINE CONTRACTS VERIFIED SUCCESSFULLY!');
   return true;

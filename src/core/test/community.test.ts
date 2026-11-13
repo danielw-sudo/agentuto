@@ -3,6 +3,7 @@ import { join, resolve } from 'node:path';
 import { COMMUNITY, COMMUNITY_URLS, DEMO, DISCUSSION_CATEGORIES, ISSUE_FORMS, REPO, demoLink, feedbackUrl } from '../../community';
 import { SIMULATION_CATALOG } from '../../simulations';
 import { parseRoute } from '../../app/routes';
+import { TUTORIAL_REGISTRY } from '../../tutorials/registry';
 
 /**
  * Community links (roadmap: the project survives on people being able to ask, report and discuss).
@@ -43,6 +44,16 @@ export function runCommunityVerification(): void {
   for (const url of COMMUNITY_URLS) {
     const template = new URL(url).searchParams.get('template');
     if (template && !(forms as string[]).includes(template)) throw new Error(`${url} names an issue form that is not in ISSUE_FORMS`);
+  }
+
+  // The discrepancy form's dropdown offers every shipped instrument and every tutorial, so a report can name what it is about.
+  const discrepancy = readFileSync(join(ROOT, '.github', 'ISSUE_TEMPLATE', ISSUE_FORMS.physics), 'utf8');
+  const optionsAt = discrepancy.indexOf('options:');
+  if (optionsAt < 0) throw new Error(`${ISSUE_FORMS.physics} has no dropdown options`);
+  const offered = new Set([...discrepancy.slice(optionsAt).matchAll(/^\s+- (\S+)/gm)].map((m) => m[1]));
+  const reportable = [...Object.values(SIMULATION_CATALOG).filter((sim) => !sim.local).map((sim) => sim.id), ...Object.keys(TUTORIAL_REGISTRY)];
+  for (const id of reportable) {
+    if (!offered.has(id)) throw new Error(`${ISSUE_FORMS.physics}: the "Affected Sandbox" dropdown does not offer "${id}"`);
   }
 
   // The chooser's own contact link is the same Discussions page.

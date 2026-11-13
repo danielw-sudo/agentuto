@@ -1,7 +1,8 @@
-import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useState, type ComponentType } from 'react';
 import { instrumentTheme } from '../ui/theme';
 import { SIMULATION_CATALOG, SimulationId, SimulationRuntime } from '../simulations';
 import { courseById } from '../courses/courses';
+import { TUTORIAL_REGISTRY } from '../tutorials/registry';
 import { HomePage } from '../ui/site/HomePage';
 import { isWebGLAvailable } from '../core/graphics/webgl';
 import { HOME_ROUTE } from './routes';
@@ -13,9 +14,6 @@ const SandboxWorkspace = lazy(() => import('./SandboxWorkspace').then((m) => ({ 
 const LabIndexView = lazy(() => import('../ui/components/LabIndexView').then((m) => ({ default: m.LabIndexView })));
 const CoursePage = lazy(() => import('../ui/site/CoursePage').then((m) => ({ default: m.CoursePage })));
 const AboutPage = lazy(() => import('../ui/site/AboutPage').then((m) => ({ default: m.AboutPage })));
-const ShannonEntropyTutorial = lazy(() =>
-  import('../tutorials/shannon-entropy/ShannonEntropyTutorial').then((m) => ({ default: m.ShannonEntropyTutorial }))
-);
 
 interface LoadedSandbox {
   id: SimulationId;
@@ -30,7 +28,7 @@ interface LoadedSandbox {
 export const App: React.FC = () => {
   const [route, navigate] = useRoute();
 
-  // Probed once per load. Twelve of the seventeen sandboxes draw to a 2D canvas and need no GPU,
+  // Probed once per load. The 2D sandboxes draw to a canvas and need no GPU,
   // so a machine without WebGL should still be able to open something that runs.
   const webglAvailable = useMemo(() => isWebGLAvailable(), []);
 
@@ -38,6 +36,28 @@ export const App: React.FC = () => {
   const [failure, setFailure] = useState<{ id: string; message: string } | null>(null);
 
   const wantedId = route.view === 'sandbox' ? route.id : null;
+
+  // A tutorial is loaded through the registry like a sandbox is through the catalogue: on demand, in its own chunk.
+  const [tutorial, setTutorial] = useState<{ id: string; Page: ComponentType } | null>(null);
+  const wantedTutorial = route.view === 'tutorial' ? route.id : null;
+  useEffect(() => {
+    if (!wantedTutorial || tutorial?.id === wantedTutorial) return;
+    let cancelled = false;
+    setFailure(null);
+    TUTORIAL_REGISTRY[wantedTutorial]
+      .load()
+      .then((Page) => {
+        if (!cancelled) setTutorial({ id: wantedTutorial, Page });
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setFailure({ id: wantedTutorial, message: error instanceof Error ? error.message : 'the download failed' });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [wantedTutorial, tutorial?.id]);
 
   useEffect(() => {
     if (!wantedId || loaded?.id === wantedId) return;
@@ -89,7 +109,7 @@ export const App: React.FC = () => {
       {route.view === 'home' && <HomePage resumeSandboxId={loaded?.id ?? null} />}
       {route.view === 'course' && course && <CoursePage course={course} webglAvailable={webglAvailable} />}
       {route.view === 'about' && <AboutPage />}
-      {route.view === 'tutorial' && route.id === 'shannon-entropy' && <ShannonEntropyTutorial />}
+      {route.view === 'tutorial' && tutorial?.id === route.id && <tutorial.Page />}
 
       {route.view === 'index' && (
       <LabIndexView
@@ -117,7 +137,7 @@ export const App: React.FC = () => {
           role="alert"
           className="fixed inset-x-4 bottom-6 z-[60] mx-auto max-w-md rounded-lg border border-line bg-card p-4 text-sm text-ink shadow-xl"
         >
-          <p className="font-medium">Could not load {SIMULATION_CATALOG[failure.id]?.title ?? failure.id}.</p>
+          <p className="font-medium">Could not load {SIMULATION_CATALOG[failure.id]?.title ?? TUTORIAL_REGISTRY[failure.id]?.title ?? failure.id}.</p>
           <p className="mt-1 text-muted">
             {failure.message}. Check your connection and try again; sandboxes you have already opened keep working.
           </p>

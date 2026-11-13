@@ -1,7 +1,9 @@
+import type { ComponentType } from 'react';
+
 export interface TutorialRegistration {
   id: string;
   title: string;
-  load: () => Promise<any>;
+  load: () => Promise<ComponentType>;
 }
 
 export const TUTORIAL_REGISTRY: Record<string, TutorialRegistration> = {

@@ -2,9 +2,9 @@
  * WebGL capability probe (Constitution Art. 7.4 is about motion; this is Art. 8 simplicity:
  * a 3D sandbox must not be the thing that decides whether the page loads).
  *
- * Five of the seventeen sandboxes are Three.js; the other twelve draw to a 2D canvas and need no
- * GPU at all. Plenty of real machines have no usable WebGL — hardware acceleration switched off,
- * old integrated GPUs, virtual machines, remote desktops, locked-down enterprise browsers — and
+ * The Three.js sandboxes need WebGL; the others draw to a 2D canvas and need no GPU at all. Plenty of
+ * real machines have no usable WebGL — hardware acceleration switched off, old integrated GPUs, virtual
+ * machines, remote desktops, locked-down enterprise browsers — and
  * the previous behaviour there was an uncaught `Error creating WebGL context` thrown while React
  * was rendering, which unmounted the tree and left a blank page with no explanation.
  *

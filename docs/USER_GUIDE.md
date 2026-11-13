@@ -99,7 +99,7 @@ Please update Agentuto: inside the agentuto folder in my home folder run "git pu
 ### 2.1 The Master HUD (Heads-Up Display)
 * **Top Header:** 
   * Displays the **Active Concept Title**, **Curriculum Tag** (e.g., `MIT 8.01 Classical Mechanics`), and **Governing Differential Equation**.
-  * Use the **Simulation Selector dropdown** to switch between any of the 17 canonical sandboxes.
+  * Use the **Simulation Selector dropdown** to switch between any of the sandboxes.
 * **Floating Glassmorphic Control Deck (Right Panel):**
   * Houses real-time parameter sliders. Sliders update instantly as you drag.
   * Click **"Reset Defaults"** at any time to return to canonical initial conditions.
@@ -334,7 +334,7 @@ The Agentuto Tutor is instructed to follow strict pedagogical rules (AI models c
 
 ## 6. Machine Requirements and What Happens Without a GPU
 
-Agentuto needs **no GPU for most of what it does**. Twelve of the seventeen sandboxes draw to a plain 2D
+Agentuto needs **no GPU for most of what it does**. Thirteen of the eighteen sandboxes draw to a plain 2D
 canvas, and every engine, instrument, notebook and CSV export runs on the CPU. Only the 3D views need
 WebGL — and if your machine cannot provide it, the app tells you instead of failing silently.
 

@@ -29,6 +29,8 @@ body:
         - gauss-flux (MIT 8.02 / UTSG PHY152)
         - conservation-momentum (MIT 8.01 / UTSG PHY151)
         - rc-rl-circuits (MIT 8.02 / UTSG PHY152)
+        - signal-detection (MIT 9.00 / UTSG PSY100H1)
+        - shannon-entropy (tutorial; MIT 6.050J)
     validations:
       required: true
   - type: textarea

@@ -1,5 +1,6 @@
 import React from 'react';
 import { MonitorX } from 'lucide-react';
+import { SIMULATION_CATALOG } from '../../simulations';
 
 export interface UnavailableViewportProps {
   /** Plain-language reason, shown under the heading. */
@@ -24,14 +25,19 @@ export const UnavailableViewport: React.FC<UnavailableViewportProps> = ({
   sandboxTitle,
   alternatives,
   onSelectSandbox,
-}) => (
+}) => {
+  // Counted from the catalogue, so the sentence cannot go stale when an instrument is added.
+  const sandboxes = Object.values(SIMULATION_CATALOG);
+  const twoD = sandboxes.filter((sim) => sim.mode !== '3D').length;
+  const total = sandboxes.length;
+  return (
   <div className="h-full w-full flex items-center justify-center p-6">
     <div className="max-w-lg w-full rounded-xl border border-line bg-card p-6 text-center">
       <MonitorX className="mx-auto h-8 w-8 text-amber-400" />
       <h2 className="mt-3 text-base font-semibold text-ink">{sandboxTitle} needs WebGL</h2>
       <p className="mt-2 text-sm text-muted">{reason}</p>
       <p className="mt-1 text-sm text-muted">
-        Twelve of the seventeen sandboxes draw to a 2D canvas and run without a GPU.
+        {twoD} of the {total} sandboxes draw to a 2D canvas and run without a GPU.
       </p>
 
       {alternatives.length > 0 && (
@@ -50,4 +56,5 @@ export const UnavailableViewport: React.FC<UnavailableViewportProps> = ({
       )}
     </div>
   </div>
-);
+  );
+};

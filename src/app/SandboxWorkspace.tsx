@@ -29,6 +29,7 @@ import { TelemetryRecorder } from '../core/telemetry/TelemetryRecorder';
 import { formatTelemetryToCSV, triggerCSVDownload } from '../core/telemetry/csvExporter';
 import { useSimulationEngine } from '../core/hooks/useSimulationEngine';
 import { sandboxNeedsWebGL } from '../core/graphics/sandboxChoice';
+import { photogateReading } from './photogate';
 
 export interface SandboxWorkspaceProps {
   sandboxId: SimulationId;
@@ -117,6 +118,8 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
   const [isNotebookOpen, setIsNotebookOpen] = useState<boolean>(false);
   const [isInquiryLogOpen, setIsInquiryLogOpen] = useState<boolean>(false);
   const [isSchedulerOpen, setIsSchedulerOpen] = useState<boolean>(false);
+  // What the gate would read from this instrument; null where it has nothing to read, so the gate is not offered.
+  const photogate = photogateReading(selectedSimId, liveState, params);
 
   // One Inquiry Log for the whole session: created once, so every sandbox writes into the same log.
   // `persistent` is false when the browser refuses local storage, and the drawer says so.
@@ -530,7 +533,7 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
             isRecording={isRecording}
             sampleCount={sampleCount}
             isCaliperOpen={isCaliperOpen}
-            isPhotogateOpen={isPhotogateOpen}
+            isPhotogateOpen={isPhotogateOpen && photogate !== null}
             isNotebookOpen={isNotebookOpen}
             onTogglePlay={togglePlayPause}
             onStepForward={stepForward}
@@ -539,7 +542,7 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
             onToggleRecording={toggleRecording}
             onExportCSV={handleExportCSV}
             onToggleCaliper={() => setIsCaliperOpen(!isCaliperOpen)}
-            onTogglePhotogate={() => setIsPhotogateOpen(!isPhotogateOpen)}
+            onTogglePhotogate={photogate ? () => setIsPhotogateOpen(!isPhotogateOpen) : undefined}
             onToggleNotebook={() => setIsNotebookOpen(!isNotebookOpen)}
             isInquiryLogOpen={isInquiryLogOpen}
             onToggleInquiryLog={() => setIsInquiryLogOpen(!isInquiryLogOpen)}
@@ -593,57 +596,15 @@ export const SandboxWorkspace: React.FC<SandboxWorkspaceProps> = ({
         onClose={() => setIsCaliperOpen(false)}
       />
 
-      <VirtualPhotogate
-        isOpen={isPhotogateOpen}
-        onClose={() => setIsPhotogateOpen(false)}
-        currentSimTime={simTime}
-        currentPos={
-          selectedSimId === 'harmonic-oscillator' || selectedSimId === 'projectile-drag' || selectedSimId === 'doppler-shift'
-            ? (liveState?.x ?? liveState?.sourceX ?? 0)
-            : selectedSimId === 'photoelectric-effect'
-            ? (liveState?.photocurrentMicroAmps ?? 0)
-            : selectedSimId === 'carnot-cycle'
-            ? (liveState?.volumeLiters ?? 0)
-            : selectedSimId === 'gauss-flux'
-            ? (liveState?.enclosedChargeNc ?? 0)
-            : selectedSimId === 'conservation-momentum'
-            ? (liveState?.body1?.x ?? 0)
-            : selectedSimId === 'rc-rl-circuits'
-            ? (liveState?.componentVoltage ?? 0)
-            : selectedSimId === 'lcr-circuit'
-            ? ((liveState?.charge ?? 0) * 1e6)
-            : selectedSimId === 'standing-waves'
-            ? ((liveState?.stringY?.[Math.floor((liveState?.stringY?.length || 1) / 2)] ?? 0) * 100)
-            : selectedSimId === 'faraday-induction'
-            ? (liveState?.z ?? 0)
-            : selectedSimId === 'lorenz-attractor'
-            ? (liveState?.pos1?.x ?? 0)
-            : (liveState?.pos?.x ?? 0)
-        }
-        currentSpeed={
-          selectedSimId === 'harmonic-oscillator'
-            ? Math.abs(liveState?.v ?? 0)
-            : selectedSimId === 'lcr-circuit'
-            ? Math.abs(liveState?.current ?? 0)
-            : selectedSimId === 'standing-waves'
-            ? (liveState?.waveSpeed ?? 0)
-            : selectedSimId === 'doppler-shift'
-            ? Math.abs(params?.sourceSpeed ?? 0)
-            : selectedSimId === 'photoelectric-effect'
-            ? (liveState?.maxElectronSpeedMps ?? 0)
-            : selectedSimId === 'carnot-cycle'
-            ? (liveState?.pressureAtm ?? 0)
-            : selectedSimId === 'gauss-flux'
-            ? (liveState?.numericalFlux ?? 0)
-            : selectedSimId === 'conservation-momentum'
-            ? Math.hypot(liveState?.body1?.vx ?? 0, liveState?.body1?.vy ?? 0)
-            : selectedSimId === 'rc-rl-circuits'
-            ? (liveState?.currentMilliAmps ?? 0)
-            : selectedSimId === 'faraday-induction'
-            ? Math.abs(liveState?.vz ?? 0)
-            : (liveState?.speed ?? 0)
-        }
-      />
+      {photogate && (
+        <VirtualPhotogate
+          isOpen={isPhotogateOpen}
+          onClose={() => setIsPhotogateOpen(false)}
+          currentSimTime={simTime}
+          currentPos={photogate.position}
+          currentSpeed={photogate.speed}
+        />
+      )}
 
       {/* 7. Local-First Study Planner & Google Calendar Checkpoints */}
       <StudySchedulerModal

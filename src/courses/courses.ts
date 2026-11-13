@@ -208,8 +208,11 @@ export function coursesOfSandbox(sandboxId: string): Course[] {
   return COURSES.filter((course) => course.modules.some((m) => 'sandboxId' in m && m.sandboxId === sandboxId));
 }
 
-/** Subject of the first course that lists the sandbox (Constitution Art. 3.4). */
-export function subjectOfSandbox(sandboxId: string): SubjectId {
+/**
+ * Subject of the first course that lists the sandbox (Constitution Art. 3.4). Undefined when no course with a subject
+ * lists it (a private module, for one): the instruments page files those under "Your instruments", not under a subject.
+ */
+export function subjectOfSandbox(sandboxId: string): SubjectId | undefined {
   const first = COURSES.find((c) => c.modules.some((m) => 'sandboxId' in m && m.sandboxId === sandboxId));
-  return first?.subject ?? 'physics';
+  return first?.subject;
 }
